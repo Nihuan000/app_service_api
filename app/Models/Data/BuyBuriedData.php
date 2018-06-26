@@ -46,7 +46,7 @@ class BuyBuriedData
 
             case 'KeepLooking':
                 $buy_status = 1;
-                if($buy_event['properties']['BuyStatus'] == 0){
+                if($buy_event['properties']['FindStatus'] == 0){
                     $find_status = 7;
                 }else{
                     if($buy_event['properties']['FindType'] == 1){
