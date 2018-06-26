@@ -42,7 +42,6 @@ class ServiceTask
 	    $date_time_format = time();
         $redisRes = $this->redis->hGet(INDUSTRY_NEWS_TIME,'industry');
         $last_ansy_time = $redisRes == 0  ? strtotime($date) : (int)$redisRes;
-        $buyCount = $orderCount = $offerCount = $safeCount = $strengthCount = 0;
         //采购信息获取,包括新发布/已找到
         $buyResult = Db::query("select t.user_id,t.status,t.is_audit,t.add_time,t.alter_time,sb_user.name,sb_user.city FROM sb_buy as t LEFT JOIN sb_user ON sb_user.user_id = t.user_id WHERE t.alter_time >= ?",[(int)$last_ansy_time])->getResult();
         if(!empty($buyResult)){
@@ -62,7 +61,6 @@ class ServiceTask
              	   $score = $data['alter_time'];
              	   $this->redis->zAdd($industry . $date, $score, json_encode($data));
              	   $this->redis->expire($industry . $date,172800);
-                    $buyCount ++;
 		        }
             }
         }
@@ -77,7 +75,6 @@ class ServiceTask
 		        $score = $order['alter_time'];
 		        $this->redis->zAdd($industry . $date,$score,json_encode($order));
                 $this->redis->expire($industry . $date,172800);
-                $orderCount ++;
                 $sellerRes = Db::query("select name,city FROM sb_user WHERE user_id = ?", [(int)$Order['seller_id']]);
                 if(!empty($sellerRes)){
                     foreach ($sellerRes as $seller) {
@@ -103,7 +100,6 @@ class ServiceTask
 		        $score = $offer['alter_time'];
                 $this->redis->zAdd($seller_event . $date,$score,json_encode($offer));
                 $this->redis->expire($seller_event . $date,172800);
-                $offerCount ++;
             }
         }
 
@@ -118,7 +114,6 @@ class ServiceTask
                 $score = $safe['alter_time'];
                 $this->redis->zAdd($seller_event . $date,$score,json_encode($safe));
                 $this->redis->expire($seller_event . $date,172800);
-                $safeCount ++;
             }
         }
 
@@ -133,7 +128,6 @@ class ServiceTask
                 $score = $strength['alter_time'];
                 $this->redis->zAdd($seller_event . $date,$score,json_encode($strength));
                 $this->redis->expire($seller_event . $date,172800);
-                $strengthCount ++;
             }
         }
         $this->redis->hSet(INDUSTRY_NEWS_TIME,'industry',$date_time_format);
