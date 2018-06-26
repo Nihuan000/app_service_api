@@ -41,11 +41,11 @@ class BuyBuriedData
                 break;
 
             case 'DelBuy':
-                $buy_status = 3;
+                $buy_status = 4;
                 break;
 
             case 'KeepLooking':
-                $buy_status = 1;
+                $buy_status = 3;
                 if($buy_event['properties']['FindStatus'] == 0){
                     $find_status = 7;
                 }else{
