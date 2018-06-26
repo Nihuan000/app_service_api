@@ -60,7 +60,7 @@ class ServiceTask
              	   $data['user_name'] = $this->substr_cut($item['name']);
              	   $data['alter_time'] = $item['alter_time'];
              	   $score = $data['alter_time'];
-             	   $this->redis->zAdd($industry . $date, $score, json_encode(unserialize($data)));
+             	   $this->redis->zAdd($industry . $date, $score, json_encode($data));
              	   $this->redis->expire($industry . $date,172800);
                     $buyCount ++;
 		        }
@@ -75,7 +75,7 @@ class ServiceTask
                 $order['related_msg'] = '刚买入了1笔订单';
                 $order['alter_time'] = $Order['add_time'];
 		        $score = $order['alter_time'];
-		        $this->redis->zAdd($industry . $date,$score,json_encode(unserialize($order)));
+		        $this->redis->zAdd($industry . $date,$score,json_encode($order));
                 $this->redis->expire($industry . $date,172800);
                 $orderCount ++;
                 $sellerRes = Db::query("select name,city FROM sb_user WHERE user_id = ?", [(int)$Order['seller_id']]);
@@ -84,7 +84,7 @@ class ServiceTask
                         $order['city'] = $seller['city'];
                         $order['user_name'] = $this->substr_cut($seller['name']);
                         $order['related_msg'] = '刚售出1笔订单';
-			            $this->redis->zAdd($seller_event . $date,$score,json_encode(unserialize($order)));
+			            $this->redis->zAdd($seller_event . $date,$score,json_encode($order));
                         $this->redis->expire($seller_event . $date,172800);
 
                     }
@@ -101,7 +101,7 @@ class ServiceTask
                 $offer['related_msg'] = '已报价接单' . $offerRe['amount'] . $offerRe['unit'];
                 $offer['alter_time'] = $offerRe['offer_time'];
 		        $score = $offer['alter_time'];
-                $this->redis->zAdd($seller_event . $date,$score,json_encode(unserialize($offer)));
+                $this->redis->zAdd($seller_event . $date,$score,json_encode($offer));
                 $this->redis->expire($seller_event . $date,172800);
                 $offerCount ++;
             }
@@ -116,7 +116,7 @@ class ServiceTask
                 $safe['related_msg'] = '缴存了保证金';
                 $safe['alter_time'] = $safeRe['pay_time'];
                 $score = $safe['alter_time'];
-                $this->redis->zAdd($seller_event . $date,$score,json_encode(unserialize($safe)));
+                $this->redis->zAdd($seller_event . $date,$score,json_encode($safe));
                 $this->redis->expire($seller_event . $date,172800);
                 $safeCount ++;
             }
@@ -131,7 +131,7 @@ class ServiceTask
                 $strength['related_msg'] = '开通了实力商家';
                 $strength['alter_time'] = $strengthItem['start_time'];
                 $score = $strength['alter_time'];
-                $this->redis->zAdd($seller_event . $date,$score,json_encode(unserialize($strength)));
+                $this->redis->zAdd($seller_event . $date,$score,json_encode($strength));
                 $this->redis->expire($seller_event . $date,172800);
                 $strengthCount ++;
             }

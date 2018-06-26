@@ -43,11 +43,12 @@ class CollectionBuriedData
                 $public_id = $collection['properties']['BuyId'];
                 break;
         }
+        $collection_status = $collection['properties']['CollectStatus'] == 1 ? 1 : 2;
         $data = [
             'user_id' => $collection['user_id'],
             'collect_type' => $collect_type,
             'public_id' => $public_id,
-            'collect_status' => $collection['properties']['CollectStatus'],
+            'collect_status' => $collection_status,
             'record_time' => time()
         ];
         return $this->CollectionBuriedDao->saveCollectionBuried($data);
