@@ -40,14 +40,14 @@ class CollectionBuriedData
 
             case 'CollectionBuy':
                 $collect_type = 2;
-                $public_id = $collection['properties']['buyId'];
+                $public_id = $collection['properties']['BuyId'];
                 break;
         }
         $data = [
             'user_id' => $collection['user_id'],
             'collect_type' => $collect_type,
             'public_id' => $public_id,
-            'collect_status' => $collection['properties']['Status'],
+            'collect_status' => $collection['properties']['CollectStatus'],
             'record_time' => time()
         ];
         return $this->CollectionBuriedDao->saveCollectionBuried($data);
