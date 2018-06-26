@@ -137,7 +137,7 @@ class ServiceTask
             }
         }
         $this->redis->hSet(INDUSTRY_NEWS_TIME,'industry',$date_time_format);
-        return [$last_ansy_time, $buyCount, $orderCount, $offerCount, $safeCount, $strengthCount];
+        return [$last_ansy_time];
     }
 
 
