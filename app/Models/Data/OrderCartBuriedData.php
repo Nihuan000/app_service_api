@@ -43,15 +43,15 @@ class OrderCartBuriedData
             case 'PutToFavorites':
             case 'DeleteCartPro':
             case 'DeleteInvalidPro':
-                $cart_status = 4;
+                $cart_status = 3;
                 break;
 
             case 'SubmitCartOrder':
                 $cart_status = 3;
                 break;
 
-            case 'GetOrderProduct':
-                $cart_status = 5;
+            case 'GetCartInfo':
+                $cart_status = 4;
                 break;
         }
         foreach ($cart_event['properties'] as $property) {

@@ -81,6 +81,14 @@ class OrderBuriedData
                 case 'SellerCloseOrder':
                     $order_status = 11;
                     break;
+
+                case 'SellerOrder':
+                    $order_status = 12;
+                    break;
+
+                case 'ConfirmOrder':
+                    $order_status = 13;
+                    break;
             }
         }
         $data = [
