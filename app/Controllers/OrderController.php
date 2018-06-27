@@ -57,7 +57,7 @@ class OrderController
                //货号/产品名判断
                 $pro_item = Db::query("SELECT group_concat(pro_id) AS pro_ids FROM sb_product WHERE user_id = {$user_id} AND (pro_item = '{$keyword}' OR name LIKE '%{$keyword}%')")->getResult();
 
-                $pro_item_list = $pro_item['result'][0]['pro_ids'];
+                $pro_item_list = $pro_item[0]['pro_ids'];
                 $where = "t.buyer_name like '%{$keyword}%' OR t.order_num = '{$keyword}'";
                 //订单号/买家名判断
                 if(!empty($pro_item_list)){
