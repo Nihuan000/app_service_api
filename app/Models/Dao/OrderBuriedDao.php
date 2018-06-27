@@ -30,7 +30,6 @@ class OrderBuriedDao
         $order = new OrderBuried();
         $order->setOrderNum($buried_data['order_num']);
         $order->setOrderStatus($buried_data['order_status']);
-        $order->setOrderPrice($buried_data['order_price']);
         $order->setOperationTime($buried_data['operation_time']);
         $order->setCurrentStatus($buried_data['current_status']);
         $order->setCurrentSecStatus($buried_data['current_sec_status']);

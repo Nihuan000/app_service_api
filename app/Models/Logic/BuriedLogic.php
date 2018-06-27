@@ -63,6 +63,9 @@ class BuriedLogic
                 break;
 
             case 'Order':
+            case 'OrderInfo':
+            case 'OrderPay':
+            case 'OrderProcess':
                 $buriedData = $this->orderBuriedData->saveOrderBuried($event);
                 break;
 

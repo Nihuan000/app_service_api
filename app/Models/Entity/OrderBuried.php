@@ -26,7 +26,7 @@ class OrderBuried extends Model
 
     /**
      * @var int $orderNum 订单编号
-     * @Column(name="order_num", type="integer", default=0)
+     * @Column(name="order_num", type="string", default="")
      */
     private $orderNum;
 
@@ -79,10 +79,10 @@ class OrderBuried extends Model
 
     /**
      * 订单编号
-     * @param int $value
+     * @param string $value
      * @return $this
      */
-    public function setOrderNum(int $value): self
+    public function setOrderNum(string $value): self
     {
         $this->orderNum = $value;
 
@@ -172,7 +172,7 @@ class OrderBuried extends Model
 
     /**
      * 订单编号
-     * @return int
+     * @return string
      */
     public function getOrderNum()
     {
