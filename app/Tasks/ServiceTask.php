@@ -65,7 +65,7 @@ class ServiceTask
             }
         }
         //采购商/供应商订单获取
-        $OrderRes = Db::query("select add_time,buyer_name,seller_id,seller_name,city FROM sb_order WHERE add_time >= ?", [(int)$last_ansy_time]);
+        $OrderRes = Db::query("select add_time,buyer_name,seller_id,seller_name,city FROM sb_order WHERE add_time >= ?", [(int)$last_ansy_time])->getResult();
         if(!empty($OrderRes)){
             foreach ($OrderRes as $Order) {
                 $order['city'] = $Order['city'];
@@ -90,7 +90,7 @@ class ServiceTask
         }
 
         //供应商报价获取
-        $offerRes = Db::query("select t.user_id,sb_buy.amount,sb_buy.unit,t.status,t.offer_time,sb_user.name,sb_user.city FROM sb_offer t LEFT JOIN sb_user ON sb_user.user_id = t.user_id LEFT JOIN sb_buy ON sb_buy.buy_id = t.buy_id WHERE offer_time >= ?", [(int)$last_ansy_time]);
+        $offerRes = Db::query("select t.user_id,sb_buy.amount,sb_buy.unit,t.status,t.offer_time,sb_user.name,sb_user.city FROM sb_offer t LEFT JOIN sb_user ON sb_user.user_id = t.user_id LEFT JOIN sb_buy ON sb_buy.buy_id = t.buy_id WHERE offer_time >= ?", [(int)$last_ansy_time])->getResult();
         if(!empty($offerRes)){
             foreach ($offerRes as $offerRe) {
                 $offer['city'] = $offerRe['city'];
@@ -104,7 +104,7 @@ class ServiceTask
         }
 
         //供应商保证金动态获取
-        $safeRes = Db::query("select u.city,u.name,t.user_id,t.pay_time FROM sb_safe_price AS t RIGHT JOIN sb_user AS u ON u.user_id = t.user_id WHERE t.pay_time >= ?", [(int)$last_ansy_time]);
+        $safeRes = Db::query("select u.city,u.name,t.user_id,t.pay_time FROM sb_safe_price AS t RIGHT JOIN sb_user AS u ON u.user_id = t.user_id WHERE t.pay_time >= ?", [(int)$last_ansy_time])->getResult();
         if(!empty($safeRes)){
             foreach ($safeRes as $safeRe) {
                 $safe['city'] = $safeRe['city'];
@@ -118,7 +118,7 @@ class ServiceTask
         }
 
         //供应商实力商家动态获取
-        $strengthRes = Db::query("select u.city,u.name,t.user_id,t.start_time FROM sb_user_strength AS t RIGHT JOIN sb_user AS u ON u.user_id = t.user_id WHERE t.start_time >= ?", [(int)$last_ansy_time]);
+        $strengthRes = Db::query("select u.city,u.name,t.user_id,t.start_time FROM sb_user_strength AS t RIGHT JOIN sb_user AS u ON u.user_id = t.user_id WHERE t.start_time >= ?", [(int)$last_ansy_time])->getResult();
         if(!empty($strengthRes)){
             foreach ($strengthRes as $strengthItem) {
                 $strength['city'] = $strengthItem['city'];
