@@ -47,7 +47,7 @@ class OrderCartBuriedData
                 break;
 
             case 'SubmitCartOrder':
-                $cart_status = 3;
+                $cart_status = 2;
                 break;
 
             case 'GetCartInfo':
