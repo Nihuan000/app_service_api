@@ -31,7 +31,7 @@ class ServiceTask
     /**
      * 行业动态
      * @author Nihuan
-     * @Scheduled(cron="*\/10 * * * * *")
+     * @Scheduled(cron="10 * * * * *")
      * @throws \Swoft\Db\Exception\DbException
      */
     public function industryTask()

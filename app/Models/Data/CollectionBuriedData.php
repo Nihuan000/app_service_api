@@ -32,7 +32,7 @@ class CollectionBuriedData
     {
         $collect_type = 0;
         $public_id = 0;
-        switch ($collection['event'][4]){
+        switch ($collection['event'][3]){
             case 'CollectionProduct':
                 $collect_type = 1;
                 $public_id = $collection['properties']['ProductId'];

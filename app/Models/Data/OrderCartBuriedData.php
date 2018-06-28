@@ -31,7 +31,7 @@ class OrderCartBuriedData
     {
         $data = [];
         $cart_status = 0;
-        switch ($cart_event['event'][4]){
+        switch ($cart_event['event'][3]){
             case 'PutToCart':
                 $cart_status = 1;
                 break;

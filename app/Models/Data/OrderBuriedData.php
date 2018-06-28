@@ -34,7 +34,7 @@ class OrderBuriedData
         if(isset($order['properties']['OrderStatus'])){
             $order_status = (int)$order['properties']['OrderStatus'];
         }else{
-            switch ($order['event'][4]){
+            switch ($order['event'][3]){
                 case 'PostOrder':
                     $order_status = 1;
                     break;

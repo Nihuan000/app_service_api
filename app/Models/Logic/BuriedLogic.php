@@ -57,7 +57,7 @@ class BuriedLogic
     public function event_analysis(array $event)
     {
         $buriedData = false;
-        switch ($event['event'][3]){
+        switch ($event['event'][2]){
             case 'Collection':
                 $buriedData = $this->collectionData->saveCollectionBuried($event);
                 break;

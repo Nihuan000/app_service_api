@@ -31,7 +31,7 @@ class BuyBuriedData
     {
         $buy_status = 1;
         $find_status = 1;
-        switch ($buy_event['event'][4]){
+        switch ($buy_event['event'][3]){
             case 'PublishBuy':
                 $buy_status = 1;
                 break;
