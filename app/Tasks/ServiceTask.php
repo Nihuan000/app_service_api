@@ -75,7 +75,7 @@ class ServiceTask
 		        $score = $order['alter_time'];
 		        $this->redis->zAdd($industry . $date,$score,json_encode($order));
                 $this->redis->expire($industry . $date,172800);
-                $sellerRes = Db::query("select name,city FROM sb_user WHERE user_id = ?", [(int)$Order['seller_id']]);
+                $sellerRes = Db::query("select name,city FROM sb_user WHERE user_id = ?", [(int)$Order['seller_id']])->getResult();
                 if(!empty($sellerRes)){
                     foreach ($sellerRes as $seller) {
                         $order['city'] = $seller['city'];
