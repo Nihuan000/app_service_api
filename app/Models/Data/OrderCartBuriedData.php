@@ -54,14 +54,16 @@ class OrderCartBuriedData
                 $cart_status = 4;
                 break;
         }
+        $operation_time = $cart_event['properties']['OperationTime'];
+        unset($cart_event['properties']['OperationTime']);
         foreach ($cart_event['properties'] as $property) {
             $data[] = [
-                'user_id' => $cart_event['UserId'],
+                'user_id' => $property['UserId'],
                 'pro_id' => $property['ProId'],
                 'order_type' => $property['OrderType'],
                 'amount' => $property['Amount'],
                 'status' => $cart_status,
-                'operation_time' => $property['OperationTime']
+                'operation_time' => $operation_time
             ];
         }
         return $this->orderCartBuriedDao->saveOrderCartBuried($data);
