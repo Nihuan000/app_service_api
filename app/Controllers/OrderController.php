@@ -51,7 +51,7 @@ class OrderController
             $msg = '请求参数错误: keyword';
         }else{
             if($user_type == 1){
-                $order_num = Db::query("SELECT t.order_num FROM sb_order t LEFT JOIN sb_order_product_relation AS pr ON pr.order_num = t.order_num RIGHT JOIN sb_order_product AS p ON p.order_num = pr.order_sub_num WHERE t.seller_name like '%{$keyword}%' OR p.title like '%{$keyword}%' AND t.buyer_id = ?",[(int)$user_id])->getResult();
+                $order_num = Db::query("SELECT t.order_num FROM sb_order t LEFT JOIN sb_order_product_relation AS pr ON pr.order_num = t.order_num RIGHT JOIN sb_order_product AS p ON p.order_num = pr.order_sub_num WHERE t.del_status = 1 AND t.seller_name like '%{$keyword}%' OR p.title like '%{$keyword}%' AND t.buyer_id = ?",[(int)$user_id])->getResult();
 				$order_num_list = array_column($order_num,'order_num');
             }else{
                //货号/产品名判断
@@ -63,7 +63,7 @@ class OrderController
                 if(!empty($pro_item_list)){
                     $where .= " OR p.pro_id IN ($pro_item_list)";
                 }
-                $order_num = Db::query("SELECT t.order_num FROM sb_order t LEFT JOIN sb_order_product_relation AS pr ON pr.order_num = t.order_num RIGHT JOIN sb_order_product AS p ON p.order_num = pr.order_sub_num WHERE ({$where}) AND t.seller_id = ?", [(int)$user_id])->getResult();
+                $order_num = Db::query("SELECT t.order_num FROM sb_order t LEFT JOIN sb_order_product_relation AS pr ON pr.order_num = t.order_num RIGHT JOIN sb_order_product AS p ON p.order_num = pr.order_sub_num WHERE t.del_status = 1 AND ({$where}) AND t.seller_id = ?", [(int)$user_id])->getResult();
                 $order_num_list = array_column($order_num,'order_num');
             }
 
