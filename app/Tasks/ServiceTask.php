@@ -4,7 +4,7 @@
  * User: nihuan
  * Date: 18-6-26
  * Time: 下午6:19
- * Desc: 定时任务
+ * Desc: 行业动态定时任务
  */
 
 namespace App\Tasks;
