@@ -11,23 +11,24 @@
 namespace App\Models\Dao;
 
 use Swoft\Bean\Annotation\Bean;
+use App\Models\Entity\User;
 
 /**
- *
+ * 用户数据对象
  * @Bean()
- * @uses      UserDao
- * @version   2017年04月25日
- * @author    stelin <phpcrazy@126.com>
- * @copyright Copyright 2010-2016 Swoft software
- * @license   PHP Version 7.x {@link http://www.php.net/license/3_0.txt}
+ * @uses UserDao
+ * @author Nihuan
  */
 class UserDao
 {
-    public function getUserInfo()
+    /**
+     * 主键获取用户信息
+     * @author Nihuan
+     * @param int $uid
+     * @return mixed
+     */
+    public function getUserInfoByUid(int $uid)
     {
-        return [
-            'uid' => 666,
-            'name' => 'stelin'
-        ];
+        return User::findById($uid)->getResult();
     }
 }

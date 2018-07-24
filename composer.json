@@ -1,12 +1,14 @@
 {
-    "name": "swoft/swoft",
+    "name": "swoft/app",
     "type": "project",
     "keywords": [
+        "soubu",
+        "api",
         "php",
         "swoole",
         "swoft"
     ],
-    "description": "Modern High performance AOP and Coroutine PHP Framework, base on Swoole 2",
+    "description": "Api base on Swoole 2",
     "license": "Apache-2.0",
     "require": {
         "php": ">=7.0",

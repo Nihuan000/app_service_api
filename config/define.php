@@ -33,5 +33,6 @@ $aliases = [
 define('INDUSTRY_NEWS_TIME','task_last_time');//行业动态同步时间
 define('OSS_ONLINE_URL','https://image.isoubu.com');
 define('LOCAL_PATH_URL','https://api.isoubu.com');
+define('LOCAL_EXECUTION_PATH','/srv/execution/');
 ##########################业务相关 END#######################
 \Swoft\App::setAliases($aliases);

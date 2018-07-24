@@ -42,7 +42,7 @@ class IndexLogic
 
     public function getUser()
     {
-        $base = $this->userData->getUserInfo();
+        $base = $this->userData->getUserInfo(0);
         $ext = $this->userExtData->getExtInfo();
 
         return array_merge($base, $ext);

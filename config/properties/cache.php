@@ -21,11 +21,15 @@ return [
         'maxIdleTime' => 60,
         'timeout'     => 8,
         'db'          => 1,
-        'prefix'      => 'redis_',
+        'prefix'      => '',
         'serialize'   => 0,
     ],
     'demoRedis' => [
         'db'     => 2,
-        'prefix' => 'demo_redis_',
+        'prefix' => '',
+    ],
+    'searchRedis' => [
+        'db'     => 7,
+        'prefix' => '',
     ],
 ];

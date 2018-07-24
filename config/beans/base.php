@@ -34,5 +34,9 @@ return [
     'demoRedis' => [
         'class' => \Swoft\Redis\Redis::class,
         'poolName' => 'demoRedis'
+    ],
+    'searchRedis' => [
+        'class' => \Swoft\Redis\Redis::class,
+        'poolName' => 'searchRedis'
     ]
 ];

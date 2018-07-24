@@ -21,4 +21,21 @@ use Swoft\Bean\Annotation\Inject;
 class BuyData
 {
 
+    /**
+     * @Inject()
+     * @var BuyDao
+     */
+    protected $buyDao;
+
+    /**
+     * 获取采购信息
+     * @author Nihuan
+     * @param int $bid
+     * @return mixed
+     */
+    public function getBuyInfo(int $bid)
+    {
+        return $this->buyDao->findById($bid);
+    }
+
 }

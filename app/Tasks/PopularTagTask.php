@@ -25,7 +25,7 @@ class PopularTagTask
 {
 
     /**
-     * @Inject("demoRedis")
+     * @Inject("searchRedis")
      * @var Redis
      */
     private $redis;
@@ -52,7 +52,7 @@ class PopularTagTask
      */
     public function statisticTagTask()
     {
-        $tag_index = 'hot_tag_list_';
+        $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_time = strtotime("-60 day");
         $last_id = 0;
         $buyCount = Buy::count('buy_id',['audit_time' => ['>=',$last_time], 'is_audit' => 0, 'push_status' => 3])->getResult();
