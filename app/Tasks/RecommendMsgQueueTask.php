@@ -56,8 +56,8 @@ class RecommendMsgQueueTask
         $len = $this->searchRedis->lLen($index . $date);
         if($len > 0){
             $config = \Swoft::getBean('config');
-            $invitate_offer = $config['msgTemplate.offerSms.invitate_offer'];
-            $offer_msg = $config['msgTemplate.offerMsg'];
+            $invitate_offer = $config->get('offerSms.invitate_offer');
+            $offer_msg = $config->get('offerMsg');
             $pages = ceil($len/$this->limit);
             for ($i=1;$i<=$pages;$i++){
                 $list = $this->searchRedis->lrange($index . $date,0, $this->limit);
@@ -67,7 +67,7 @@ class RecommendMsgQueueTask
                         $user_id = (int)$msg_arr[0];
                         $buy_id = (int)$msg_arr[1];
                         $buyInfo = $this->buyData->getBuyInfo($buy_id);
-                        $buyer = $this->userData->getUserInfo($buyInfo['user_id']);
+                        $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
                         $user_info = $this->userData->getUserInfo($user_id);
 
                         $phone = $user_info['phone'];

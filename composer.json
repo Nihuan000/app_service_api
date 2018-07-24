@@ -34,7 +34,6 @@
         "swoft/service-governance": "^1.0"
     },
     "require-dev": {
-//        "eaglewu/swoole-ide-helper": "dev-master",
         "phpunit/phpunit": "^5.7"
     },
     "autoload": {
@@ -42,7 +41,8 @@
             "App\\": "app/"
         },
         "files": [
-            "app/Swoft.php"
+            "app/Swoft.php",
+            "app/Customize/function.php"
         ]
     },
     "autoload-dev": {

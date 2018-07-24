@@ -34,10 +34,10 @@ function get_img_url($pic)
  function sendSms(string $phone, string $content, int $msg_type=1, int $send_route = 1)
 {
     $config = \Swoft::getBean('config');
-    $filter_phone = $config->get('filter.filter_phone');
-    $industry_config = $config->get('msgAccount.IndustrySms');
-    $marketing_config = $config->get('msgAccount.MarketingSms');
-    $sms_switch = $config->get('SMS_SWITCH');
+    $filter_phone = $config['filter_phone'];
+    $industry_config = $config['IndustrySms'];
+    $marketing_config = $config['MarketingSms'];
+    $sms_switch = $config['SMS_SWITCH'];
     $is_service = false;
     if(in_array($phone,$filter_phone) && $msg_type == 2){
         $is_service = true;
@@ -95,36 +95,32 @@ function get_img_url($pic)
  */
  function sendInstantMessaging($fromId,$uid,$content)
 {
-    if( !is_numeric($fromId) || !is_numeric($uid) || empty($fromId) || empty($uid) || empty($content) ){
+    $content_arr = json_decode($content,true);
+    $offline_template = custom_offline($fromId,$content_arr);
+    $offline_apns = apns_info($fromId);
+    $android_info = android_info();
+    $params = [
+        'SyncOtherMachine' => 2,
+        'MsgRandom' => rand(1, 65535),
+        'MsgTimeStamp' => time(),
+        'From_Account'=> (string)$fromId,
+        'To_Account' => (string)$uid,
+        'MsgBody' => [['MsgType'=>'TIMCustomElem','MsgContent'=> ['Data' => $content , 'Desc' => is_null($content_arr['msgContent']) ? '' : $content_arr['msgContent']]]],
+        'OfflinePushInfo' => ['PushFlag' => 0, 'Ext' => is_null($offline_template) ? '' : $offline_template , 'ApnsInfo'=> $offline_apns ,'AndroidInfo'=> $android_info ]
+    ];
+    $paramsString = json_encode($params,JSON_UNESCAPED_UNICODE);
+    $parameter = IMService();
+
+    $curl_params = ['url'=>'https://console.tim.qq.com/v4/openim/sendmsg?' . $parameter, 'timeout'=>15];
+    $curl_params['post_params'] = $paramsString;
+    $curl_result = CURL($curl_params, 'post');
+
+    $reStatus = json_decode($curl_result);
+    if($reStatus->ErrorCode == 0) {
+        return true;
+    }
+    else {
         return false;
-    }else {
-        $content_arr = json_decode($content,true);
-        $offline_template = custom_offline($fromId,$content_arr);
-        $offline_apns = apns_info($fromId);
-        $android_info = android_info();
-        $params = [
-            'SyncOtherMachine' => 2,
-            'MsgRandom' => rand(1, 65535),
-            'MsgTimeStamp' => time(),
-            'From_Account'=> (string)$fromId,
-            'To_Account' => (string)$uid,
-            'MsgBody' => [['MsgType'=>'TIMCustomElem','MsgContent'=> ['Data' => $content , 'Desc' => is_null($content_arr['msgContent']) ? '' : $content_arr['msgContent']]]],
-            'OfflinePushInfo' => ['PushFlag' => 0, 'Ext' => is_null($offline_template) ? '' : $offline_template , 'ApnsInfo'=> $offline_apns ,'AndroidInfo'=> $android_info ]
-        ];
-        $paramsString = json_encode($params,JSON_UNESCAPED_UNICODE);
-        $parameter = IMService();
-
-        $curl_params = ['url'=>'https://console.tim.qq.com/v4/openim/sendmsg?' . $parameter, 'timeout'=>15];
-        $curl_params['post_params'] = $paramsString;
-        $curl_result = CURL($curl_params, 'post');
-
-        $reStatus = json_decode($curl_result);
-        if($reStatus->ErrorCode == 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 }
 
@@ -354,6 +350,6 @@ function getIMtoken($uid){
 function get_im_config()
 {
     $config = \Swoft::getBean('config');
-    $InstantMSg_config = $config->get('msgAccount.InstantMSg');
+    $InstantMSg_config = $config['InstantMSg'];
     return $InstantMSg_config;
 }
