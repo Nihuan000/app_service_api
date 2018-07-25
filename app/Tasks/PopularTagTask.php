@@ -77,7 +77,7 @@ class PopularTagTask
         if(!empty($this->tag_stastic_list)){
             $ranking_list = [];
             arsort($this->tag_stastic_list);
-            $tag_list = array_slice($this->tag_stastic_list,0,30);
+            $tag_list = array_slice(array_keys($this->tag_stastic_list),0,30);
             $rank_tag = $this->tagData->getRankByParentIds($tag_list,['top_id','name']);
             foreach ($rank_tag as $rank) {
                 $ranking_list[$rank['topId']][] = $rank['name'];
