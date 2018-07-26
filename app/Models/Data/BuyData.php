@@ -38,4 +38,16 @@ class BuyData
         return $this->buyDao->findById($bid);
     }
 
+
+    /**
+     * 0报价采购信息获取
+     * @author Nihuan
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getNoQuoteBuy()
+    {
+        return $this->buyDao->getNoQuoteBuyDao();
+    }
+
 }

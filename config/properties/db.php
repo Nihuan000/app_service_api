@@ -35,4 +35,21 @@ return [
         'maxIdleTime' => 60,
         'maxWaitTime' => 3,
     ],
+
+    //搜索数据库配置
+    'search' => [
+        'master' => [
+            'name'        => 'search',
+            'uri'         => [
+                '127.0.0.1:3306/SoubuSearch?user=root&password=root&charset=utf8',
+                '127.0.0.1:3306/SoubuSearch?user=root&password=root&charset=utf8',
+            ],
+            'minActive'   => 8,
+            'maxActive'   => 8,
+            'maxWait'     => 8,
+            'timeout'     => 8,
+            'maxIdleTime' => 60,
+            'maxWaitTime' => 3,
+        ],
+    ]
 ];

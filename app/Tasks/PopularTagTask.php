@@ -4,6 +4,7 @@
  * User: nihuan
  * Date: 18-7-18
  * Time: 下午4:21
+ * Desc: 热门采购统计生成
  */
 
 namespace App\Tasks;

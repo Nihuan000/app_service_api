@@ -34,7 +34,8 @@
         "swoft/service-governance": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.7"
+        "phpunit/phpunit": "^5.7",
+        "v5dj/igetui": "dev-master"
     },
     "autoload": {
         "psr-4": {

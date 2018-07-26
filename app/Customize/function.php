@@ -353,3 +353,69 @@ function get_im_config()
     $InstantMSg_config = $config['InstantMSg'];
     return $InstantMSg_config;
 }
+
+
+/**
+ * 个推消息发送
+ * @author Nihuan
+ * @param $cid
+ * @param $content
+ * @return array
+ * @throws Exception
+ */
+function get_message($cid,$content)
+{
+    $config = \Swoft::getBean('config');
+    $account = $config['getuiMsg'];
+    $category = json_encode($content);
+
+    //模板设置
+    $template = new IGtTransmissionTemplate();
+    $template->set_appId($account['GETUI_APP_ID']);
+    $template->set_appkey($account['GETUI_APP_KEY']);
+    $template->set_transmissionType(2);
+    $template->set_transmissionContent($category);
+
+    //透传内容设置
+    $payload = new IGtAPNPayload();
+    $payload->contentAvailable = 0;
+    $payload->category = $category;
+    $payload->badge = "+1";
+
+    //消息体设置
+    $alterMsg = new DictionaryAlertMsg();
+    $alterMsg->body = (string)$content['content'];
+    $alterMsg->title = $content['title'];
+    $payload->alertMsg = $alterMsg;
+    if($content['pic'] != ''){
+        $media = new IGtMultiMedia();
+        $medicType = new MediaType();
+        $media->type = $medicType::pic;
+        $media->url = $content['pic'];
+        $payload->add_multiMedia($media);
+    }
+
+    $template->set_apnInfo($payload);
+
+    //推送实例化
+    $igt = new IGeTui(NULL,$account['GETUI_APP_KEY'],$account['GETUI_MASTER_SECRET'],false);
+
+    //个推信息体
+    $messageNoti = new IGtSingleMessage();
+    $messageNoti->set_isOffline(true);//是否离线
+    $messageNoti->set_offlineExpireTime(24 * 60 * 60);//离线时间
+    $messageNoti->set_data($template);//设置推送消息类型
+
+    //接收方
+    $target = new IGtTarget();
+    $target->set_appId($account['GETUI_APP_ID']);
+    $target->set_clientId($cid);
+
+    try {
+        $rep = $igt->pushMessageToSingle($messageNoti, $target);
+    }catch(RequestException $e){
+        $requstId =$e->getRequestId();
+        $rep = $igt->pushMessageToSingle($messageNoti, $target,$requstId);
+    }
+    return $rep;
+}

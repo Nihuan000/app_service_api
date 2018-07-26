@@ -31,4 +31,17 @@ class UserDao
     {
         return User::findById($uid)->getResult();
     }
+
+
+    /**
+     * 根据id列表获取field
+     * @author Nihuan
+     * @param array $user_ids
+     * @param array $fields
+     * @return mixed
+     */
+    public function getInfoByUids(array $user_ids, array $fields)
+    {
+        return User::findAll(['user_id' => $user_ids],['field' => $fields])->getResult();
+    }
 }
