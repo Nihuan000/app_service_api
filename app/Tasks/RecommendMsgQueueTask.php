@@ -57,7 +57,7 @@ class RecommendMsgQueueTask
         if($len > 0){
             $config = \Swoft::getBean('config');
             $invitate_offer = $config->get('offerSms.invitate_offer');
-            $offer_msg = $config->get('offerMsg');
+            $sys_msg = $config->get('sysMsg');
             $pages = ceil($len/$this->limit);
             for ($i=1;$i<=$pages;$i++){
                 $list = $this->searchRedis->lrange($index . $date,0, $this->limit);
@@ -75,20 +75,36 @@ class RecommendMsgQueueTask
                         sendSms($phone, $sms_content, 2, 1);
 
                         //发送系统消息
-                        $extra = $offer_msg;
-                        $extra['type'] = 1;
-                        $extra['id'] = $buy_id;
-                        $extra['buy_id'] = $buy_id;
-                        $extra['offer_id'] = 0;
-                        $extra['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
-                        $extra['name'] = $buyer['name'];
-                        $extra['amount'] = $buyInfo['amount'];
-                        $extra['unit'] = $buyInfo['unit'];
-                        $extra['title'] = $buyInfo['remark'];
-                        $extra['msgTitle'] = '收到邀请';
+                        ################## 消息展示内容开始 #######################
+                        $buy_info['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
+                        $buy_info['type'] = 1;
+                        $buy_info['title'] = (string)$buyInfo['remark'];
+                        $buy_info['id'] = $buy_id;
+                        $buy_info['price'] = isset($buyInfo['price']) ? $buyInfo['price'] : "";
+                        $buy_info['amount'] = $buyInfo['amount'];
+                        $buy_info['unit'] = $buyInfo['unit'];
+                        $buy_info['url'] = '';
+                        ################## 消息展示内容结束 #######################
+
+                        ################## 消息基本信息开始 #######################
+                        $extra = $sys_msg;
+                        $extra['title'] = '收到邀请';
+                        $extra['content'] = $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
+                        $extra['commendUser'] = [];
+                        $extra['showData'] = $buy_info;
+                        ################## 消息基本信息结束 #######################
+
+                        ################## 消息扩展字段开始 #######################
+                        $extraData['keyword'] = '#查看详情#';
+                        $extraData['type'] = 1;
+                        $extraData['id'] = (int)$buy_id;
+                        $extraData['url'] = '';
+                        ################## 消息扩展字段结束 #######################
+
+                        $extra['data'] = $extraData;
                         $notice['extra'] = $extra;
-                        $notice['extra']['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
-                        sendInstantMessaging('2', (string)$user_id, json_encode($notice['extra']));
+                        $notice['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
+                        sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                         $this->searchRedis->lPop($index . $date);
                     }
                 }
