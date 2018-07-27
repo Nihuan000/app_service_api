@@ -25,17 +25,17 @@ class HotTagController
      */
     private $redis;
     private $top_list = [
-        1 => '',
-        2 => '',
-        3 => '',
-        4 => '',
-        5 => '',
-        6 => '',
-        7 => '',
-        8 => '',
-        9 => '',
-        10 => '',
-        11 => '',
+        1 => '针织面料',
+        2 => '棉类面料',
+        3 => '麻类面料',
+        4 => '呢料毛纺面料',
+        5 => '丝绸/真丝面料',
+        6 => '化纤面料',
+        7 => '蕾丝/绣品',
+        8 => '皮革/皮草',
+        9 => '其他面料',
+        10 => '辅料',
+        11 => '加工服务',
     ];
 
     /**
@@ -47,7 +47,7 @@ class HotTagController
     public function get_list()
     {
         $top_link = [];
-        $key = 'RECOMMEND_HOT_TAG_';
+        $key = '@RECOMMEND_HOT_TAG_';
         for ($i = 1;$i<= 11;$i++){
             if($this->redis->exists($key . $i)){
                 $tag_list = $this->redis->get($key . $i);
