@@ -51,7 +51,7 @@ class HotTagController
         for ($i = 1;$i<= 11;$i++){
             if($this->redis->exists($key . $i)){
                 $tag_list = $this->redis->get($key . $i);
-                $tag_list = json_decode(unserialize($tag_list));
+                $tag_list = json_decode($tag_list,true);
                 $top_key = $this->top_list[$i];
                 $tag_list_string = implode(',',$tag_list);
                 $string = "[{$tag_list_string}]";
