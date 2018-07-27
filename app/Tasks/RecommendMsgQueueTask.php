@@ -69,42 +69,43 @@ class RecommendMsgQueueTask
                         $buyInfo = $this->buyData->getBuyInfo($buy_id);
                         $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
                         $user_info = $this->userData->getUserInfo($user_id);
+                        if($user_id != $buyer['user_id']){
+                            $phone = $user_info['phone'];
+                            $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
+                            sendSms($phone, $sms_content, 2, 1);
 
-                        $phone = $user_info['phone'];
-                        $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
-                        sendSms($phone, $sms_content, 2, 1);
+                            //发送系统消息
+                            ################## 消息展示内容开始 #######################
+                            $buy_info['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
+                            $buy_info['type'] = 1;
+                            $buy_info['title'] = (string)$buyInfo['remark'];
+                            $buy_info['id'] = $buy_id;
+                            $buy_info['price'] = isset($buyInfo['price']) ? $buyInfo['price'] : "";
+                            $buy_info['amount'] = $buyInfo['amount'];
+                            $buy_info['unit'] = $buyInfo['unit'];
+                            $buy_info['url'] = '';
+                            ################## 消息展示内容结束 #######################
 
-                        //发送系统消息
-                        ################## 消息展示内容开始 #######################
-                        $buy_info['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
-                        $buy_info['type'] = 1;
-                        $buy_info['title'] = (string)$buyInfo['remark'];
-                        $buy_info['id'] = $buy_id;
-                        $buy_info['price'] = isset($buyInfo['price']) ? $buyInfo['price'] : "";
-                        $buy_info['amount'] = $buyInfo['amount'];
-                        $buy_info['unit'] = $buyInfo['unit'];
-                        $buy_info['url'] = '';
-                        ################## 消息展示内容结束 #######################
+                            ################## 消息基本信息开始 #######################
+                            $extra = $sys_msg;
+                            $extra['title'] = '收到邀请';
+                            $extra['content'] = $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
+                            $extra['commendUser'] = [];
+                            $extra['showData'] = $buy_info;
+                            ################## 消息基本信息结束 #######################
 
-                        ################## 消息基本信息开始 #######################
-                        $extra = $sys_msg;
-                        $extra['title'] = '收到邀请';
-                        $extra['content'] = $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
-                        $extra['commendUser'] = [];
-                        $extra['showData'] = $buy_info;
-                        ################## 消息基本信息结束 #######################
+                            ################## 消息扩展字段开始 #######################
+                            $extraData['keyword'] = '#查看详情#';
+                            $extraData['type'] = 1;
+                            $extraData['id'] = (int)$buy_id;
+                            $extraData['url'] = '';
+                            ################## 消息扩展字段结束 #######################
 
-                        ################## 消息扩展字段开始 #######################
-                        $extraData['keyword'] = '#查看详情#';
-                        $extraData['type'] = 1;
-                        $extraData['id'] = (int)$buy_id;
-                        $extraData['url'] = '';
-                        ################## 消息扩展字段结束 #######################
-
-                        $extra['data'] = $extraData;
-                        $notice['extra'] = $extra;
-                        $notice['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
-                        sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
+                            $extra['data'] = $extraData;
+                            $notice['extra'] = $extra;
+                            $notice['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
+                            sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
+                        }
                         $this->searchRedis->lPop($index . $date);
                     }
                 }
