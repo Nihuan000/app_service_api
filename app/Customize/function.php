@@ -15,9 +15,9 @@
  */
 function get_img_url($pic)
 {
-    $config = \Swoft::getBean('config');
+    $oss_path = getenv('OSS_ONLINE_URL');
     if( substr($pic,0,1) == '/'){
-        $pic = $config['OSS_ONLINE_URL'] . $pic;
+        $pic = $oss_path . $pic;
     }
     return $pic;
 }

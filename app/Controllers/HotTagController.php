@@ -60,4 +60,18 @@ class HotTagController
         }
         return compact("top_link");
     }
+
+
+    /**
+     * 热门标签获取
+     * @author Nihuan
+     * @RequestMapping()
+     * @return array
+     */
+    public function oss_test()
+    {
+        $key = '/Buy/169492_2147483647_710.jpg';
+        $top_link = get_img_url($key);
+        return compact("top_link");
+    }
 }
