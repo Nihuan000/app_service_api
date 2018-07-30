@@ -91,7 +91,7 @@ class RecommendMsgQueueTask
                             $extra['title'] = '收到邀请';
                             $extra['content'] = $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
                             $extra['commendUser'] = [];
-                            $extra['showData'] = $buy_info;
+                            $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
                             ################## 消息基本信息结束 #######################
 
                             ################## 消息扩展字段开始 #######################
