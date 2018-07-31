@@ -47,7 +47,7 @@ class BuyDao
             ->where("FROM_UNIXTIME(b.audit_time,'%Y-%m-%d')",$day_time)
             ->where('b.is_find',0)
             ->where('a.offer_count',0)
-            ->get(['b.buy_id','b.remark','b.pic'])
+            ->get(['b.buy_id','b.remark','b.pic','b.amount','b.unit'])
             ->getResult();
     }
 }
