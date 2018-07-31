@@ -73,7 +73,7 @@ class RecommendMsgQueueTask
                         $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
                         $user_info = $this->userData->getUserInfo($user_id);
                         $receive_status = 0;
-                        if(($grayscale == 1 && in_array($user_id, $test_list)) || $grayscale = 0){
+                        if(($grayscale == 1 && in_array($user_id, $test_list)) || $grayscale == 0){
                             $receive_status = 1;
                         }
                         if($user_id != $buyer['user_id'] && $receive_status == 1){
@@ -111,7 +111,7 @@ class RecommendMsgQueueTask
                             $extra['data'] = $extraData;
                             $notice['extra'] = $extra;
                             $notice['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
-                            sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
+                            sendInstantMessaging('1', (string)$user_id, json_encode($notice));
                         }
                         $this->searchRedis->lPop($index . $date);
                     }
