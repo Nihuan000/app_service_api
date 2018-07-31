@@ -48,12 +48,15 @@ class RecommendMsgQueueTask
      * 商机推荐消息提醒发送, 每分钟第10秒执行
      * @author Nihuan
      * @Scheduled(cron="10 * * * * *")
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()
     {
         $date = date('Y-m-d');
         $index = '@RecommendMsgQueue_';
         $len = $this->searchRedis->lLen($index . $date);
+        $test_list = $this->userData->getTesters();
+        $grayscale = getenv('IS_GRAYSCALE');
         if($len > 0){
             $config = \Swoft::getBean('config');
             $invitate_offer = $config->get('offerSms.invitate_offer');
@@ -69,7 +72,11 @@ class RecommendMsgQueueTask
                         $buyInfo = $this->buyData->getBuyInfo($buy_id);
                         $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
                         $user_info = $this->userData->getUserInfo($user_id);
-                        if($user_id != $buyer['user_id']){
+                        $receive_status = 0;
+                        if(($grayscale == 1 && in_array($user_id, $test_list)) || $grayscale = 0){
+                            $receive_status = 1;
+                        }
+                        if($user_id != $buyer['user_id'] && $receive_status == 1){
                             $phone = $user_info['phone'];
                             $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
                             sendSms($phone, $sms_content, 2, 1);

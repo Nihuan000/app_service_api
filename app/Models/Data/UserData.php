@@ -50,4 +50,16 @@ class UserData
     {
         return $this->userDao->getInfoByUids($user_ids, $fields);
     }
+
+    /**
+     * author: nihuan
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getTesters()
+    {
+        $is_delete = 0;
+        $type = 5;
+        return $this->userDao->getTestersInfo($is_delete, $type);
+    }
 }
