@@ -96,7 +96,7 @@ class RecommendMsgQueueTask
                             ################## 消息基本信息开始 #######################
                             $extra = $sys_msg;
                             $extra['title'] = '收到邀请';
-                            $extra['content'] = $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
+                            $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
                             $extra['commendUser'] = [];
                             $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
                             ################## 消息基本信息结束 #######################
@@ -109,9 +109,9 @@ class RecommendMsgQueueTask
                             ################## 消息扩展字段结束 #######################
 
                             $extra['data'] = $extraData;
+                            $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                             $notice['extra'] = $extra;
-                            $notice['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
-                            sendInstantMessaging('1', (string)$user_id, json_encode($notice));
+                            sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                         }
                         $this->searchRedis->lPop($index . $date);
                     }
