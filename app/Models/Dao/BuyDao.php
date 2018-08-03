@@ -40,7 +40,7 @@ class BuyDao
     {
         $day_time = date('Y-m-d',strtotime('-1 day'));
         return Query::table(Buy::class)
-            ->leftJoin('sb_buy_attribute',['a.buy_id' => 'b.buy_id','a'])
+            ->leftJoin('sb_buy_attribute',['a.buy_id' => 'b.buy_id'],'a')
             ->where('b.status',0)
             ->where('b.del_status',1)
             ->where('b.is_audit',0)

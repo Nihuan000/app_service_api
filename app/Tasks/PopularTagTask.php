@@ -88,6 +88,7 @@ class PopularTagTask
                 $this->redis->set($tag_index . $key, json_encode($top_rank));
             }
         }
+        return ['热门标签统计'];
     }
 
 

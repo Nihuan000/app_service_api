@@ -118,5 +118,6 @@ class RecommendMsgQueueTask
                 }
             }
         }
+        return ['商机推荐消息提醒发送'];
     }
 }

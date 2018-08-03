@@ -31,7 +31,7 @@ class RefreshNoQuoteTask
     private $buyAttrData;
 
     /**
-     * 热门推送标签统计,每小时执行一次
+     * 8小时无报价采购刷新
      * @author Nihuan
      * @Scheduled(cron="0 0 * * * *")
      */
@@ -61,5 +61,6 @@ class RefreshNoQuoteTask
                 Buy::updateAll(['refresh_time' => time(),'alter_time' => time()],['buy_id' => $buy_ids])->getResult();
             }
         }
+        return ['无报价采购刷新'];
     }
 }
