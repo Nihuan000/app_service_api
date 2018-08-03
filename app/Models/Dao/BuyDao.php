@@ -9,6 +9,7 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\Buy;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
 
 /**
