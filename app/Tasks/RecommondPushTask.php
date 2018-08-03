@@ -62,7 +62,6 @@ class RecommondPushTask
         $day_time = date('Y-m-d',strtotime('-1 day'));
         echo '刷新日期:' . $day_time . PHP_EOL;
         $buyRes = $this->buyData->getNoQuoteBuy();
-        var_dump(get_last_sql());
         if(!empty($buyRes)){
             $pushRecordStatic = []; //用户记录次数列表
             $pushContent = []; //推送内容列表
