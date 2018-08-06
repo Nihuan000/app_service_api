@@ -129,4 +129,22 @@ class RecommendMsgQueueTask
         }
         return ['商机推荐消息提醒发送'];
     }
+
+
+    /**
+     * 商机推荐提醒记录清除, 每天6点执行，删除7天以前的记录
+     * @author Nihuan
+     * @Scheduled(cron="0 0 6 * * *")
+     */
+    public function RecommendHistoryExpireTask()
+    {
+        $date = date('Y-m-d',strtotime('-7 day'));
+        $historyIndex = '@RecommendMsgHistory_';
+        if($this->searchRedis->exists($historyIndex . $date)){
+            $res = $this->searchRedis->delete($historyIndex . $date);
+        }else{
+            $res = true;
+        }
+        return ["删除商机推荐[{$date}]发送历史记录:{$res}"];
+    }
 }
