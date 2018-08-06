@@ -47,13 +47,14 @@ class RecommendMsgQueueTask
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
      * @author Nihuan
-     * @Scheduled(cron="10 * * * * *")
+     * @Scheduled(cron="0 * * * * *")
      * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()
     {
         $date = date('Y-m-d');
         $index = '@RecommendMsgQueue_';
+        $historyIndex = '@RecommendMsgHistory_';
         $len = $this->searchRedis->lLen($index . $date);
         $test_list = $this->userData->getTesters();
         $grayscale = getenv('IS_GRAYSCALE');
@@ -76,7 +77,15 @@ class RecommendMsgQueueTask
                         if(($grayscale == 1 && in_array($user_id, $test_list)) || $grayscale == 0){
                             $receive_status = 1;
                         }
-                        if($user_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4])){
+                        //队列当前内容删除
+                        $this->searchRedis->lPop($index . $date);
+                        //历史推送记录查询
+                        if($this->searchRedis->exists($historyIndex . $date)){
+                            $history = $this->searchRedis->sIsMember($historyIndex . $date, $item);
+                        }else{
+                            $history = false;
+                        }
+                        if($user_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
                             $phone = $user_info['phone'];
                             $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
                             sendSms($phone, $sms_content, 2, 1);
@@ -112,8 +121,8 @@ class RecommendMsgQueueTask
                             $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                             $notice['extra'] = $extra;
                             sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
+                            $this->searchRedis->sAdd($historyIndex . $date, $item);
                         }
-                        $this->searchRedis->lPop($index . $date);
                     }
                 }
             }
