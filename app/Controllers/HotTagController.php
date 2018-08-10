@@ -9,6 +9,7 @@
 namespace App\Controllers;
 
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Redis\Redis;
@@ -73,5 +74,30 @@ class HotTagController
         $key = '/Buy/169492_2147483647_710.jpg';
         $top_link = get_img_url($key);
         return compact("top_link");
+    }
+
+
+    /**
+     * 获取邀请报价记录
+     * author: nihuan
+     * @param Request $request
+     * @return array
+     */
+    public function get_invite_record(Request $request)
+    {
+        $date = $request->post('date');
+        $historyIndex = '@RecommendMsgHistory_';
+        $key_list = [];
+        if($this->redis->exists($historyIndex . $date)){
+            $key_list = $this->redis->smembers($historyIndex . $date);
+        }
+        $buy_list = [];
+        if(!empty($key_list)){
+            foreach ($key_list as $item) {
+                $buy = explode('#',$item);
+                $buy_list[] = $buy[1];
+            }
+        }
+        return compact('buy_list');
     }
 }
