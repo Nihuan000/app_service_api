@@ -98,6 +98,7 @@ class HotTagController
                 $buy_list[] = $buy[1];
             }
         }
+        $buy_list = array_unique($buy_list);
         return compact('buy_list');
     }
 }
