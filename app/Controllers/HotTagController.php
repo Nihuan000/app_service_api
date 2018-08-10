@@ -100,6 +100,8 @@ class HotTagController
         }
         $buy_list = array_unique($buy_list);
         $total_buy_list = array_values($buy_list);
-        return compact('total_buy_list','key_list');
+        $total_count = count($key_list);
+        $buy_count = count($total_buy_list);
+        return compact('total_buy_list','total_count','buy_count');
     }
 }
