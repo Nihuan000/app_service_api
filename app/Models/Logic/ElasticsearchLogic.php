@@ -94,11 +94,11 @@ class ElasticsearchLogic
             if(!empty($result)){
                 $count = $result['hits']['total'];
             }
-            $status = 1;
+            $status = 200;
         } catch (PoolException $e) {
             print_r($e->getMessage());
         }
-        return ['count' => $count, 'status' => $status];
+        return ['count' => $count, 'code' => $status];
     }
 
     /**
