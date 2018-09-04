@@ -65,11 +65,9 @@ class ElasticsearchLogic
         $filter = $this->baseFilter();
         //刷新时间过滤
         $filter[] = [
-            [
-                'range' => [
-                    'refresh_time' => [
-                        'from' => $last_time
-                    ]
+            'range' => [
+                'refresh_time' => [
+                    'from' => $last_time
                 ]
             ]
         ];
