@@ -9,6 +9,8 @@
 namespace App\Controllers;
 
 use App\Models\Logic\ElasticsearchLogic;
+use Swoft\Http\Server\Bean\Annotation\Controller;
+use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\App;
 use Swoft\Http\Message\Server\Request;
 

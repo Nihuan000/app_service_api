@@ -7,6 +7,11 @@
  */
 
 namespace App\Models\Logic;
+
+use App\Pool\Config\ElasticsearchPoolConfig;
+use Elasticsearch\ClientBuilder;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Bean\Annotation\Bean;
 use App\Pool\ElasticsearchPool;
 use Swoft\Exception\PoolException;
 
@@ -22,9 +27,28 @@ class ElasticsearchLogic
 {
     /**
      * @Inject()
-     * @var ElasticsearchPool
+     * @var ElasticsearchPoolConfig
      */
-    public $esPool;
+    public $esConfig;
+
+
+    /**
+     * 单连接池
+     * @Inject()
+     * @author Nihuan
+     * @return \Elasticsearch\Client
+     * @throws PoolException
+     */
+    public function simpleConnectionPool()
+    {
+        if (empty($this->poolConfig)) {
+            throw new PoolException('You must to set elasticPoolConfig by @Inject!');
+        }
+        $client = ClientBuilder::create()
+            ->setConnectionPool('\Elasticsearch\ConnectionPool\SimpleConnectionPool',[])
+            ->setHosts($this->poolConfig->getUri())->build();
+        return $client;
+    }
 
     /**
      * 采购列表
@@ -36,7 +60,7 @@ class ElasticsearchLogic
     {
         $count = 0;
         $status = 0;
-        $master_name = $this->esPool->poolConfig->getBuyMaster();
+        $master_name = $this->esConfig->getBuyMaster();
         //过滤基本信息
         $filter = $this->baseFilter();
         //刷新时间过滤
@@ -63,7 +87,8 @@ class ElasticsearchLogic
             'body' => $query,
         ];
         try {
-            $result = $this->esPool->search($params);
+            $connect = $this->simpleConnectionPool();
+            $result = $connect->search($params);
             if(!empty($result)){
                 $count = $result['hits']['total'];
             }
