@@ -41,12 +41,12 @@ class ElasticsearchLogic
      */
     public function simpleConnectionPool()
     {
-        if (empty($this->poolConfig)) {
+        if (empty($this->esConfig)) {
             throw new PoolException('You must to set elasticPoolConfig by @Inject!');
         }
         $client = ClientBuilder::create()
             ->setConnectionPool('\Elasticsearch\ConnectionPool\SimpleConnectionPool',[])
-            ->setHosts($this->poolConfig->getUri())->build();
+            ->setHosts($this->esConfig->getUri())->build();
         return $client;
     }
 
