@@ -73,7 +73,11 @@ class ElasticsearchLogic
         ];
         //搜索语句拼接
         $query = [
-            'filter' => $filter,
+            'query' => [
+                'bool' => [
+                    'filter' => $filter,
+                ]
+            ],
             '_source' => [
                 'includes' => $this->searchSource(),
             ],
