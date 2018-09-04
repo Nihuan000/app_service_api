@@ -138,11 +138,6 @@ class ElasticsearchLogic
             ],
             [
                 'term' => [
-                    'type_id' => 2
-                ]
-            ],
-            [
-                'term' => [
                     'status' => 0
                 ]
             ],
