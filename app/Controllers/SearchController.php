@@ -34,6 +34,13 @@ class SearchController
         /* @var ElasticsearchLogic $elastic_logic */
         $elastic_logic = App::getBean(ElasticsearchLogic::class);
         $searchRes = $elastic_logic->getRefreshCount($last_view_time);
-        return compact('searchRes');
+        $result = [
+            'code' => $searchRes['code'],
+            'result' => [
+                'buy_count' => $searchRes['count'],
+            ],
+            'msg' => '获取成功'
+        ];
+        return compact('result');
     }
 }
