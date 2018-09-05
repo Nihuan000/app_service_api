@@ -35,6 +35,7 @@ class BuyBuriedDao
         $buried->setBuyId($buy['buy_id']);
         $buried->setBuyStatus($buy['buy_status']);
         $buried->setFindStatus($buy['find_status']);
+        $buried->setOfferId($buy['offer_id']);
         return $buried->save()->getResult();
     }
 }

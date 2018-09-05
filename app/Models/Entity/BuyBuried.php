@@ -43,6 +43,12 @@ class BuyBuried extends Model
     private $findStatus;
 
     /**
+     * @var int $offerId 报价id
+     * @Column(name="offer_id", type="int", default=0)
+     */
+    private $offerId;
+
+    /**
      * @var int $operationTime 操作时间
      * @Column(name="operation_time", type="integer", default=0)
      */
@@ -102,6 +108,18 @@ class BuyBuried extends Model
     }
 
     /**
+     * 报价id
+     * @param int $value
+     * @return $this
+     */
+    public function setOfferId(int $value): self
+    {
+        $this->offerId = $value;
+
+        return $this;
+    }
+
+    /**
      * 开始找布时间
      * @param int $value
      * @return $this
@@ -140,6 +158,15 @@ class BuyBuried extends Model
     public function getBuyId()
     {
         return $this->buyId;
+    }
+
+    /**
+     * 报价id
+     * @return int
+     */
+    public function getOfferId()
+    {
+        return $this->offerId;
     }
 
     /**
