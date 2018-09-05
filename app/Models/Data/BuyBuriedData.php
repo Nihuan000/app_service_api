@@ -31,6 +31,7 @@ class BuyBuriedData
     {
         $buy_status = 1;
         $find_status = 1;
+        $offer_id = 0;
         switch ($buy_event['event'][3]){
             case 'PublishBuy':
                 $buy_status = 1;
@@ -42,6 +43,20 @@ class BuyBuriedData
 
             case 'DelBuy':
                 $buy_status = 4;
+                break;
+
+            case 'RefreshBuy':
+                $buy_status = 6;
+                break;
+
+            case 'UpdateOverBuyInfo':
+                $buy_status = 8;
+                if($buy_event['properties']['OfferId']){
+                   $offer_id = $buy_event['properties']['OfferId'];
+                }
+                if($buy_event['properties']['FindType']){
+                    $find_status = $buy_event['properties']['FindType'];
+                }
                 break;
 
             case 'KeepLooking':
@@ -66,8 +81,9 @@ class BuyBuriedData
             'buy_status' => $buy_status,
             'find_status' => $find_status,
             'operation_time' => $buy_event['properties']['OperationTime'],
+            'offer_id' => $offer_id,
             'record_time' => time()
         ];
-        return $this->buyBuriedDao->saveOrderBuried($data);
+        return $this->buyBuriedDao->saveBuyBuried($data);
     }
 }

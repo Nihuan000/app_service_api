@@ -9,6 +9,7 @@
 namespace App\Models\Logic;
 
 
+use App\Models\Data\OfferBuriedData;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Data\CollectionBuriedData;
@@ -48,6 +49,13 @@ class BuriedLogic
     private $orderCartBuriedData;
 
     /**
+     * 报价日志
+     * @Inject()
+     * @var OfferBuriedData
+     */
+    private $offerBuriedData;
+
+    /**
      * 采购日志
      * @Inject()
      * @var BuyBuriedData
@@ -76,6 +84,9 @@ class BuriedLogic
             case 'Buy':
                 $buriedData = $this->buyBuriedData->saveBuyBuried($event);
                 break;
+
+            case 'Offer':
+                $buriedData = $this->offerBuriedData->saveBuyOfferBuried($event);
         }
         return $buriedData;
     }

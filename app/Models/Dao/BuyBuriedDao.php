@@ -27,7 +27,7 @@ class BuyBuriedDao
      * @param array $buy
      * @return mixed
      */
-    public function saveOrderBuried(array $buy)
+    public function saveBuyBuried(array $buy)
     {
         $buried = new BuyBuried();
         $buried->setOperationTime($buy['operation_time']);

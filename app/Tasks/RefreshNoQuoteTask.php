@@ -37,15 +37,14 @@ class RefreshNoQuoteTask
      */
     public function refreshTask()
     {
-        $prev_time = strtotime('-8 hour');
-        $last_time = strtotime('-9 hour');
-        $refresh_prev = strtotime('-30 minute');
+        $time = time();
         $now_time = date('Y-m-d H:i:s');
         $buyRes = Buy::findAll([
-            ['add_time','>',$last_time],
-            ['add_time','<=',$prev_time],
+            ['expire_time','<=',$time],
+            ['expire_time','>',0],
             'is_audit' => 0,
-            ['refresh_time','>=',$refresh_prev]
+            'del_status' => 1,
+            'status' => 0
         ],
         ['fields' => ['buy_id']])->getResult();
         if(!empty($buyRes)){
