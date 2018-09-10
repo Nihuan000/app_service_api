@@ -86,13 +86,14 @@ class RefreshNoQuoteTask
             }
             echo "[$now_time] 共刷新采购条数:" . $refresh_count . PHP_EOL;
         }
-        return ['无报价采购刷新'];
+        return ['无报价采购队列写入'];
     }
 
+    
     /**
      * 报价队列采购刷新
      * @author Nihuan
-     * @Scheduled(cron="0 *\\2 * * * *")
+     * @Scheduled(cron="0 *\/2 * * * *")
      */
     public function refreshTask()
     {
@@ -111,6 +112,7 @@ class RefreshNoQuoteTask
             }
             $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
             if($up_result){
+                echo "采购 {$buy_id} 刷新修改" . PHP_EOL;
                 if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
                     $this->redis->sRem($this->refresh_queue_key,$buy_id);
                 }
@@ -124,6 +126,7 @@ class RefreshNoQuoteTask
                 ];
                 $this->buriedLogic->event_analysis($event);
             }
+            return ['无报价采购刷新'];
         }
     }
 }
