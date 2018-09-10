@@ -82,6 +82,8 @@ class BuriedLogic
                 break;
 
             case 'Buy':
+            case 'AuditBuy':
+            case 'TaskBuy':
                 $buriedData = $this->buyBuriedData->saveBuyBuried($event);
                 break;
 

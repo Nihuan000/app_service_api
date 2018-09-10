@@ -45,6 +45,10 @@ class BuyBuriedData
                 $buy_status = 4;
                 break;
 
+            case 'Audit':
+                $buy_status = 5;
+                break;
+
             case 'RefreshBuy':
                 $buy_status = 6;
                 break;
@@ -57,6 +61,10 @@ class BuyBuriedData
                 if($buy_event['properties']['FindType']){
                     $find_status = $buy_event['properties']['FindType'];
                 }
+                break;
+
+            case 'RefreshTask':
+                $buy_status = 9;
                 break;
 
             case 'KeepLooking':

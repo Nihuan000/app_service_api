@@ -32,6 +32,15 @@ class BuyDao
     }
 
     /**
+     * @param array $condition
+     * @param array $data
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function updateById(array $condition, array $data){
+        return Buy::updateOne($data,$condition);
+    }
+
+    /**
      * @author Nihuan
      * @return mixed
      * @throws \Swoft\Db\Exception\DbException

@@ -50,4 +50,16 @@ class BuyData
         return $this->buyDao->getNoQuoteBuyDao();
     }
 
+    /**
+     * 根据采购id修改信息
+     * @param int $bid
+     * @param array $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function updateBuyInfo(int $bid, array $params)
+    {
+        $condition['buy_id'] = $bid;
+        return $this->buyDao->updateById($condition,$params);
+    }
+
 }
