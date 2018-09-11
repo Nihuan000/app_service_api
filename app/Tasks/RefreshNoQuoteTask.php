@@ -61,7 +61,7 @@ class RefreshNoQuoteTask
     private $buriedLogic;
 
     /**
-     * 8小时无报价采购刷新
+     * 3小时无报价采购刷新
      * @author Nihuan
      * @Scheduled(cron="0 * * * * *")
      */
@@ -71,7 +71,7 @@ class RefreshNoQuoteTask
         $last_time = strtotime('-1 day');
         $refresh_prev = strtotime('-3 hour');
         $now_time = date('Y-m-d H:i:s');
-        $buy_res = Db::query("select t.buy_id from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.add_time > {$prev_time} AND t.add_time <= {$last_time} AND t.refresh_time <= {$refresh_prev} AND t.is_audit = 0 AND t.clicks < {$this->min_clicks} AND ba.offer_count < {$this->min_offer} ORDER BY t.buy_id ASC")->getResult();
+        $buy_res = Db::query("select t.buy_id from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.add_time > {$prev_time} AND t.add_time <= {$last_time} AND t.refresh_time <= {$refresh_prev} AND t.is_audit = 0 AND t.status = 0 AND t.del_status = 1 AND t.clicks < {$this->min_clicks} AND ba.offer_count < {$this->min_offer} ORDER BY t.buy_id ASC")->getResult();
         if(!empty($buy_res)){
             $refresh_count = 0;
             foreach ($buy_res as $buy) {
@@ -99,16 +99,22 @@ class RefreshNoQuoteTask
     {
         $hour = date('H');
         if($hour > 10 || $hour < 6){
-            return;
+            return true;
         }else{
             $buy_id = $this->redis->lpop($this->buy_queue_key);
+            if($buy_id == false){
+                return true;
+            }
             $buy_info = $this->buyData->getBuyInfo($buy_id);
+            if(empty($buy_info)){
+                return true;
+            }
             if($buy_info['clicks'] >= $this->min_clicks){
-                return;
+                return true;
             }
             $offer_info = $this->attrData->getByBid($buy_id);
             if($offer_info['offer_count'] >= $this->min_offer){
-                return;
+                return true;
             }
             $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
             if($up_result){
@@ -116,8 +122,9 @@ class RefreshNoQuoteTask
                 if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
                     $this->redis->sRem($this->refresh_queue_key,$buy_id);
                 }
+                $event_code = explode('_','SoubuApp_API_TaskBuy_RefreshTask');
                 $event = [
-                    'event' => 'SoubuApp_API_TaskBuy_RefreshTask',
+                    'event' => $event_code,
                     'user_id' => 0,
                     'properties' =>[
                         'BuyId' => $buy_id,

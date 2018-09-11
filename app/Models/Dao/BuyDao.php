@@ -37,7 +37,7 @@ class BuyDao
      * @return \Swoft\Core\ResultInterface
      */
     public function updateById(array $condition, array $data){
-        return Buy::updateOne($data,$condition);
+        return Buy::updateOne($data,$condition)->getResult();
     }
 
     /**
