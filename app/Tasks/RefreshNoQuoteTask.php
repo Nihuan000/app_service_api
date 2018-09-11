@@ -39,6 +39,7 @@ class RefreshNoQuoteTask
      */
     private $buy_queue_key = 'refresh_buy_queue';
     private $refresh_queue_key = 'buy_queue_record';
+    private $refresh_history_key = 'refresh_buy_history';
     private $min_clicks = 100;
     private $min_offer = 3;
 
@@ -78,13 +79,16 @@ class RefreshNoQuoteTask
                 if($buy['buy_id']%2 == 0){
                     continue;
                 }else{
-                    //写入刷新队列
-                    $this->redis->rpush($this->buy_queue_key,$buy['buy_id']);
-                    $this->redis->sAdd($this->refresh_queue_key,$buy['buy_id']);
-                    $refresh_count += 1;
+                    $history_record = $this->get_refresh_history($buy['buy_id']);
+                    if($history_record == 0){
+                        //写入刷新队列
+                        $this->redis->rpush($this->buy_queue_key,$buy['buy_id']);
+                        $this->redis->sAdd($this->refresh_queue_key,$buy['buy_id']);
+                        $refresh_count += 1;
+                    }
                 }
             }
-            echo "[$now_time] 共刷新采购条数:" . $refresh_count . PHP_EOL;
+            echo "[$now_time] 写入采购总条数:" . $refresh_count . PHP_EOL;
         }
         return ['无报价采购队列写入'];
     }
@@ -122,6 +126,14 @@ class RefreshNoQuoteTask
                 if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
                     $this->redis->sRem($this->refresh_queue_key,$buy_id);
                 }
+                //写入发送历史
+                $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
+                $history_exists = $this->redis->exists($refresh_history_key);
+                $this->redis->sAdd($refresh_history_key,$buy_id);
+                if(!$history_exists){
+                    $expire_time = strtotime("+7 day");
+                    $this->redis->expire($refresh_history_key,$expire_time - time());
+                }
                 $event_code = explode('_','SoubuApp_API_TaskBuy_RefreshTask');
                 $event = [
                     'event' => $event_code,
@@ -135,5 +147,26 @@ class RefreshNoQuoteTask
             }
             return ['无报价采购刷新'];
         }
+    }
+
+    /**
+     * 判断是否已存在历史刷新
+     * @param $buy_id
+     * @return int
+     */
+    private function get_refresh_history($buy_id)
+    {
+        $refresh_history = 0;
+        for($k = 0; $k< 3; $k++){
+            $history_date = date('Y-m-d',strtotime("- {$k} day"));
+            $history_cache_key = $this->refresh_history_key . $history_date;
+            if($this->redis->exists($history_cache_key)){
+                if($this->redis->sIsMember($history_cache_key,$buy_id)){
+                    $refresh_history = 1;
+                    continue;
+                }
+            }
+        }
+        return $refresh_history;
     }
 }

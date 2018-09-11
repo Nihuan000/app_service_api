@@ -21,7 +21,7 @@ use Swoft\Task\Bean\Annotation\Task;
 class BuyExpireUpdateTask
 {
     /**
-     * 8小时无报价采购刷新
+     * 过期采购状态修改
      * @author Nihuan
      * @Scheduled(cron="0 0 * * * *")
      */
