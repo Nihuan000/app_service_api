@@ -23,7 +23,7 @@ class BuyExpireUpdateTask
     /**
      * 过期采购状态修改
      * @author Nihuan
-     * @Scheduled(cron="0 0 * * * *")
+     * @Scheduled(cron="0 * * * * *")
      */
     public function expireBuyTask()
     {
