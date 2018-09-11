@@ -38,6 +38,7 @@ class RefreshNoQuoteTask
      * @var string
      */
     private $buy_queue_key = 'refresh_buy_queue';
+    private $refresh_queue_key = 'buy_queue_record';
     private $refresh_history_key = 'refresh_buy_history'; //采购刷新历史
     private $min_clicks = 100; //最低浏览数
     private $min_offer = 3; //最低报价数
@@ -81,8 +82,11 @@ class RefreshNoQuoteTask
                     $history_record = $this->get_refresh_history($buy['buy_id']);
                     if($history_record == 0){
                         //写入刷新队列
-                        $this->redis->rpush($this->buy_queue_key,$buy['buy_id']);
-                        $refresh_count += 1;
+                        if(!$this->redis->sIsMember($this->refresh_queue_key,$buy['buy_id'])){
+                            $this->redis->rpush($this->buy_queue_key,$buy['buy_id']);
+                            $this->redis->sAdd($this->refresh_queue_key,$buy['buy_id']);
+                            $refresh_count += 1;
+                        }
                     }
                 }
             }
@@ -121,6 +125,9 @@ class RefreshNoQuoteTask
             $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
             if($up_result){
                 echo "采购 {$buy_id} 刷新修改" . PHP_EOL;
+                if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
+                    $this->redis->sRem($this->refresh_queue_key,$buy_id);
+                }
                 //写入发送历史
                 $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
                 $history_exists = $this->redis->exists($refresh_history_key);
