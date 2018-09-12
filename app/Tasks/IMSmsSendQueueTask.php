@@ -4,6 +4,13 @@
  * Date: 18-9-12
  * Time: 下午2:40
  */
+namespace App\Tasks;
+
+use Swoft\Redis\Redis;
+use Swoft\Task\Bean\Annotation\Task;
+use Swoft\Bean\Annotation\Value;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Task\Bean\Annotation\Scheduled;
 
 /**
  * IMSmsSendQueue task
