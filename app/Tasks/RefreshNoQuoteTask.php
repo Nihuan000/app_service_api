@@ -34,14 +34,30 @@ class RefreshNoQuoteTask
     private $redis;
 
     /**
+     * @Inject ("demoRedis")
+     * @var Redis
+     */
+    private $msgRedis;
+
+    /**
      * 刷新采购队列
      * @var string
      */
     private $buy_queue_key = 'refresh_buy_queue';
     private $refresh_queue_key = 'buy_queue_record';
     private $refresh_history_key = 'refresh_buy_history'; //采购刷新历史
+    private $notice_history_key = 'notice_history_list'; //提示刷新历史记录
+    /**
+     * @Value(env="${MESSAGE_QUEUE_LIST}")
+     * @var string
+     */
+    private $queue_key;
     private $min_clicks = 100; //最低浏览数
     private $min_offer = 3; //最低报价数
+    private $notice_sec = 3600; //刷新提醒时间判断
+    private $error_accuracy = 70; //误差精度 s
+
+    private $notice_log_dir = '/srv/soubuSoa/runtime/uploadfiles/';
 
     /**
      * @Inject()
@@ -104,51 +120,154 @@ class RefreshNoQuoteTask
     public function refreshTask()
     {
         $hour = date('H');
-        if($hour > 10 || $hour < 6){
+        if($hour > 22 || $hour < 6){
             return true;
         }else{
+            $msg = '';
+            $refresh_status = 1;
             $buy_id = $this->redis->lpop($this->buy_queue_key);
             if($buy_id == false){
-                return true;
+                $msg = '空采购id,跳过';
+                $refresh_status = 0;
             }
             $buy_info = $this->buyData->getBuyInfo($buy_id);
             if(empty($buy_info)){
-                return true;
+                $msg = '采购信息为空,跳过';
+                $refresh_status = 0;
+            }
+            if($buy_info['status'] != 0){
+                $msg = '采购信息已找到,跳过';
+                $refresh_status = 0;
             }
             if($buy_info['clicks'] >= $this->min_clicks){
-                return true;
+                $msg = "采购浏览数大于{$this->min_clicks},跳过";
+                $refresh_status = 0;
             }
             $offer_info = $this->attrData->getByBid($buy_id);
             if($offer_info['offer_count'] >= $this->min_offer){
-                return true;
+                $msg = "采购报价数大于{$this->min_offer},跳过";
+                $refresh_status = 0;
             }
-            $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
-            if($up_result){
-                echo "采购 {$buy_id} 刷新修改" . PHP_EOL;
-                if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
-                    $this->redis->sRem($this->refresh_queue_key,$buy_id);
+            if($refresh_status == 1){
+                $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
+                if($up_result){
+                    echo "采购 {$buy_id} 刷新修改" . PHP_EOL;
+                    if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
+                        $this->redis->sRem($this->refresh_queue_key,$buy_id);
+                    }
+                    //写入发送历史
+                    $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
+                    $history_exists = $this->redis->exists($refresh_history_key);
+                    $this->redis->sAdd($refresh_history_key,$buy_id);
+                    if(!$history_exists){
+                        $expire_time = strtotime("+7 day");
+                        $this->redis->expire($refresh_history_key,$expire_time - time());
+                    }
+                    $event_code = explode('_','SoubuApp_API_TaskBuy_RefreshTask');
+                    $event = [
+                        'event' => $event_code,
+                        'user_id' => 0,
+                        'properties' =>[
+                            'BuyId' => $buy_id,
+                            'OperationTime' => time()
+                        ]
+                    ];
+                    $this->buriedLogic->event_analysis($event);
+                    $msg = '采购信息已刷新';
                 }
-                //写入发送历史
-                $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
-                $history_exists = $this->redis->exists($refresh_history_key);
-                $this->redis->sAdd($refresh_history_key,$buy_id);
-                if(!$history_exists){
-                    $expire_time = strtotime("+7 day");
-                    $this->redis->expire($refresh_history_key,$expire_time - time());
-                }
-                $event_code = explode('_','SoubuApp_API_TaskBuy_RefreshTask');
-                $event = [
-                    'event' => $event_code,
-                    'user_id' => 0,
-                    'properties' =>[
-                        'BuyId' => $buy_id,
-                        'OperationTime' => time()
-                    ]
-                ];
-                $this->buriedLogic->event_analysis($event);
             }
-            return ['无报价采购刷新'];
+            return [$msg];
         }
+    }
+
+
+    /**
+     * 报价队列采购刷新
+     * @author Nihuan
+     * @Scheduled(cron="0 * * * * *")
+     */
+    public function sendRefreshNotice()
+    {
+        $buy_ids = [];
+        $date = date('Y-m-d');
+        $audit_last = time() - $this->notice_sec;
+        $audit_prev = time() - $this->error_accuracy - $this->notice_sec;
+        $buy_res = Db::query("select t.user_id,t.buy_id,t.pic,t.remark,t.price,t.amount,t.unit from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.audit_time < {$audit_last} AND t.audit_time >= {$audit_prev}  AND t.refresh_time <= {$audit_last} AND t.is_audit = 0 AND t.status = 0 AND t.del_status = 1 AND ba.offer_count = 0 ORDER BY t.buy_id ASC")->getResult();
+        if(!empty($buy_res)){
+            $config = \Swoft::getBean('config');
+            $sys_msg = $config->get('sysMsg');
+            $has_history = $this->redis->exists($this->notice_history_key . $date);
+            foreach ($buy_res as $buy) {
+                $history_record = $this->get_notice_history($buy['buy_id']);
+                if($history_record == 0){
+                    //发送系统消息
+                    ################## 消息展示内容开始 #######################
+                    $buy_info['image'] = !is_null($buy['pic']) ? get_img_url($buy['pic']) : '';
+                    $buy_info['type'] = 1;
+                    $buy_info['title'] = (string)$buy['remark'];
+                    $buy_info['id'] = $buy['buy_id'];
+                    $buy_info['price'] = isset($buyInfo['price']) ? $buy['price'] : "";
+                    $buy_info['amount'] = $buy['amount'];
+                    $buy_info['unit'] = $buy['unit'];
+                    $buy_info['url'] = '';
+                    ################## 消息展示内容结束 #######################
+
+                    ################## 消息基本信息开始 #######################
+                    $extra = $sys_msg;
+                    $extra['title'] = '还未收到报价?您可以';
+                    $extra['msgContent'] = "还没有收到报价？小布建议您重新编辑完善您的采购信息，供应商报价会更积极！ \n点击前往编辑";
+                    $extra['commendUser'] = [];
+                    $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
+                    ################## 消息基本信息结束 #######################
+
+                    ################## 消息扩展字段开始 #######################
+                    $extraData['keyword'] = '#点击前往编辑#';
+                    $extraData['type'] = 1;
+                    $extraData['id'] = (int)$buy['buy_id'];
+                    $extraData['url'] = '';
+                    ################## 消息扩展字段结束 #######################
+
+                    $extra['data'] = [$extraData];
+                    $extra['content'] = "还没有收到报价？小布建议您重新编辑完善您的采购信息，供应商报价会更积极！ #点击前往编辑#";
+                    $notice['extra'] = $extra;
+                    $msg_body = [
+                        'fromId' => '1',
+                        'targetId' => $buy['user_id'],
+                        'msgExtra' => $notice['extra'],
+                        'timedTask' => 0
+                    ];
+                    $this->msgRedis->rPush($this->queue_key,json_encode($msg_body));
+                    $this->redis->sAdd($this->notice_history_key . $date, $buy['buy_id']);
+                    if($has_history == false){
+                        $this->redis->expire($this->notice_history_key . $date,7*24*3600);
+                    }
+                    $buy_ids[] = $buy['buy_id'];
+                }
+            }
+            if(!empty($buy_ids)){
+                write_csv_log($this->notice_log_dir . 'notice_' . date('Y_m_d') . '.log',$buy_ids);
+            }
+        }
+        return [json_encode($buy_ids)];
+    }
+
+    /**
+     * 发送提醒记录获取
+     * @param $buy_id
+     * @return int
+     */
+    private function get_notice_history($buy_id)
+    {
+        $has_record = 0;
+        $date = date('Y-m-d');
+        $history_list = $this->redis->exists($this->notice_history_key . $date);
+        if($history_list){
+            $history = $this->redis->sIsMember($this->notice_history_key,$buy_id);
+            if($history){
+                $has_record = 1;
+            }
+        }
+        return $has_record;
     }
 
     /**

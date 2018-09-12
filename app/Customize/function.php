@@ -420,3 +420,17 @@ function get_message($cid,$content)
     }
     return $rep;
 }
+
+/**
+ * 写入csv日志
+ * @param $file
+ * @param $data
+ */
+function write_csv_log($file, $data)
+{
+    fopen($file,"w");
+    foreach ($data as $file) {
+        fputcsv($file,$file);
+    }
+    fclose($file);
+}
