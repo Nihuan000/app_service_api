@@ -6,11 +6,11 @@
  */
 
 /**
- * MsgSendQueue task
+ * IMSmsSendQueue task
  *
- * @Task("MsgSendQueueTask")
+ * @Task("IMSmsSendQueue")
  */
-class MsgSendQueueTask
+class IMSmsSendQueueTask
 {
     /**
      * @Inject("DemoRedis")
