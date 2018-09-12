@@ -15,6 +15,7 @@ use App\Models\Entity\Buy;
 use App\Models\Logic\BuriedLogic;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Bean\Annotation\Value;
 use Swoft\Db\Db;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
