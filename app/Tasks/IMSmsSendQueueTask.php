@@ -20,16 +20,13 @@ use Swoft\Task\Bean\Annotation\Scheduled;
 class IMSmsSendQueueTask
 {
     /**
-     * @Inject("DemoRedis")
+     * @Inject("demoRedis")
      * @var Redis
      */
     private $redis;
 
-    /**
-     * @Value(env="${MESSAGE_QUEUE_LIST}")
-     * @var string
-     */
-    private $queue_key;
+
+    private $queue_key = 'msg_queue_list';
 
 
     /**

@@ -48,11 +48,7 @@ class RefreshNoQuoteTask
     private $refresh_queue_key = 'buy_queue_record';
     private $refresh_history_key = 'refresh_buy_history'; //采购刷新历史
     private $notice_history_key = 'notice_history_list'; //提示刷新历史记录
-    /**
-     * @Value(env="${MESSAGE_QUEUE_LIST}")
-     * @var string
-     */
-    private $queue_key;
+    private $queue_key = 'msg_queue_list';
     private $min_clicks = 100; //最低浏览数
     private $min_offer = 3; //最低报价数
     private $notice_sec = 3600; //刷新提醒时间判断
@@ -193,7 +189,7 @@ class RefreshNoQuoteTask
         $date = date('Y-m-d');
         $audit_last = time() - $this->notice_sec;
         $audit_prev = time() - $this->error_accuracy - $this->notice_sec;
-        $buy_res = Db::query("select t.user_id,t.buy_id,t.pic,t.remark,t.price,t.amount,t.unit from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.audit_time < {$audit_last} AND t.audit_time >= {$audit_prev}  AND t.refresh_time <= {$audit_last} AND t.is_audit = 0 AND t.status = 0 AND t.del_status = 1 AND ba.offer_count = 0 ORDER BY t.buy_id ASC")->getResult();
+        $buy_res = Db::query("select t.user_id,t.buy_id,t.pic,t.remark,t.amount,t.unit from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.audit_time < {$audit_last} AND t.audit_time >= {$audit_prev}  AND t.refresh_time <= {$audit_last} AND t.is_audit = 0 AND t.status = 0 AND t.del_status = 1 AND ba.offer_count = 0 ORDER BY t.buy_id ASC")->getResult();
         if(!empty($buy_res)){
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
@@ -207,7 +203,7 @@ class RefreshNoQuoteTask
                     $buy_info['type'] = 1;
                     $buy_info['title'] = (string)$buy['remark'];
                     $buy_info['id'] = $buy['buy_id'];
-                    $buy_info['price'] = isset($buyInfo['price']) ? $buy['price'] : "";
+                    $buy_info['price'] = "";
                     $buy_info['amount'] = $buy['amount'];
                     $buy_info['unit'] = $buy['unit'];
                     $buy_info['url'] = '';
@@ -246,7 +242,7 @@ class RefreshNoQuoteTask
                 }
             }
             if(!empty($buy_ids)){
-                write_csv_log($this->notice_log_dir . 'notice_' . date('Y_m_d') . '.log',$buy_ids);
+                write_csv_log($this->notice_log_dir . 'notice_' . date('Y_m_d') . '.csv',$buy_ids);
             }
         }
         return [json_encode($buy_ids)];

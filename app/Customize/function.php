@@ -428,7 +428,7 @@ function get_message($cid,$content)
  */
 function write_csv_log($file, $data)
 {
-    fopen($file,"w");
+    fopen($file,"a");
     foreach ($data as $file) {
         fputcsv($file,$file);
     }
