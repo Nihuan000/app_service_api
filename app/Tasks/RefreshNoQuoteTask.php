@@ -183,7 +183,7 @@ class RefreshNoQuoteTask
      * @author Nihuan
      * @Scheduled(cron="0 * * * * *")
      */
-    public function sendRefreshNotice()
+    public function sendRefreshNoticeTask()
     {
         $buy_ids = [];
         $date = date('Y-m-d');
