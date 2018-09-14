@@ -95,7 +95,7 @@ class RefreshNoQuoteTask
                     $history_record = $this->get_refresh_history($buy['buy_id']);
                     if($history_record == 0){
                         //写入刷新队列
-                        if(!$this->redis->sIsMember($this->refresh_queue_key,$buy['buy_id'])){
+                        if(!$this->redis->sIsMember($this->refresh_queue_key,(string)$buy['buy_id'])){
                             $this->redis->rpush($this->buy_queue_key,$buy['buy_id']);
                             $this->redis->sAdd($this->refresh_queue_key,$buy['buy_id']);
                             $refresh_count += 1;
@@ -149,8 +149,8 @@ class RefreshNoQuoteTask
                 $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
                 if($up_result){
                     echo "采购 {$buy_id} 刷新修改" . PHP_EOL;
-                    if($this->redis->sIsMember($this->refresh_queue_key,$buy_id)){
-                        $this->redis->sRem($this->refresh_queue_key,$buy_id);
+                    if($this->redis->sIsMember($this->refresh_queue_key,(string)$buy_id)){
+                        $this->redis->sRem($this->refresh_queue_key,(string)$buy_id);
                     }
                     //写入发送历史
                     $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
@@ -259,7 +259,7 @@ class RefreshNoQuoteTask
         $date = date('Y-m-d');
         $history_list = $this->redis->exists($this->notice_history_key . $date);
         if($history_list){
-            $history = $this->redis->sIsMember($this->notice_history_key,$buy_id);
+            $history = $this->redis->sIsMember($this->notice_history_key,(string)$buy_id);
             if($history){
                 $has_record = 1;
             }
@@ -276,12 +276,11 @@ class RefreshNoQuoteTask
     {
         $refresh_history = 0;
         for($k = 0; $k< 3; $k++){
-            $history_date = date('Y-m-d',strtotime("- {$k} day"));
+            $history_date = date('Y-m-d',strtotime("-{$k} day"));
             $history_cache_key = $this->refresh_history_key . $history_date;
             if($this->redis->exists($history_cache_key)){
-                if($this->redis->sIsMember($history_cache_key,$buy_id)){
-                    $refresh_history = 1;
-                    continue;
+                if($this->redis->sIsMember($history_cache_key,(string)$buy_id)){
+                    $refresh_history += 1;
                 }
             }
         }
