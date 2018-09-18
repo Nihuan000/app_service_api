@@ -46,6 +46,7 @@ class RefreshNoQuoteTask
      */
     private $buy_queue_key = 'refresh_buy_queue';
     private $refresh_queue_key = 'buy_queue_record';
+    private $norefresh_key = 'no_refresh_queue_record';
     private $refresh_history_key = 'refresh_buy_history'; //采购刷新历史
     private $notice_history_key = 'notice_history_list'; //提示刷新历史记录
     private $queue_key = 'msg_queue_list';
@@ -53,8 +54,6 @@ class RefreshNoQuoteTask
     private $min_offer = 3; //最低报价数
     private $notice_sec = 3600; //刷新提醒时间判断
     private $error_accuracy = 70; //误差精度 s
-
-    private $notice_log_dir = '/srv/soubuSoa/runtime/uploadfiles/';
 
     /**
      * @Inject()
@@ -81,6 +80,7 @@ class RefreshNoQuoteTask
      */
     public function getHandleTask()
     {
+        $no_refresh_cache = $this->norefresh_key . '_' . date('Y_m_d');
         $prev_time = strtotime('-3 day');
         $last_time = strtotime('-1 day');
         $refresh_prev = strtotime('-3 hour');
@@ -90,6 +90,9 @@ class RefreshNoQuoteTask
             $refresh_count = 0;
             foreach ($buy_res as $buy) {
                 if($buy['buy_id']%2 == 0){
+                    if(!$this->redis->sIsMember($no_refresh_cache,(string)$buy['buy_id'])){
+                        $this->redis->sAdd($no_refresh_cache,$buy['buy_id']);
+                    }
                     continue;
                 }else{
                     $history_record = $this->get_refresh_history($buy['buy_id']);
@@ -242,7 +245,7 @@ class RefreshNoQuoteTask
                 }
             }
             if(!empty($buy_ids)){
-                write_csv_log($this->notice_log_dir . 'notice_' . date('Y_m_d') . '.csv',$buy_ids);
+                write_log(2,json_encode($buy_ids));
             }
         }
         return [json_encode($buy_ids)];

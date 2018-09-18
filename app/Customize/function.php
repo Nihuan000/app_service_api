@@ -422,15 +422,24 @@ function get_message($cid,$content)
 }
 
 /**
- * 写入csv日志
- * @param $file
+ * 执行记录id
+ * @param $type
  * @param $data
  */
-function write_csv_log($file, $data)
+function write_log($type,$data)
 {
-    fopen($file,"a");
-    foreach ($data as $file) {
-        fputcsv($file,$file);
+    $log_dir = '/srv/soubuSoa/runtime/uploadfiles/';
+    $file = '';
+    switch ($type){
+        case 1:
+            $file = 'norefresh_' . date('Y_m_d') . '.log';
+            break;
+
+        case 2:
+            $file = 'notice_' . date('Y_m_d') . '.log';
+            break;
     }
-    fclose($file);
+    if(!empty($file)){
+        file_put_contents($log_dir . $file,$data . PHP_EOL,FILE_APPEND);
+    }
 }
