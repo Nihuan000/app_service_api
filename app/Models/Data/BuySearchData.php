@@ -52,33 +52,57 @@ class BuySearchData
 
         $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
         $should = [];
-        $terms = [];
+        $product_terms = [];
+        $parent_terms = [];
+        $type_terms = [];
         if(!empty($user_tag_list)){
             foreach ($user_tag_list as $tag){
                 if($this->redis->exists($tag_index . $tag['main_type'])){
                     $tag_list_cache = $this->redis->get($tag_index . $tag['main_type']);
                     $tag_list = json_decode($tag_list_cache,true);
                     if(in_array($tag['sec_category'],$tag_list)){
-                        $terms[] = [
+                        $parent_terms[] = [
                             'term' => ['parent_normalized' => $tag['sec_category']]
                         ];
                     }else{
-                        $terms[] = [
-                            'term' => ['labels_normalized' => $tag['name']]
+                        $product_terms[] = [
+                            'term' => ['product_name_normalized' => $tag['name']]
                         ];
                     }
                 }else{
-                    $terms[] = [
-                        'term' => ['labels_normalized' => $tag['name']]
+                    $product_terms[] = [
+                        'term' => ['product_name_normalized' => $tag['name']]
                     ];
                 }
+                $type_terms[] = [
+                    'term' => ['main_type_ids' => $tag['main_type']]
+                ];
             }
         }
-        //标签过滤
-        if(!empty($terms)){
-            $should[] = [
+        //大类过滤
+        if(!empty($type_terms)){
+            $filter[] = [
                 'bool' => [
-                    'filter' => $terms
+                    'should' => $type_terms,
+                    'minimum_should_match' => 1
+                ]
+            ];
+        }
+        //二级类过滤
+        if(!empty($parent_terms)){
+            $filter[] = [
+                'bool' => [
+                    'should' => $parent_terms,
+                    'minimum_should_match' => 1
+                ]
+            ];
+        }
+        //三级类过滤
+        if(!empty($product_terms)){
+            $filter[] = [
+                'bool' => [
+                    'should' => $product_terms,
+                    'minimum_should_match' => 1
                 ]
             ];
         }
