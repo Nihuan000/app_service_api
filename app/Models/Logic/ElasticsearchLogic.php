@@ -62,6 +62,7 @@ class ElasticsearchLogic
      * @param array $events
      * @param string $module
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function search_events(array $events, string $module)
     {
@@ -88,7 +89,7 @@ class ElasticsearchLogic
                 $result = $connect->search($params);
                 if(!empty($result)){
                     $list = $result['hits']['hits'];
-                    $count = $result['hits']['count'];
+                    $count = (int)$result['hits']['count'];
                     return ['status' => 200, 'result' => ['list' => $list, 'count' => $count]];
                 }
             } catch (PoolException $e) {

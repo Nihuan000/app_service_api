@@ -7,9 +7,11 @@
 
 namespace App\Models\Data;
 
+use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Exception\PoolException;
+use Swoft\Redis\Redis;
 
 /**
  * 采购搜索
@@ -23,26 +25,64 @@ class BuySearchData
 {
 
     /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $redis;
+    /**
+     * @Inject()
+     * @var UserDao
+     */
+    private $userDao;
+
+    /**
      * 根据标签推荐与我相关
      * @param array $params
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function recommendByTag(array $params)
     {
+        $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
         $last_time = strtotime("-{$last_days} day");
+
         //过滤基本信息
         $filter = $this->baseFilter();
+
+        $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
+        $should = [];
+        $terms = [];
+        if(!empty($user_tag_list)){
+            foreach ($user_tag_list as $tag){
+                if($this->redis->exists($tag_index . $tag['main_type'])){
+                    $tag_list_cache = $this->redis->get($tag_index . $tag['main_type']);
+                    $tag_list = json_decode($tag_list_cache,true);
+                    if(in_array($tag['sec_category'],$tag_list)){
+                        $terms[] = [
+                            'term' => ['parent_normalized' => $tag['sec_category']]
+                        ];
+                    }else{
+                        $terms[] = [
+                            'term' => ['labels_normalized' => $tag['name']]
+                        ];
+                    }
+                }else{
+                    $terms[] = [
+                        'term' => ['labels_normalized' => $tag['name']]
+                    ];
+                }
+            }
+        }
         //标签过滤
-        $should[] = [
-            'bool' => [
-                'filter' => [
-                    'term' => [
-                        'proName_ids' =>  $params['event']
-                    ]
+        if(!empty($terms)){
+            $should[] = [
+                'bool' => [
+                    'filter' => $terms
                 ]
-            ]
-        ];
+            ];
+        }
+
         //发布时间过滤
         $filter[] = [
             'range' => [

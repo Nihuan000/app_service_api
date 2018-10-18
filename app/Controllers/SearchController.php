@@ -46,33 +46,26 @@ class SearchController
      * 与我相关
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function recommend_by_tags(Request $request)
     {
         $user_id = $request->post('user_id');
-        $tag_ids = $request->post('proNameIds');
         if($user_id == false){
             $code = 0;
             $result = [];
             $msg = '请求参数错误: user_id';
         }else{
-            $tag_list = json_decode($tag_ids,true);
-            if(empty($tag_list)){
-                $code = 0;
-                $result = [];
-                $msg = '请求参数错误: proNameIds';
-            }else{
-                $params = [
-                    'event' => $tag_list,
-                ];
-                $module = RECOMMEND_MODULE_NAME;
-                /* @var ElasticsearchLogic $elastic_logic */
-                $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                $list = $elastic_logic->search_events($params,$module);
-                $code = $list['status'];
-                $result = $list['result'];
-                $msg = '获取成功';
-            }
+            $params = [
+                'user_id' => $user_id
+            ];
+            $module = RECOMMEND_MODULE_NAME;
+            /* @var ElasticsearchLogic $elastic_logic */
+            $elastic_logic = App::getBean(ElasticsearchLogic::class);
+            $list = $elastic_logic->search_events($params,$module);
+            $code = $list['status'];
+            $result = $list['result'];
+            $msg = '获取成功';
         }
         return compact('code','result','msg');
     }

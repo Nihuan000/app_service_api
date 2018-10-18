@@ -46,6 +46,17 @@ class UserDao
         return User::findAll(['user_id' => $user_ids],['field' => $fields])->getResult();
     }
 
+    /**
+     * @param int $user_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getUserTagByUid(int $user_id)
+    {
+        $list = Db::query("select user_id AS public_id, tag_id,tag_name AS name, parent_name AS sec_category, top_name AS parent, top_id AS main_type from sb_user_subscription_tag where user_id= {$user_id}")->getResult();
+        return $list;
+    }
+
 
     /**
      * author: nihuan
