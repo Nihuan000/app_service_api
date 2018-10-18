@@ -34,9 +34,15 @@ class BuySearchData
         //过滤基本信息
         $filter = $this->baseFilter();
         //标签过滤
-        $filter[] = [
-            'terms' => [
-                'proName_ids' => $params['event']
+        $should[] = [
+            [
+                'bool' => [
+                    'filter' => [
+                        'term' => [
+                            'proName_ids' =>  $params['event']
+                        ]
+                    ]
+                ]
             ]
         ];
         //发布时间过滤
@@ -52,6 +58,8 @@ class BuySearchData
             'query' => [
                 'bool' => [
                     'filter' => $filter,
+                    'should' => $should,
+                    'minimum_should_match' => 1,
                 ]
             ],
             '_source' => [
