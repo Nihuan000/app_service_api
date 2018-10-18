@@ -70,7 +70,7 @@ class ElasticsearchLogic
         $query = [];
         $status = 0;
         switch ($module){
-            case config('RECOMMEND_MODULE_NAME'):
+            case RECOMMEND_MODULE_NAME:
                 $master_name = $this->esConfig->getBuyMaster();
                 $query = $this->buySearchData->recommendByTag($events);
                 $type = 'buy';

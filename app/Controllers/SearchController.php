@@ -65,7 +65,7 @@ class SearchController
                 $params = [
                     'event' => $tag_list,
                 ];
-                $module = config('RECOMMEND_MODULE_NAME');
+                $module = RECOMMEND_MODULE_NAME;
                 /* @var ElasticsearchLogic $elastic_logic */
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
                 $list = $elastic_logic->search_events($params,$module);
