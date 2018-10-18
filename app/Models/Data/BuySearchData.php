@@ -35,12 +35,10 @@ class BuySearchData
         $filter = $this->baseFilter();
         //标签过滤
         $should[] = [
-            [
-                'bool' => [
-                    'filter' => [
-                        'term' => [
-                            'proName_ids' =>  $params['event']
-                        ]
+            'bool' => [
+                'filter' => [
+                    'term' => [
+                        'proName_ids' =>  $params['event']
                     ]
                 ]
             ]
