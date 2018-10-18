@@ -62,20 +62,20 @@ class BuySearchData
                     $tag_list = json_decode($tag_list_cache,true);
                     if(in_array($tag['sec_category'],$tag_list)){
                         $parent_terms[] = [
-                            'term' => ['parent_normalized' => $tag['sec_category']]
+                            'term' => ['proName_ids' => $tag['sec_cateid']]
                         ];
                     }else{
                         $product_terms[] = [
-                            'term' => ['product_name_normalized' => $tag['name']]
+                            'term' => ['labels_normalized' => $tag['name']]
                         ];
                     }
                 }else{
                     $product_terms[] = [
-                        'term' => ['product_name_normalized' => $tag['name']]
+                        'term' => ['labels_normalized' => $tag['name']]
                     ];
                 }
                 $type_terms[] = [
-                    'term' => ['main_type_ids' => $tag['main_type']]
+                    'term' => ['type_id' => $tag['main_type']]
                 ];
             }
         }
