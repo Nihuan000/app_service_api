@@ -8,6 +8,7 @@
 
 namespace App\Models\Logic;
 
+use App\Models\Data\BuySearchData;
 use App\Pool\Config\ElasticsearchPoolConfig;
 use Elasticsearch\ClientBuilder;
 use Swoft\Bean\Annotation\Inject;
@@ -31,6 +32,12 @@ class ElasticsearchLogic
      */
     public $esConfig;
 
+    /**
+     * @Inject()
+     * @var BuySearchData
+     */
+    private $buySearchData;
+
 
     /**
      * 单连接池
@@ -48,6 +55,47 @@ class ElasticsearchLogic
             ->setConnectionPool('\Elasticsearch\ConnectionPool\SimpleConnectionPool',[])
             ->setHosts($this->esConfig->getUri())->build();
         return $client;
+    }
+
+    /**
+     * 搜索处理
+     * @param array $events
+     * @param string $module
+     * @return array
+     */
+    public function search_events(array $events, string $module)
+    {
+        $master_name = '';
+        $type = '';
+        $query = [];
+        $status = 0;
+        switch ($module){
+            case config('RECOMMEND_MODULE_NAME'):
+                $master_name = $this->esConfig->getBuyMaster();
+                $query = $this->buySearchData->recommendByTag($events);
+                $type = 'buy';
+                break;
+        }
+        if(!empty($master_name) && !empty($type)){
+            //搜索执行语句生成
+            $params = [
+                'index' => $master_name,
+                'type' => 'buy',
+                'body' => $query,
+            ];
+            try {
+                $connect = $this->simpleConnectionPool();
+                $result = $connect->search($params);
+                if(!empty($result)){
+                    $list = $result['hits']['hits'];
+                    $count = $result['hits']['count'];
+                    return ['status' => 200, 'result' => ['list' => $list, 'count' => $count]];
+                }
+            } catch (PoolException $e) {
+                print_r($e->getMessage());
+            }
+        }
+        return ['status' => $status,'list' => []];
     }
 
     /**
