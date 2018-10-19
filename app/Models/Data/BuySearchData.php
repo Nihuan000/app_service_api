@@ -51,8 +51,6 @@ class BuySearchData
         $filter = $this->baseFilter();
 
         $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
-        $should = [];
-        $product_terms = [];
         $parent_terms = [];
         $type_terms = [];
         if(!empty($user_tag_list)){
@@ -65,14 +63,10 @@ class BuySearchData
                             'term' => ['proName_ids' => $tag['sec_cateid']]
                         ];
                     }else{
-                        $product_terms[] = [
+                        $parent_terms[] = [
                             'term' => ['labels_normalized' => $tag['name']]
                         ];
                     }
-                }else{
-                    $product_terms[] = [
-                        'term' => ['labels_normalized' => $tag['name']]
-                    ];
                 }
                 $type_terms[] = [
                     'term' => ['type_id' => $tag['main_type']]
@@ -97,15 +91,6 @@ class BuySearchData
                 ]
             ];
         }
-        //三级类过滤
-        if(!empty($product_terms)){
-            $filter[] = [
-                'bool' => [
-                    'should' => $product_terms,
-                    'minimum_should_match' => 1
-                ]
-            ];
-        }
 
         //发布时间过滤
         $filter[] = [
@@ -119,9 +104,7 @@ class BuySearchData
         $query = [
             'query' => [
                 'bool' => [
-                    'filter' => $filter,
-                    'should' => $should,
-                    'minimum_should_match' => 1,
+                    'filter' => $filter
                 ]
             ],
             '_source' => [

@@ -89,7 +89,7 @@ class ElasticsearchLogic
                 $result = $connect->search($params);
                 if(!empty($result)){
                     $list = $result['hits']['hits'];
-                    $count = (int)$result['hits']['count'];
+                    $count = (int)$result['hits']['total'];
                     return ['status' => 200, 'result' => ['list' => $list, 'count' => $count]];
                 }
             } catch (PoolException $e) {
