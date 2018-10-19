@@ -68,9 +68,9 @@ class SearchController
                 'list' => [],
                 'count' => 0
             ];
-            $result['count'] = $list['count'];
-            if(!empty($list['result'])){
-                foreach ($list['result'] as $key => $item) {
+            $result['count'] = $list['result']['count'];
+            if(!empty($list['result']['list'])){
+                foreach ($list['result']['list'] as $key => $item) {
                     $result['list'][$key] = $item['_source'];
                     $result['list'][$key]['bid'] = $item['_id'];
                 }
