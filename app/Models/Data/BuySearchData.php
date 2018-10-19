@@ -58,7 +58,7 @@ class BuySearchData
                 if($this->redis->exists($tag_index . $tag['main_type'])){
                     $tag_list_cache = $this->redis->get($tag_index . $tag['main_type']);
                     $tag_list = json_decode($tag_list_cache,true);
-                    if(in_array($tag['sec_category'],$tag_list)){
+                    if(!in_array($tag['sec_category'],$tag_list)){
                         $parent_terms[] = [
                             'term' => ['proName_ids' => $tag['sec_cateid']]
                         ];
