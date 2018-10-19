@@ -66,16 +66,19 @@ class BuySearchData
                         $product_terms[] = $tag['tag_name'];
                     }
                 }
-                $type_terms[] = [
-                    'term' => ['type_id' => $tag['top_id']]
-                ];
+                $type_terms[] = $tag['top_id'];
             }
         }
         //大类过滤
         if(!empty($type_terms)){
+            $new_type_list = array_unique($type_terms);
+            $type_terms_list = [];
+            foreach ($new_type_list as $type) {
+                $type_terms_list[] = ['term' => ['type_id' => $type]];
+            }
             $filter[] = [
                 'bool' => [
-                    'should' => $type_terms,
+                    'should' => $type_terms_list,
                     'minimum_should_match' => 1
                 ]
             ];
