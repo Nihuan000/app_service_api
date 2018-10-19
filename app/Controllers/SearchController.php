@@ -64,11 +64,15 @@ class SearchController
             $elastic_logic = App::getBean(ElasticsearchLogic::class);
             $list = $elastic_logic->search_events($params,$module);
             $code = $list['status'];
-            $result = [];
+            $result = [
+                'list' => [],
+                'count' => 0
+            ];
+            $result['count'] = $list['count'];
             if(!empty($list['result'])){
                 foreach ($list['result'] as $key => $item) {
-                    $result[$key] = $item['_source'];
-                    $result[$key]['bid'] = $item['_id'];
+                    $result['list'][$key] = $item['_source'];
+                    $result['list'][$key]['bid'] = $item['_id'];
                 }
             }
             $msg = '获取成功';
