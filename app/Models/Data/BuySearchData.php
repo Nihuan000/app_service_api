@@ -43,6 +43,7 @@ class BuySearchData
      */
     public function recommendByTag(array $params)
     {
+        $size = 100;
         $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
         $last_time = strtotime("-{$last_days} day");
@@ -102,6 +103,7 @@ class BuySearchData
         ];
         //搜索语句拼接
         $query = [
+            'size' => $size,
             'query' => [
                 'bool' => [
                     'filter' => $filter
@@ -110,6 +112,11 @@ class BuySearchData
             '_source' => [
                 'includes' => $this->searchSource(),
             ],
+            'sort' => [
+                'refresh_time' => [
+                    'order' => 'desc'
+                ]
+            ]
         ];
         //搜索执行语句生成
         return $query;
