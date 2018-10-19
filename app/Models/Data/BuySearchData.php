@@ -53,24 +53,21 @@ class BuySearchData
 
         $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
         $parent_terms = [];
+        $product_terms = [];
         $type_terms = [];
         if(!empty($user_tag_list)){
             foreach ($user_tag_list as $tag){
-                if($this->redis->exists($tag_index . $tag['main_type'])){
-                    $tag_list_cache = $this->redis->get($tag_index . $tag['main_type']);
+                if($this->redis->exists($tag_index . $tag['top_id'])){
+                    $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
                     $tag_list = json_decode($tag_list_cache,true);
-                    if(!in_array($tag['sec_category'],$tag_list)){
-                        $parent_terms[] = [
-                            'term' => ['proName_ids' => $tag['sec_cateid']]
-                        ];
+                    if(!in_array($tag['parent_name'],$tag_list)){
+                        $parent_terms[] = $tag['parent_id'];
                     }else{
-                        $parent_terms[] = [
-                            'term' => ['labels_normalized' => $tag['name']]
-                        ];
+                        $product_terms[] = $tag['tag_name'];
                     }
                 }
                 $type_terms[] = [
-                    'term' => ['type_id' => $tag['main_type']]
+                    'term' => ['type_id' => $tag['top_id']]
                 ];
             }
         }
@@ -84,14 +81,27 @@ class BuySearchData
             ];
         }
         //二级类过滤
+        $parent_terms_list = [];
         if(!empty($parent_terms)){
-            $filter[] = [
-                'bool' => [
-                    'should' => $parent_terms,
-                    'minimum_should_match' => 1
-                ]
-            ];
+            $new_terms = array_unique($parent_terms);
+            foreach ($new_terms as $term) {
+                $parent_terms_list[] = ['term' => ['proName_ids' => $term]];
+            }
         }
+        //三级类过滤
+        if(!empty($product_terms)){
+            $new_product = array_unique($product_terms);
+            foreach ($new_product as $item) {
+                $parent_terms_list[] = ['term' => ['labels_normalized' => $item]];
+            }
+        }
+
+        $filter[] = [
+            'bool' => [
+                'should' => $parent_terms_list,
+                'minimum_should_match' => 1
+            ]
+        ];
 
         //发布时间过滤
         $filter[] = [
