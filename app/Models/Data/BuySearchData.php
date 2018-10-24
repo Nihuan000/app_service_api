@@ -7,10 +7,8 @@
 
 namespace App\Models\Data;
 
-use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
-use Swoft\Exception\PoolException;
 use Swoft\Redis\Redis;
 
 /**
@@ -29,17 +27,11 @@ class BuySearchData
      * @var Redis
      */
     private $redis;
-    /**
-     * @Inject()
-     * @var UserDao
-     */
-    private $userDao;
 
     /**
      * 根据标签推荐与我相关
      * @param array $params
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
      */
     public function recommendByTag(array $params)
     {
@@ -51,7 +43,8 @@ class BuySearchData
         //过滤基本信息
         $filter = $this->baseFilter();
 
-        $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
+        $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
+        $user_tag_list = json_decode($user_tag_string,true);
         $parent_terms = [];
         $product_terms = [];
         $type_terms = [];

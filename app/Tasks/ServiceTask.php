@@ -9,6 +9,8 @@
 
 namespace App\Tasks;
 
+use App\Models\Dao\UserDao;
+use App\Models\Entity\User;
 use Swoft\Db\Db;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Redis\Redis;
@@ -27,6 +29,12 @@ class ServiceTask
      * @var Redis
      */
     private $redis;
+
+    /**
+     * @Inject()
+     * @var UserDao
+     */
+    private $userDao;
 
     /**
      * 行业动态
@@ -132,6 +140,42 @@ class ServiceTask
         }
         $this->redis->hSet(INDUSTRY_NEWS_TIME,'industry',$date_time_format);
         return [$last_ansy_time];
+    }
+
+
+    /**
+     * 供应商订阅标签缓存
+     * @author Nihuan
+     * @Scheduled(cron="0 0 3 1 * *")
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function statisticTagTask()
+    {
+        $limit = 100;
+        $tag_index = 'user_subscription_tag:';
+        $last_time = strtotime("-60 day");
+        $last_id = 0;
+        $userCount = User::count('*',['last_time' => ['>=',$last_time], 'status' => 1])->getResult();
+        $pages = ceil($userCount/$limit);
+        if($pages > 0){
+            for ($i = 0; $i < $pages; $i++){
+                $user_ids = [];
+                $userResult = User::findAll(
+                    ['last_time' => ['>=',$last_time], 'status' => 1,['user_id','>',$last_id]],
+                    ['limit' => $limit, 'orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
+                )->getResult();
+                if(!empty($userResult)){
+                    foreach ($userResult as $item) {
+                        $tags = $this->userDao->getUserTagByUid($item['userId']);
+                        if(!empty($user_tag_list)){
+                            $this->redis->set($tag_index . $item['userId'],json_encode($tags));
+                        }
+                    }
+                    $last_id = end($user_ids);
+                }
+            }
+        }
+        return ['订阅标签缓存'];
     }
 
 
