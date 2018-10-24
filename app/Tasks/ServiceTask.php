@@ -155,13 +155,13 @@ class ServiceTask
         $tag_index = 'user_subscription_tag:';
         $last_time = strtotime("-60 day");
         $last_id = 0;
-        $userCount = User::count('*',['last_time' => ['>=',$last_time], 'status' => 1])->getResult();
+        $userCount = User::count('*',[['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]])->getResult();
         $pages = ceil($userCount/$limit);
         if($pages > 0){
             for ($i = 0; $i < $pages; $i++){
                 $user_ids = [];
                 $userResult = User::findAll(
-                    ['last_time' => ['>=',$last_time], 'status' => 1,['user_id','>',$last_id]],
+                    [['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]],
                     ['limit' => $limit, 'orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
                 )->getResult();
                 if(!empty($userResult)){
