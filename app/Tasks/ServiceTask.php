@@ -149,7 +149,7 @@ class ServiceTask
      * @Scheduled(cron="0 0 3 1 * *")
      * @throws \Swoft\Db\Exception\DbException
      */
-    public function statisticTagTask()
+    public function userSubscriptionTagTask()
     {
         $limit = 100;
         $tag_index = 'user_subscription_tag:';
