@@ -23,7 +23,7 @@ class BuySearchData
 {
 
     /**
-     * @Inject("searchRedis")
+     * @Inject("demoRedis")
      * @var Redis
      */
     private $redis;

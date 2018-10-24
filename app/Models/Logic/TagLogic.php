@@ -31,7 +31,7 @@ class TagLogic
     private $userDao;
 
     /**
-     * @Inject("searchRedis")
+     * @Inject("demoRedis")
      * @var Redis
      */
     private $redis;
