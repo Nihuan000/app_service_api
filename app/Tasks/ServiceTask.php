@@ -167,7 +167,7 @@ class ServiceTask
                 if(!empty($userResult)){
                     foreach ($userResult as $item) {
                         $tags = $this->userDao->getUserTagByUid($item['userId']);
-                        if(!empty($user_tag_list)){
+                        if(!empty($tags)){
                             $this->redis->set($tag_index . $item['userId'],json_encode($tags));
                         }
                     }

@@ -58,6 +58,8 @@ class BuySearchData
                     }else{
                         $product_terms[] = $tag['tag_name'];
                     }
+                }else{
+                    $product_terms[] = $tag['tag_name'];
                 }
                 $type_terms[] = $tag['top_id'];
             }
