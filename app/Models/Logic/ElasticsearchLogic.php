@@ -209,32 +209,52 @@ class ElasticsearchLogic
      */
     private function _DataEntity($data)
     {
-        foreach ($data as $key => $item) {
+        $list = [];
+        foreach ($data as $key => $sub) {
+            $item = $sub['_source'];
             if(isset($item['status'])){
-                $data[$key]['status'] = (int)$item['status'];
+                $list[$key]['status'] = (int)$item['status'];
             }
             if(isset($item['type'])){
-                $data[$key]['type'] = (int)$item['type'];
+                $list[$key]['type'] = (int)$item['type'];
             }
             if(isset($item['buy_fixed'])){
-                $data[$key]['buy_fixed'] = (int)$item['buy_fixed'];
+                $list[$key]['buy_fixed'] = (int)$item['buy_fixed'];
             }
             if(isset($item['amount'])){
-                $data[$key]['amount'] = (int)$item['amount'];
+                $list[$key]['amount'] = (int)$item['amount'];
             }
             if(isset($item['bid'])){
-                $data[$key]['bid'] = (int)$item['bid'];
+                $list[$key]['bid'] = (int)$item['bid'];
             }
             if(isset($item['add_time'])){
-                $data[$key]['add_time'] = (int)$item['add_time'];
+                $list[$key]['add_time'] = (int)$item['add_time'];
             }
             if(isset($item['add_time'])){
-                $data[$key]['look_ahead_time'] = (int)$item['add_time'];
+                $list[$key]['look_ahead_time'] = (int)$item['add_time'];
             }
             if(isset($item['del_status'])){
-                $data[$key]['del_status'] = (int)$item['del_status'];
+                $list[$key]['del_status'] = (int)$item['del_status'];
+            }
+            if(isset($item['remark'])){
+                $list[$key]['remark'] = $item['remark'];
+            }
+            if(isset($item['pic'])){
+                $list[$key]['pic'] = $item['pic'];
+            }
+            if(isset($item['city'])){
+                $list[$key]['city'] = $item['city'];
+            }
+            if(isset($item['unit'])){
+                $list[$key]['unit'] = $item['unit'];
+            }
+            if(isset($item['fixed_amount'])){
+                $list[$key]['fixed_amount'] = $item['fixed_amount'];
+            }
+            if(isset($item['province'])){
+                $list[$key]['province'] = $item['province'];
             }
         }
-        return $data;
+        return $list;
     }
 }
