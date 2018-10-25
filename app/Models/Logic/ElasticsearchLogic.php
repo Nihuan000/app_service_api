@@ -211,6 +211,9 @@ class ElasticsearchLogic
     {
         $list = [];
         foreach ($data as $key => $sub) {
+            if(isset($sub['_id'])){
+                $list[$key]['bid'] = (int)$sub['_id'];
+            }
             $item = $sub['_source'];
             if(isset($item['status'])){
                 $list[$key]['status'] = (int)$item['status'];
@@ -223,9 +226,6 @@ class ElasticsearchLogic
             }
             if(isset($item['amount'])){
                 $list[$key]['amount'] = (int)$item['amount'];
-            }
-            if(isset($item['bid'])){
-                $list[$key]['bid'] = (int)$item['bid'];
             }
             if(isset($item['add_time'])){
                 $list[$key]['add_time'] = (int)$item['add_time'];

@@ -69,12 +69,7 @@ class SearchController
                 'count' => 0
             ];
             $result['count'] = $list['result']['count'];
-            if(!empty($list['result']['list'])){
-                foreach ($list['result']['list'] as $key => $item) {
-                    $result['list'][$key] = $item['_source'];
-                    $result['list'][$key]['bid'] = $item['_id'];
-                }
-            }
+            $result['list'] = is_null($list['result']['list']) ? [] : $list['result']['list'];
             $msg = '获取成功';
         }
         return compact('code','result','msg');
