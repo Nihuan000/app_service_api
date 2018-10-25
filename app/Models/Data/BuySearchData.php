@@ -104,7 +104,7 @@ class BuySearchData
         //发布时间过滤
         $filter[] = [
             'range' => [
-                'add_time' => [
+                'audit_time' => [
                     'from' => $last_time
                 ]
             ]
