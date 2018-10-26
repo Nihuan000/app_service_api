@@ -227,6 +227,12 @@ class ElasticsearchLogic
             if(isset($item['amount'])){
                 $list[$key]['amount'] = (int)$item['amount'];
             }
+            if(isset($item['is_customize'])){
+                $list[$key]['is_customize'] = (int)$item['is_customize'];
+            }
+            if(isset($item['del_status'])){
+                $list[$key]['del_status'] = (int)$item['del_status'];
+            }
             if(isset($item['add_time'])){
                 $list[$key]['add_time'] = (int)$item['add_time'];
             }
