@@ -186,9 +186,9 @@ class ServiceTask
     }
 
     /**
-     * 供应商订阅标签缓存
+     * 供应商个性化标签缓存
      * @author Nihuan
-     * @Scheduled(cron="0 * * * * *")
+     * @Scheduled(cron="0 25 18 * * *")
      */
     public function userViewBuyTagTask()
     {

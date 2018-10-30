@@ -121,7 +121,7 @@ class BuyData
     {
         $condition = [
             'user_id' => $uid,
-            ['r_time','>=',$last_time]
+            ['offer_time','>=',$last_time]
         ];
         $offer_buy_list = $this->offerDao->getUserOfferBid($condition);
         if(!empty($offer_buy_list)){
