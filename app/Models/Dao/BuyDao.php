@@ -9,6 +9,7 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\Buy;
+use App\Models\Entity\BuyRecords;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
 
@@ -49,5 +50,15 @@ class BuyDao
     {
         $day_time = date('Y-m-d',strtotime('-1 day'));
         return Db::query("SELECT b.buy_id AS buyId, b.remark, b.pic, b.amount, b.unit FROM sb_buy b LEFT JOIN sb_buy_attribute AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND  b.del_status = 1 AND  b.is_audit = 0 AND  FROM_UNIXTIME(b.audit_time,'%Y-%m-%d') = '{$day_time}' AND  b.is_find = 0 AND  a.offer_count = 0")->getResult();
+    }
+
+    /**
+     * 获取浏览过的采购列表
+     * @param $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getVisitBuyRecord($params)
+    {
+        return BuyRecords::findAll( $params, ['fields' => ['buy_id']])->getResult();
     }
 }

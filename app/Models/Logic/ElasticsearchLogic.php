@@ -36,12 +36,10 @@ class ElasticsearchLogic
      * @Inject()
      * @var BuySearchData
      */
-    private $buySearchData;
-
+    public $buySearchData;
 
     /**
      * 单连接池
-     * @Inject()
      * @author Nihuan
      * @return \Elasticsearch\Client
      * @throws PoolException

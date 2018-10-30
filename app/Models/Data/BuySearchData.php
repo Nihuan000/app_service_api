@@ -13,10 +13,8 @@ use Swoft\Redis\Redis;
 
 /**
  * 采购搜索
- * 同时可以被controller server task使用
  * @Bean()
- * @uses      ElasticsearchLogic
- * @version   1.0
+ * @uses      BuySearchData
  * @author    Nihuan
  */
 class BuySearchData

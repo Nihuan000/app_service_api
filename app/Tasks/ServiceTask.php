@@ -10,6 +10,7 @@
 namespace App\Tasks;
 
 use App\Models\Dao\UserDao;
+use App\Models\Data\BuyData;
 use App\Models\Entity\User;
 use Swoft\Db\Db;
 use Swoft\Bean\Annotation\Inject;
@@ -35,6 +36,12 @@ class ServiceTask
      * @var UserDao
      */
     private $userDao;
+
+    /**
+     * @Inject()
+     * @var BuyData
+     */
+    private $buyData;
 
     /**
      * 行业动态
@@ -176,6 +183,44 @@ class ServiceTask
             }
         }
         return ['订阅标签缓存'];
+    }
+
+    /**
+     * 供应商订阅标签缓存
+     * @author Nihuan
+     * @Scheduled(cron="0 * * * * *")
+     */
+    public function userViewBuyTagTask()
+    {
+        $limit = 100;
+        $tag_index = 'user_personal_tag:';
+        $last_time = strtotime("-60 day");
+        $last_id = 0;
+        $userCount = User::count('*',[['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]])->getResult();
+        $pages = ceil($userCount/$limit);
+        if($pages > 0){
+            for ($i = 0; $i < $pages; $i++){
+                $user_ids = [];
+                $userResult = User::findAll(
+                    [['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]],
+                    ['limit' => $limit, 'orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
+                )->getResult();
+                if(!empty($userResult)){
+                    foreach ($userResult as $item) {
+                        $visit_tags = $this->buyData->getUserVisitBuyTag($item['userId'],$last_time);
+                        if(!empty($visit_tags)){
+                            $this->redis->hMset($tag_index . $item['userId'],['visit' => $visit_tags]);
+                        }
+                        $offer_tags = $this->buyData->getUserOfferBid($item['userId'],$last_time);
+                        if(!empty($offer_tags)){
+                            $this->redis->hMset($tag_index . $item['userId'],['offer' => $offer_tags]);
+                        }
+                    }
+                    $last_id = end($user_ids);
+                }
+            }
+        }
+        return ['个性化标签缓存'];
     }
 
 
