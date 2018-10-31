@@ -105,8 +105,8 @@ class BuyData
                         $tag_list[$tag['tagId']] = 1;
                     }
                 }
-                array_unique($tag_list);
-                return array_slice($tag_list,0,10);
+                $tag_ids = array_keys($tag_list);
+                return array_slice($tag_ids,0,10);
             }
         }
         return [];
@@ -140,8 +140,8 @@ class BuyData
                         $tag_list[$tag['tagId']] = 1;
                     }
                 }
-                array_unique($tag_list);
-                return array_slice($tag_list,0,10);
+                $tag_ids = array_keys($tag_list);
+                return array_slice($tag_ids,0,10);
             }
         }
         return [];
