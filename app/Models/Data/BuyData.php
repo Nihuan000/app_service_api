@@ -95,14 +95,14 @@ class BuyData
             foreach ($buy_list as $item) {
                 $buy_ids[] = $item['buyId'];
             }
-            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_id']);
+            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name']);
             if(!empty($tags)){
                 $tag_list = [];
                 foreach ($tags as $tag) {
-                    if(isset($this->tag_stastic_list[$tag['parentId']])){
-                        $tag_list[$tag['tagId']] += 1;
+                    if(isset($tag_list[$tag['tagName']])){
+                        $tag_list[$tag['tagName']] += 1;
                     }else{
-                        $tag_list[$tag['tagId']] = 1;
+                        $tag_list[$tag['tagName']] = 1;
                     }
                 }
                 $tag_ids = array_keys($tag_list);
@@ -130,14 +130,14 @@ class BuyData
             foreach ($offer_buy_list as $item) {
                 $buy_ids[] = $item['buyId'];
             }
-            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_id']);
+            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name']);
             if(!empty($tags)){
                 $tag_list = [];
                 foreach ($tags as $tag) {
-                    if(isset($this->tag_stastic_list[$tag['parentId']])){
-                        $tag_list[$tag['tagId']] += 1;
+                    if(isset($tag_list[$tag['tagName']])){
+                        $tag_list[$tag['tagName']] += 1;
                     }else{
-                        $tag_list[$tag['tagId']] = 1;
+                        $tag_list[$tag['tagName']] = 1;
                     }
                 }
                 $tag_ids = array_keys($tag_list);
