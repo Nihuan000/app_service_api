@@ -15,6 +15,7 @@ use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
 use App\Pool\ElasticsearchPool;
 use Swoft\Exception\PoolException;
+use Swoft\Log\Log;
 
 /**
  * 采购搜索
@@ -82,6 +83,7 @@ class ElasticsearchLogic
                 'type' => 'buy',
                 'body' => $query,
             ];
+            Log::info(json_encode($params));
             try {
                 $connect = $this->simpleConnectionPool();
                 $result = $connect->search($params);
