@@ -17,13 +17,14 @@ use Swoft\Db\Bean\Collector\ConnectionCollector;
 use Swoft\Db\Driver\DriverType;
 use Swoft\Db\Exception\DbException;
 use Swoft\Pool\ConnectionInterface;
+use Swoft\Pool\ConnectionPool;
 
 /**
  * Search Db pool
  *
- * @Pool("default.search")
+ * @Pool("search.master")
  */
-class DbSearchPool
+class DbSearchPool extends ConnectionPool
 {
     /**
      * The config of search poolbPool
@@ -32,17 +33,16 @@ class DbSearchPool
      *
      * @var DbSearchPoolConfig
      */
-    protected $searchPoolConfig;
+    protected $poolConfig;
 
     /**
      * Create connection
      *
      * @return ConnectionInterface
-     * @throws \Swoft\Db\Exception\DbException
      */
     public function createConnection(): ConnectionInterface
     {
-        $driver    = $this->searchPoolConfig->getDriver();
+        $driver    = $this->poolConfig->getDriver();
         $collector = ConnectionCollector::getCollector();
 
         if (App::isCoContext()) {

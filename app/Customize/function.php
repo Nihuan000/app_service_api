@@ -443,3 +443,14 @@ function write_log($type,$data)
         file_put_contents($log_dir . $file,$data . PHP_EOL,FILE_APPEND);
     }
 }
+
+/**
+ * 随机数
+ * @return string
+ */
+function create_guid(){
+    $charid = strtoupper(md5(uniqid(mt_rand(), true)));
+    $uuid = substr($charid, 0, 8).substr($charid, 8, 4)
+        .substr($charid,12, 3);
+    return $uuid;
+}

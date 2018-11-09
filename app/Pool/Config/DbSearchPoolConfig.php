@@ -12,13 +12,14 @@ namespace App\Pool\Config;
 use Swoft\Bean\Annotation\Value;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Driver\Driver;
+use Swoft\Db\Pool\Config\DbPoolProperties;
 
 /**
  * Search pool
  *
  * @Bean()
  */
-class DbSearchPoolConfig
+class DbSearchPoolConfig extends DbPoolProperties
 {
     /**
      * @Value(name="${config.db.search.name}", env="${DB_SEARCH_NAME}")

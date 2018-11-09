@@ -51,7 +51,7 @@ class TbPushBuyRecordDao
             ->selectInstance('search')
             ->where('user_id',$user_id)
             ->where('buy_id',$buy_id)
-            ->get($column)
+            ->one($column)
             ->getResult();
     }
 
@@ -78,7 +78,8 @@ class TbPushBuyRecordDao
      */
     public function insertRecord(array $data)
     {
-        $data['date_time'] = strtotime(date('Y-m-d'));
+        $data['day_time'] = strtotime(date('Y-m-d'));
+        $data['uuid'] = '@Tag_' . create_guid();
         $data['update_time'] = (int)microtime(1) * 1000;
         return Query::table(TbPushBuyRecord::class)
             ->selectInstance('search')
