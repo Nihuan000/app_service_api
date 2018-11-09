@@ -39,4 +39,35 @@ class TbPushBuyRecordData
         return $this->PushBuyRecordDao->getPushRecord($buyId,0, $fields);
     }
 
+    /**
+     * 获取单条推荐信息
+     * @param $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getUserPushRecord($params)
+    {
+        $fields = ['id'];
+        return $this->PushBuyRecordDao->getRecordByParams($params,$fields);
+    }
+
+    /**
+     * 更新数据
+     * @param $id
+     * @param $data
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function updatePushRecord($id,$data)
+    {
+        return $this->PushBuyRecordDao->updateRecordById($id,$data);
+    }
+
+    /**
+     * 插入数据
+     * @param array $data
+     * @return mixed
+     */
+    public function insertPushRecord(array $data)
+    {
+        return $this->PushBuyRecordDao->insertRecord($data);
+    }
 }

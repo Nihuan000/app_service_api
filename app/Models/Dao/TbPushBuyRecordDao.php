@@ -36,4 +36,42 @@ class TbPushBuyRecordDao
             ->get($column)
             ->getResult();
     }
+
+    /**
+     * 获取与我相关信息
+     * @param array $params
+     * @param array $column
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getRecordByParams(array $params, array $column = ['*'])
+    {
+        return TbPushBuyRecord::findOne($params,$column);
+    }
+
+    /**
+     * 记录信息修改
+     * @param int $id
+     * @param array $data
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function updateRecordById(int $id, array $data)
+    {
+        return TbPushBuyRecord::updateOne($data,['id' => $id]);
+    }
+
+    /**
+     * 推荐记录写入
+     * @param array $data
+     * @return mixed
+     */
+    public function insertRecord(array $data)
+    {
+        $pushRecord = new TbPushBuyRecord();
+        $pushRecord->setBuyId($data['buy_id']);
+        $pushRecord->setUserId($data['user_id']);
+        $pushRecord->setIsRead($data['is_read']);
+        $pushRecord->setDayTime(strtotime(date('Y-m-d')));
+        $pushRecord->setUpdateTime((int)microtime(1) * 1000);
+        return $pushRecord->save()->getResult();
+    }
 }

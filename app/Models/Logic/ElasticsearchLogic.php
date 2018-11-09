@@ -83,7 +83,7 @@ class ElasticsearchLogic
                 'type' => 'buy',
                 'body' => $query,
             ];
-            Log::info(json_encode($params));
+            Log::info(json_encode($params,JSON_PRETTY_PRINT));
             try {
                 $connect = $this->simpleConnectionPool();
                 $result = $connect->search($params);
