@@ -65,6 +65,7 @@ class TbPushBuyRecordData
      * 插入数据
      * @param array $data
      * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function insertPushRecord(array $data)
     {

@@ -86,6 +86,7 @@ class SearchController
      * 商机推荐状态修改
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function update_push_status(Request $request)
     {

@@ -45,7 +45,14 @@ class TbPushBuyRecordDao
      */
     public function getRecordByParams(array $params, array $column = ['*'])
     {
-        return TbPushBuyRecord::findOne($params,$column);
+        $user_id = $params['user_id'];
+        $buy_id = $params['buy_id'];
+        return Query::table(TbPushBuyRecord::class)
+            ->selectInstance('search')
+            ->where('user_id',$user_id)
+            ->where('buy_id',$buy_id)
+            ->get($column)
+            ->getResult();
     }
 
     /**
@@ -56,22 +63,26 @@ class TbPushBuyRecordDao
      */
     public function updateRecordById(int $id, array $data)
     {
-        return TbPushBuyRecord::updateOne($data,['id' => $id]);
+        return Query::table(TbPushBuyRecord::class)
+            ->selectInstance('search')
+            ->where('id',$id)
+            ->update($data)
+            ->getResult();
     }
 
     /**
      * 推荐记录写入
      * @param array $data
      * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function insertRecord(array $data)
     {
-        $pushRecord = new TbPushBuyRecord();
-        $pushRecord->setBuyId($data['buy_id']);
-        $pushRecord->setUserId($data['user_id']);
-        $pushRecord->setIsRead($data['is_read']);
-        $pushRecord->setDayTime(strtotime(date('Y-m-d')));
-        $pushRecord->setUpdateTime((int)microtime(1) * 1000);
-        return $pushRecord->save()->getResult();
+        $data['date_time'] = strtotime(date('Y-m-d'));
+        $data['update_time'] = (int)microtime(1) * 1000;
+        return Query::table(TbPushBuyRecord::class)
+            ->selectInstance('search')
+            ->insert($data)
+            ->getResult();
     }
 }
