@@ -239,6 +239,9 @@ class ElasticsearchLogic
             if(isset($item['add_time'])){
                 $list[$key]['look_ahead_time'] = (int)$item['add_time'];
             }
+            if(isset($item['audit_time'])){
+                $list[$key]['pushTime'] = (int)$item['audit_time'];
+            }
             if(isset($item['del_status'])){
                 $list[$key]['del_status'] = (int)$item['del_status'];
             }

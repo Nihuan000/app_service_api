@@ -149,7 +149,7 @@ class BuySearchData
      */
     private function searchSource()
     {
-        return [ "buy_id", "amount", "status", "unit", "type", "pic", "remark", "province", "city", "role", "add_time", "alter_time", "is_customize", "earnest", "buy_fixed", "fixed_amount","del_status"];
+        return [ "buy_id", "amount", "status", "unit", "type", "pic", "remark", "province", "city", "role", "add_time", "alter_time", "is_customize", "earnest", "buy_fixed", "fixed_amount","del_status","audit_time"];
     }
 
 
