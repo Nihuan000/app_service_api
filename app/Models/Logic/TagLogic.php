@@ -47,4 +47,35 @@ class TagLogic
             $this->redis->set('user_subscription_tag:' . $event['user_id'],json_encode($user_tag_list));
         }
     }
+
+    /**
+     * 屏蔽标签处理
+     * @param array $event
+     */
+    public function set_tag_level(array $event)
+    {
+        $cacheKey = '';
+        switch ($event['set_type']){
+            case 1: //不匹配
+                $cacheKey = '@Mismatch_tag_' . $event['user_id'];
+                break;
+
+            case 2: //屏蔽
+                $cacheKey = '@Shield_tag_' . $event['user_id'];
+                break;
+        }
+
+        if(!empty($cacheKey)){
+            $keys = $this->redis->hGet($cacheKey,$event['tag_type']);
+            if(!empty($keys)){
+                $list = json_decode($keys,true);
+                $ids = array_merge($list,$event['tag_ids']);
+            }else{
+                $ids = $event['tag_ids'];
+            }
+
+            $tag_ids = json_encode($ids);
+            $this->redis->hSet($cacheKey,$event['tag_type'],$tag_ids);
+        }
+    }
 }

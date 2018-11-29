@@ -31,12 +31,46 @@ class TagController
             $code = 0;
             $result = [];
             $msg = '请求参数错误: user_id';
+        }else{
+            /* @var TagLogic $tag_logic */
+            $tag_logic = App::getBean(TagLogic::class);
+            $tag_logic->event_analysis([
+                'user_id' => $user_id,
+            ]);
+            $code = 200;
+            $result = [];
+            $msg = '刷新成功';
         }
-        /* @var TagLogic $tag_logic */
-        $tag_logic = App::getBean(TagLogic::class);
-        $tag_logic->event_analysis([
-            'user_id' => $user_id,
-        ]);
         return compact("code","result","msg");
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function set_downgrade_tag(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        $set_type = $request->post('set_type');
+        $tag_type = $request->post('tag_cate_id');
+        $tag_ids = $request->post('tag_ids');
+        if(empty($user_id) || empty($tag_type) || empty($tag_type) || empty($tag_ids)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            /* @var TagLogic $tag_logic */
+            $tag_logic = App::getBean(TagLogic::class);
+            $tag_logic->set_tag_level([
+                'user_id' => $user_id,
+                'set_type' => $set_type,
+                'tag_type' => $tag_type,
+                'tag_ids' => $tag_ids,
+            ]);
+            $code = 200;
+            $result = [];
+            $msg = '提交成功';
+        }
+        return compact('code','result','msg');
     }
 }
