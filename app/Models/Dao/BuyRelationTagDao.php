@@ -23,15 +23,17 @@ class BuyRelationTagDao
      * @author Nihuan
      * @param array $buy_ids
      * @param array $fields
+     * @param array $black_ids
      * @return mixed
      */
-    public function getRelationTagList(array $buy_ids, array $fields)
+    public function getRelationTagList(array $buy_ids, array $fields, $black_ids = [])
     {
         return BuyRelationTag::findAll(
             [
                 'buy_id' => $buy_ids,
                 'cate_id' => 1,
-                ['top_id','>',0]
+                ['top_id','>',0],
+                ['tag_id','NOT IN', $black_ids]
             ],
             ['fields' => $fields]
         )->getResult();

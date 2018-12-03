@@ -10,6 +10,7 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\Buy;
 use App\Models\Entity\BuyRecords;
+use Elasticsearch\Endpoints\DeleteByQuery;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
 
@@ -60,5 +61,28 @@ class BuyDao
     public function getVisitBuyRecord($params)
     {
         return BuyRecords::findAll( $params, ['fields' => ['buy_id']])->getResult();
+    }
+
+    /**
+     * 获取用户采购id列表
+     * @param $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getUserBuyIds($params)
+    {
+        return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'user_id' => $params['user_id']],
+            ['fields' => ['buy_id']])->getResult();
+    }
+
+    /**
+     * 用户搜索产品关键词记录
+     * @param $user_id
+     * @param $last_time
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getUserSearchLog($user_id, $last_time)
+    {
+        return Db::query("select keyword from sb_product_search_log where user_id = {$user_id} and page_num = 1 and keyword !='' and search_time >= {$last_time}")->getResult();
     }
 }

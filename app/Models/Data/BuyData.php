@@ -43,6 +43,12 @@ class BuyData
     private $offerDao;
 
     /**
+     * 品类列表
+     * @var array
+     */
+    protected $pro_cate = [ '辅料', '针织', '蕾丝/绣品', '皮革/皮草', '其他', '棉类', '麻类', '呢料毛纺', '丝绸/真丝', '化纤'];
+
+    /**
      * 获取采购信息
      * @author Nihuan
      * @param int $bid
@@ -81,9 +87,10 @@ class BuyData
      * 获取用户浏览过的采购信息
      * @param $uid
      * @param $last_time
+     * @param $black_ids
      * @return array
      */
-    public function getUserVisitBuyTag($uid,$last_time)
+    public function getUserVisitBuyTag($uid,$last_time,$black_ids)
     {
         $condition = [
             'user_id' => $uid,
@@ -95,7 +102,7 @@ class BuyData
             foreach ($buy_list as $item) {
                 $buy_ids[] = $item['buyId'];
             }
-            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name']);
+            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name'],$black_ids);
             if(!empty($tags)){
                 $tag_list = [];
                 foreach ($tags as $tag) {
@@ -116,9 +123,10 @@ class BuyData
      * 报价的采购标签
      * @param $uid
      * @param $last_time
+     * @param $black_ids
      * @return array
      */
-    public function getUserOfferBid($uid,$last_time)
+    public function getUserOfferBid($uid,$last_time,$black_ids)
     {
         $condition = [
             'user_id' => $uid,
@@ -130,7 +138,7 @@ class BuyData
             foreach ($offer_buy_list as $item) {
                 $buy_ids[] = $item['buyId'];
             }
-            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name']);
+            $tags = $this->buyRelationTagDao->getRelationTagList($buy_ids,['tag_name'],$black_ids);
             if(!empty($tags)){
                 $tag_list = [];
                 foreach ($tags as $tag) {
@@ -145,6 +153,58 @@ class BuyData
             }
         }
         return [];
+    }
+
+    /**
+     * 发布采购标签获取
+     * @param $user_id
+     * @return array
+     */
+    public function getUserBuyIdsHalfYear($user_id)
+    {
+        $relation_tags = [];
+        $last_time = strtotime('-3 month');
+        $params = [
+            'user_id' => $user_id,
+            'last_time' => $last_time
+        ];
+        $buy_ids = $this->buyDao->getUserBuyIds($params);
+        if(!empty($buy_ids)){
+            $id_list = [];
+            foreach ($buy_ids as $buy_id) {
+                $id_list[] = $buy_id['buyId'];
+            }
+            $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name']);
+            if(!empty($buy_tags)){
+                foreach ($buy_tags as $tag) {
+                    $tag_name = str_replace('面料','',$tag['topName']);
+                    $relation_tags[$tag_name][] = 100;
+                }
+            }
+        }
+        return $relation_tags;
+    }
+
+    /**
+     * @param $user_id
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getUserSearchKeyword($user_id)
+    {
+        $search_tag = [];
+        $last_time = strtotime('-1 month');
+        $keyword_list = $this->buyDao->getUserSearchLog($user_id,$last_time);
+        if(!empty($keyword_list)){
+            foreach ($keyword_list as $item) {
+                foreach ($this->pro_cate as $cate){
+                    if(strpos($item['keyword'],$cate)){
+                        $search_tag[$cate][] = 30;
+                    }
+                }
+            }
+        }
+        return $search_tag;
     }
 
 }

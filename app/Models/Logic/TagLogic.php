@@ -49,33 +49,17 @@ class TagLogic
     }
 
     /**
-     * 屏蔽标签处理
-     * @param array $event
+     * @param int $user_id
+     * @throws \Swoft\Db\Exception\DbException
      */
-    public function set_tag_level(array $event)
+    public function new_reg_recommend(int $user_id)
     {
-        $cacheKey = '';
-        switch ($event['set_type']){
-            case 1: //不匹配
-                $cacheKey = '@Mismatch_tag_' . $event['user_id'];
-                break;
-
-            case 2: //屏蔽
-                $cacheKey = '@Shield_tag_' . $event['user_id'];
-                break;
-        }
-
-        if(!empty($cacheKey)){
-            $keys = $this->redis->hGet($cacheKey,$event['tag_type']);
-            if(!empty($keys)){
-                $list = json_decode($keys,true);
-                $ids = array_merge($list,$event['tag_ids']);
-            }else{
-                $ids = $event['tag_ids'];
+        $user_tag_list = $this->userDao->getUserTagByUid($user_id);
+        $subscription_tag = [];
+        if(!empty($user_tag_list)){
+            foreach ($user_tag_list as $item) {
+                $subscription_tag[] = $item['tag_id'];
             }
-
-            $tag_ids = json_encode($ids);
-            $this->redis->hSet($cacheKey,$event['tag_type'],$tag_ids);
         }
     }
 }

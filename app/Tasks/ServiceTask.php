@@ -11,6 +11,7 @@ namespace App\Tasks;
 
 use App\Models\Dao\UserDao;
 use App\Models\Data\BuyData;
+use App\Models\Data\ProductData;
 use App\Models\Entity\User;
 use Swoft\Db\Db;
 use Swoft\Bean\Annotation\Inject;
@@ -42,6 +43,12 @@ class ServiceTask
      * @var BuyData
      */
     private $buyData;
+
+    /**
+     * @Inject()
+     * @var ProductData
+     */
+    private $productData;
 
     /**
      * 行业动态
@@ -188,7 +195,7 @@ class ServiceTask
     /**
      * 供应商个性化标签缓存
      * @author Nihuan
-     * @Scheduled(cron="0 25 18 * * *")
+     * @Scheduled(cron="0 00 18 * * *")
      */
     public function userViewBuyTagTask()
     {
@@ -206,11 +213,12 @@ class ServiceTask
                 )->getResult();
                 if(!empty($userResult)){
                     foreach ($userResult as $item) {
-                        $visit_tags = $this->buyData->getUserVisitBuyTag($item['userId'],$last_time);
+                        $black_tags = $this->redis->sMembers('@Mismatch_tag_' . $item['userId']);
+                        $visit_tags = $this->buyData->getUserVisitBuyTag($item['userId'],$last_time,$black_tags);
                         if(!empty($visit_tags)){
                             $this->redis->hMset($tag_index . $item['userId'],['visit' => $visit_tags]);
                         }
-                        $offer_tags = $this->buyData->getUserOfferBid($item['userId'],$last_time);
+                        $offer_tags = $this->buyData->getUserOfferBid($item['userId'],$last_time,$black_tags);
                         if(!empty($offer_tags)){
                             $this->redis->hMset($tag_index . $item['userId'],['offer' => $offer_tags]);
                         }
@@ -223,215 +231,59 @@ class ServiceTask
     }
 
 
-//        /**
-//     * 用户产品标签生成
-//     * @Author Nihuan
-//     * @Version 1.0
-//     * @Date 18-01-23
-//     */
-//    public function buyTagGenealTask(){
-//        $user_tag_list = [];
-//        $last_time = strtotime('-1 month');
-//        $buyCount = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"SELECT count(*) AS count FROM sb_buy WHERE alter_time >= {$last_time}");
-//        $count = yield $buyCount;
-//        if($count['result'][0]['count'] > 0){
-//            $last_id = 0;
-//            $pages = ceil($count['result'][0]['count']/$this->limit);
-//            if($pages > 0){
-//                for ($i=0;$i<=$pages;$i++){
-//                    $buySql = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"select b.buy_id,b.user_id,l.name as tag_name FROM sb_buy b LEFT JOIN sb_buy_tag as bt ON bt.public_id = b.buy_id LEFT JOIN sb_label AS l ON l.lid = bt.label_id WHERE b.buy_id > {$last_id} AND b.alter_time >= {$last_time} AND bt.category_id = 1 ORDER BY b.buy_id ASC LIMIT {$this->limit}");
-//
-//                    $buyRes = yield $buySql;
-//                    if(!empty($buyRes['result'])){
-//                        foreach ($buyRes['result'] as $val){
-//                            $user_tag_list[$val['user_id']][] = $val['tag_name'];
-//                            $last_id = $val['buy_id'];
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if(!empty($user_tag_list)){
-//                foreach ($user_tag_list as $key => $value){
-//                    $tags = array_unique($value);
-//                    $tag_list = implode(',',$tags);
-//                    $tagData = $this->redis_pool->getCoroutine()->hSet(USER_TAG_LIST,$key,$tag_list);
-//                    yield $tagData;
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    /**
-//     * 用户产品标签生成
-//     * @Author Nihuan
-//     * @Version 1.0
-//     * @Date 18-01-23
-//     */
-//    public function MatchProductTask()
-//    {
-//        $redisCoroutine = $this->redis_pool->getCoroutine()->hKeys(USER_TAG_LIST);
-//        $allCache = yield $redisCoroutine;
-//        if(!empty($allCache)){
-//            foreach ($allCache as $item) {
-//                $user_id = $item;
-//                $user_match_product = 'match_product:' . $user_id;
-//                $tags = yield $this->redis_pool->getCoroutine()->hGet(USER_TAG_LIST,$user_id);
-//                $searchService = $this->loader->model('app/Models/SearchModel',$this);
-//                $params = [
-//                    'keyword' => $tags,
-//                    'pageSize' => 50
-//                ];
-//                $product_list = yield $searchService->search_service('product',$params,(int)$user_id);
-//                if(!empty($product_list)){
-//                    yield $this->redis_pool->getCoroutine()->set($user_match_product,json_encode($product_list));
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    /**
-//     * 用户店铺标签生成
-//     * @Author Nihuan
-//     * @Version 1.0
-//     * @Date 18-01-23
-//     */
-//    public function MatchShopTask()
-//    {
-//        $redisCoroutine = $this->redis_pool->getCoroutine()->hKeys(USER_TAG_LIST);
-//        $allCache = yield $redisCoroutine;
-//        if(!empty($allCache)) {
-//            foreach ($allCache as $item) {
-//                $user_id = $item;
-//                $tags = yield $this->redis_pool->getCoroutine()->hGet(USER_TAG_LIST,$user_id);
-//                $user_match_shop = 'match_shop:' . $user_id;
-//                $params = [
-//                    'keyword' => $tags,
-//                    'pageSize' => 30
-//                ];
-//                $searchService = $this->loader->model('app/Models/SearchModel',$this);
-//                $shop_object_list = yield $searchService->search_service('shop',$params,(int)$user_id);
-//                if(!empty($shop_object_list)){
-//                    $user_ids = array_column($shop_object_list,'user_id');
-//                    $user_list = implode(',',$user_ids);
-//                    $Query = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"SELECT user_id,cover FROM sb_product WHERE user_id IN ({$user_list}) AND del_status = 1 GROUP BY user_id ORDER BY pro_id DESC");
-//                    $shop_product_list = yield $Query;
-//                    $this->log(json_encode($shop_product_list));
-//                    if(!empty($shop_product_list['result'])){
-//                        foreach ($shop_product_list['result'] as $product) {
-//                            $shop_object_list[$product['user_id']]['cover'] = get_all_pic_url($product['cover']);
-//                        }
-//                    }
-//                }
-//                foreach ($shop_object_list as $shop) {
-//                    $shop_list[] = $shop;
-//                }
-//                if(!empty($shop_list)){
-//                    yield $this->redis_pool->getCoroutine()->set($user_match_shop,json_encode($shop_list));
-//                }
-//            }
-//        }
-//    }
-//
-//
-//
-//       /**
-//     * 相似推荐
-//     * @Author Nihuan
-//     * @Version 1.0
-//     * @Date 18-01-23
-//     */
-//    public function SimilarBuyTask(){
-//        $sellerCache = 'similar_buy:';
-//        $smart_buy = 'similar_buy_list';
-//        $user_buy_list = [];
-//        $last_time = strtotime('-7 day');
-//        $buyCount = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,
-//            "SELECT count(*) AS count FROM sb_buy WHERE alter_time >= {$last_time} AND status = 0");
-//        $count = yield $buyCount;
-//        if ($count['result'][0]['count'] > 0) {
-//            $last_id = 0;
-//            $pages = ceil($count['result'][0]['count'] / $this->limit);
-//            if ($pages > 0) {
-//                for ($i = 0; $i <= $pages; $i++) {
-//                    $buySql = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,
-//                        "SELECT buy_id,pic,remark FROM sb_buy WHERE buy_id > {$last_id} AND alter_time >= {$last_time} AND status = 0 ORDER BY buy_id ASC LIMIT {$this->limit}");
-//                    $buyRes = yield $buySql;
-//                    if (!empty($buyRes['result'])) {
-//                        foreach ($buyRes['result'] as $buy) {
-//                            $checkRes = yield $this->redis_pool->getCoroutine()->sIsMember($smart_buy,$buy['buy_id']);
-//                            if($checkRes == 0){
-//                                $tagSql = $this->mysql_pool->dbQueryBuilder->coroutineSend(null,
-//                                    "select l.label_name as tag_name,l.type FROM sb_buy_front_label_relation bt LEFT JOIN sb_buy_front_label AS l ON l.label_id = bt.label_id WHERE bt.buy_id = {$buy['buy_id']}");
-//                                $tagRes = yield $tagSql;
-//                                $malong_tag = [];
-//                                if (!empty($tagRes['result'])) {
-//                                    foreach ($tagRes['result'] as $val) {
-//                                        switch ($val['type']){
-//                                            case 1:
-//                                                $type = $this->relation_type($val['tag_name']);
-//                                                $malong_tag[] = 'ProductType_' . $type;
-//                                                break;
-//
-//                                            case 2:
-//                                                $malong_tag[] = 'proname_' . $val['tag_name'];
-//                                                break;
-//
-//                                            case 3:
-//                                                $malong_tag[] = 'ingredient_' . $val['tag_name'];
-//                                                break;
-//
-//                                            case 4:
-//                                                $malong_tag[] = 'crafts_' . $val['tag_name'];
-//                                                break;
-//
-//                                            case 5:
-//                                                $malong_tag[] = 'uses_' . $val['tag_name'];
-//                                                break;
-//                                        }
-//                                    }
-//                                }
-//                                if(!empty($buy['pic'])){
-//                                    $buy_cover = get_all_pic_url($buy['pic']);
-//                                    require_once MYROOT . '/src/app/ThirdParty/Malong/MalongClient.php';
-//                                    $productAi = new MalongClient(PRODUCT_AI_ACCESS_ID,PRODUCT_AI_SECRET_KEY,PRODUCT_AI_LANGUAGE);
-//                                    $productAiRes = $productAi->smartImage($buy_cover,$malong_tag,30);
-//                                    if(!empty($productAiRes)){
-//                                        $pro_ids = [];
-//                                        foreach ($productAiRes as $item) {
-//                                            $pro_ids[] = $item['metadata'];
-//                                        }
-//                                        $pro_id = implode(',',$pro_ids);
-//                                        if(!empty($pro_id)){
-//                                            $proInfo = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"SELECT user_id FROM sb_product WHERE pro_id IN ({$pro_id})");
-//                                            if(!empty($proInfo['result'])){
-//                                                foreach ($proInfo['result'] as $pro) {
-//                                                    $user_buy_list[$pro['user_id']][] = [
-//                                                        'buy_id' => $buy['buy_id'],
-//                                                        'pic' => $buy_cover,
-//                                                        'remark' => $buy['remark']
-//                                                    ];
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                yield $this->redis_pool->getCoroutine()->sAdd($smart_buy,$last_id);
-//                            }
-//                            $last_id = $buy['buy_id'];
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if(!empty($user_buy_list)){
-//            foreach ($user_buy_list as $key => $item) {
-//                yield $this->redis_pool->getCoroutine()->set($sellerCache . $key,json_encode($item));
-//            }
-//        }
-//    }
+    /**
+     * 采购商个性化标签
+     * @throws \Swoft\Db\Exception\DbException
+     *  @Scheduled(cron="0 30 03 * * *")
+     */
+    public function userCustomerTagTask()
+    {
+        $tag_index = 'user_customer_tag:';
+        $last_time = strtotime("-60 day");
+        $userResult = User::findAll(
+            [['last_time','>=',$last_time], 'status' => 1],
+            ['orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
+        )->getResult();
+        if(!empty($userResult)){
+            $custom_tag_list = [];
+            foreach ($userResult as $item) {
+                //发布采购品类
+                $tag_list = $this->buyData->getUserBuyIdsHalfYear($item['userId']);
+                if(!empty($tag_list)){
+                    foreach ($tag_list as $key => $tag) {
+                        $custom_tag_list[$key] = array_sum($tag);
+                    }
+                }
+                //搜索关键词
+                $search_list = $this->buyData->getUserSearchKeyword($item['userId']);
+                if(!empty($search_list)){
+                    foreach ($search_list as $sk => $search) {
+                        if(isset($custom_tag_list[$sk])){
+                            $custom_tag_list[$sk] += array_sum($search);
+                        }else{
+                            $custom_tag_list[$sk] = array_sum($search);
+                        }
+                    }
+                }
+                //产品品类
+                $product_list = $this->productData->getUserVisitProduct($item['userId']);
+                if(!empty($product_list)){
+                    foreach ($product_list as $pk => $pv) {
+                        if(isset($custom_tag_list[$pk])){
+                            $custom_tag_list[$pk] += array_sum($pv);
+                        }else{
+                            $custom_tag_list[$pk] = array_sum($pv);
+                        }
+                    }
+                }
+                if(!empty($custom_tag_list)){
+                    foreach ($custom_tag_list as $ck => $cv) {
+                        $this->redis->zAdd($tag_index . $item['userId'],$cv,$ck);
+                    }
+                }
+            }
+        }
+    }
 
 
     /**
