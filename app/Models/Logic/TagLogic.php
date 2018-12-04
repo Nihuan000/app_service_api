@@ -38,6 +38,12 @@ class TagLogic
     private $redis;
 
     /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $searchRedis;
+
+    /**
      * @Inject()
      * @var BuyDao
      */
@@ -78,7 +84,7 @@ class TagLogic
                     if(!empty($buy_info)){
                         $match_buy = current($buy_info);
                         if(!empty($match_buy)){
-                            $this->redis->lPush($recommend_key,$user_id . '#' . $buy_info['buy_id']);
+                            $this->searchRedis->lPush($recommend_key,$user_id . '#' . $match_buy['buy_id']);
                             $msg_count += 1;
                         }
                     }
