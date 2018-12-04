@@ -77,7 +77,7 @@ class TagLogic
             foreach ($user_tag_list as $item) {
                 $subscription_tag[] = $item['tag_id'];
             }
-            $tag_list = array_splice($subscription_tag,0,4);
+            $tag_list = array_slice($subscription_tag,0,5);
             if(!empty($tag_list)){
                 foreach ($tag_list as $tag) {
                     $buy_info = $this->buyDao->getBuyInfoByTagId($tag);
