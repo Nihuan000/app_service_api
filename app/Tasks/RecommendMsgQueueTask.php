@@ -47,7 +47,7 @@ class RecommendMsgQueueTask
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
      * @author Nihuan
-     * @Scheduled(cron="0 * * * * *")
+     * @Scheduled(cron="*\/20 * * * * *")
      * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()
