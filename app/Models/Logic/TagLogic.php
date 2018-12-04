@@ -76,8 +76,11 @@ class TagLogic
                 foreach ($tag_list as $tag) {
                     $buy_info = $this->buyDao->getBuyInfoByTagId($tag);
                     if(!empty($buy_info)){
-                        $this->redis->lPush($recommend_key,$user_id . '#' . $buy_info['buy_id']);
-                        $msg_count += 1;
+                        $match_buy = current($buy_info);
+                        if(!empty($match_buy)){
+                            $this->redis->lPush($recommend_key,$user_id . '#' . $buy_info['buy_id']);
+                            $msg_count += 1;
+                        }
                     }
                 }
             }
