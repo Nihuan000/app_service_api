@@ -47,6 +47,7 @@ class TagController
     /**
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function recommend_reg_supplier(Request $request)
     {
@@ -56,7 +57,9 @@ class TagController
             $result = [];
             $msg = '参数错误';
         }else{
-
+            /* @var TagLogic $tag_logic */
+            $tag_logic = App::getBean(TagLogic::class);
+            $tag_logic->new_reg_recommend($user_id);
             $code = 200;
             $result = [];
             $msg = '提交成功';

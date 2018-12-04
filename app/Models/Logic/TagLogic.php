@@ -9,6 +9,7 @@
 namespace App\Models\Logic;
 
 
+use App\Models\Dao\BuyDao;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
@@ -37,6 +38,12 @@ class TagLogic
     private $redis;
 
     /**
+     * @Inject()
+     * @var BuyDao
+     */
+    private $buyDao;
+
+    /**
      * @param array $event
      * @throws \Swoft\Db\Exception\DbException
      */
@@ -50,16 +57,31 @@ class TagLogic
 
     /**
      * @param int $user_id
+     * @return int
      * @throws \Swoft\Db\Exception\DbException
      */
     public function new_reg_recommend(int $user_id)
     {
+        $msg_count = 0;
+        $now_date = date('Y-m-d');
+        $recommend_key = '@RecommendMsgQueue_' .$now_date;
         $user_tag_list = $this->userDao->getUserTagByUid($user_id);
         $subscription_tag = [];
         if(!empty($user_tag_list)){
             foreach ($user_tag_list as $item) {
                 $subscription_tag[] = $item['tag_id'];
             }
+            $tag_list = array_splice($subscription_tag,0,4);
+            if(!empty($tag_list)){
+                foreach ($tag_list as $tag) {
+                    $buy_info = $this->buyDao->getBuyInfoByTagId($tag);
+                    if(!empty($buy_info)){
+                        $this->redis->lPush($recommend_key,$user_id . '#' . $buy_info['buy_id']);
+                        $msg_count += 1;
+                    }
+                }
+            }
         }
+        return $msg_count;
     }
 }
