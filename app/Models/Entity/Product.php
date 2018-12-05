@@ -369,12 +369,6 @@ class Product extends Model
     private $mid;
 
     /**
-     * @var string $failCause 失败原因
-     * @Column(name="fail_cause", type="string", length=45, default="NULL")
-     */
-    private $failCause;
-
-    /**
      * @param int $value
      * @return $this
      */
@@ -1070,18 +1064,6 @@ class Product extends Model
     }
 
     /**
-     * 失败原因
-     * @param string $value
-     * @return $this
-     */
-    public function setFailCause(string $value): self
-    {
-        $this->failCause = $value;
-
-        return $this;
-    }
-
-    /**
      * @return mixed
      */
     public function getProId()
@@ -1601,14 +1583,4 @@ class Product extends Model
     {
         return $this->mid;
     }
-
-    /**
-     * 失败原因
-     * @return mixed
-     */
-    public function getFailCause()
-    {
-        return $this->failCause;
-    }
-
 }

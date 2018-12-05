@@ -39,4 +39,29 @@ class TagData
     {
         return $this->tagDao->getRankTagList($parent_ids, $fields);
     }
+
+    /**
+     * 根据关键词获取标签列表
+     * @param $keyword
+     * @return array
+     */
+    public function getTopTagByKeyword($keyword)
+    {
+        $tag_list = [];
+        $fields = ['top_id'];
+        $top_ids = $this->tagDao->getTagInfo($keyword,$fields);
+        if(!empty($top_ids)){
+            $tag_ids = [];
+            foreach ($top_ids as $key => $item) {
+                $tag_ids[] = $item['topId'];
+            }
+            $tag_name_list = $this->tagDao->getTagList($tag_ids);
+            if(!empty($tag_name_list)){
+                foreach ($tag_name_list as $item) {
+                    $tag_list[] = $item['tagName'];
+                }
+            }
+        }
+        return $tag_list;
+    }
 }

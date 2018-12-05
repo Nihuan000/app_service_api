@@ -43,6 +43,12 @@ class BuyData
     private $offerDao;
 
     /**
+     * @Inject()
+     * @var TagData
+     */
+    private $tagData;
+
+    /**
      * 品类列表
      * @var array
      */
@@ -197,9 +203,11 @@ class BuyData
         $keyword_list = $this->buyDao->getUserSearchLog($user_id,$last_time);
         if(!empty($keyword_list)){
             foreach ($keyword_list as $item) {
-                foreach ($this->pro_cate as $cate){
-                    if(strpos($item['keyword'],$cate)){
-                        $search_tag[$cate][] = 30;
+                $tag_list = $this->tagData->getTopTagByKeyword($item['keyword']);
+                if(!empty($tag_list)){
+                    foreach ($tag_list as $tv) {
+                        $tag_name = str_replace('面料','',$tv);
+                        $search_tag[$tag_name][] = 30;
                     }
                 }
             }

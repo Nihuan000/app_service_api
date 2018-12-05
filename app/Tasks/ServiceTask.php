@@ -156,42 +156,6 @@ class ServiceTask
         return [$last_ansy_time];
     }
 
-
-//    /**
-//     * 供应商订阅标签缓存
-//     * @author Nihuan
-//     * @Scheduled(cron="0 0 3 1 * *")
-//     * @throws \Swoft\Db\Exception\DbException
-//     */
-//    public function userSubscriptionTagTask()
-//    {
-//        $limit = 100;
-//        $tag_index = 'user_subscription_tag:';
-//        $last_time = strtotime("-60 day");
-//        $last_id = 0;
-//        $userCount = User::count('*',[['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]])->getResult();
-//        $pages = ceil($userCount/$limit);
-//        if($pages > 0){
-//            for ($i = 0; $i < $pages; $i++){
-//                $user_ids = [];
-//                $userResult = User::findAll(
-//                    [['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]],
-//                    ['limit' => $limit, 'orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
-//                )->getResult();
-//                if(!empty($userResult)){
-//                    foreach ($userResult as $item) {
-//                        $tags = $this->userDao->getUserTagByUid($item['userId']);
-//                        if(!empty($tags)){
-//                            $this->redis->set($tag_index . $item['userId'],json_encode($tags));
-//                        }
-//                    }
-//                    $last_id = end($user_ids);
-//                }
-//            }
-//        }
-//        return ['订阅标签缓存'];
-//    }
-
     /**
      * 供应商个性化标签缓存
      * @author Nihuan
@@ -277,10 +241,14 @@ class ServiceTask
                     }
                 }
                 if(!empty($custom_tag_list)){
+                    $this->redis->delete($tag_index . $item['userId']);
                     foreach ($custom_tag_list as $ck => $cv) {
                         $this->redis->zAdd($tag_index . $item['userId'],$cv,$ck);
                     }
                 }
+                $tag_list = [];
+                $search_list = [];
+                $product_list = [];
             }
         }
     }

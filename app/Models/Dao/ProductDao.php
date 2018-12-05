@@ -51,4 +51,24 @@ class ProductDao
             ]
         )->getResult();
     }
+
+    /**
+     * 获取最新一条产品数据
+     * @param $add_time
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getProductByLastTime($add_time)
+    {
+        return Product::findOne([['add_time','>', $add_time],'del_status' => 1])->getResult();
+    }
+
+    /**
+     * 获取用户列表
+     * @param $add_time
+     * @return mixed
+     */
+    public function getProductUserByLastTime($add_time)
+    {
+        return Product::findAll([['add_time','>', $add_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'ASC'],'fields' => ['user_id','add_time','pro_id']])->getResult();
+    }
 }

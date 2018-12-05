@@ -147,6 +147,7 @@ class TagLogic
             }
         }
         if(!empty($custom_tag_list)){
+            $this->redis->delete($tag_index . $user_id);
             foreach ($custom_tag_list as $ck => $cv) {
                 $this->redis->zAdd($tag_index . $user_id,$cv,$ck);
             }

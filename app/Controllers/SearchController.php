@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Data\ProductData;
 use App\Models\Data\TbPushBuyRecordData;
 use App\Models\Logic\ElasticsearchLogic;
 use Swoft\Bean\Annotation\Inject;
@@ -125,16 +126,39 @@ class SearchController
         return compact('code','result','msg');
     }
 
+    /**
+     * 瀑布流列表
+     * @param Request $request
+     * @return array
+     */
     public function waterfalls_product(Request $request)
     {
         $cycle = $request->post('cycle_num');
         $display_count = $request->post('display_count');
+        $pages = $request->post('page',1);
         if(empty($cycle) || empty($display_count)){
             $code = 0;
             $result = [];
             $msg = '参数错误';
         }else{
-
+            $params = [
+                'cycle' => $cycle,
+                'display_count' => $display_count,
+                'page' => $pages
+            ];
+            /* @var ProductData $proLogic */
+            $proLogic = App::getBean(ProductData::class);
+            $searchRes = $proLogic->getIndexWaterfalls($params);
+            if(!empty($searchRes)){
+                $code = 200;
+                $result = ['list' => $searchRes];
+                $msg = '获取成功';
+            }else{
+                $code = 0;
+                $result = [];
+                $msg = '数据获取失败';
+            }
         }
+        return compact('code','result','msg');
     }
 }

@@ -35,4 +35,32 @@ class TagDao
             ['fields' => $fields])->getResult();
     }
 
+    /**
+     * 获取标签父id
+     * @param $keyword
+     * @param $fields
+     * @return mixed
+     */
+    public function getTagInfo($keyword,$fields)
+    {
+        return Tag::findAll([
+            ['name','like',"%{$keyword}%"],
+            'parent_id' => 0,
+            ['top_id','>',0]
+        ],
+        [
+            ['fields' => $fields]
+        ])->getResult();
+    }
+
+    /**
+     * 获取标签列表
+     * @param $tag_ids
+     * @return mixed
+     */
+    public function getTagList($tag_ids)
+    {
+        return Tag::findAll([['tag_id','IN',$tag_ids]])->getResult();
+    }
+
 }
