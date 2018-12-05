@@ -66,4 +66,27 @@ class TagController
         }
         return compact('code','result','msg');
     }
+
+    /**
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function refresh_customer_tag(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        if(empty($user_id)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            /* @var TagLogic $tag_logic */
+            $tag_logic = App::getBean(TagLogic::class);
+            $tag_logic->refresh_tag($user_id);
+            $code = 200;
+            $result = [];
+            $msg = '请求成功';
+        }
+        return compact('code','result','msg');
+    }
 }

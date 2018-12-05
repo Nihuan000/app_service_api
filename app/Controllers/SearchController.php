@@ -124,4 +124,17 @@ class SearchController
         }
         return compact('code','result','msg');
     }
+
+    public function waterfalls_product(Request $request)
+    {
+        $cycle = $request->post('cycle_num');
+        $display_count = $request->post('display_count');
+        if(empty($cycle) || empty($display_count)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+
+        }
+    }
 }

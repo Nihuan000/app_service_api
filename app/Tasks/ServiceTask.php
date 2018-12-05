@@ -245,8 +245,8 @@ class ServiceTask
             ['orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
         )->getResult();
         if(!empty($userResult)){
-            $custom_tag_list = [];
             foreach ($userResult as $item) {
+                $custom_tag_list = [];
                 //发布采购品类
                 $tag_list = $this->buyData->getUserBuyIdsHalfYear($item['userId']);
                 if(!empty($tag_list)){
