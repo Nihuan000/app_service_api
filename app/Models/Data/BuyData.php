@@ -64,7 +64,7 @@ class BuyData
      * 顶级类列表
      * @var array
      */
-    protected $top_tag = ['呢料毛纺','蕾丝绣品','针织面料'];
+    protected $top_tag = ['呢料毛纺','蕾丝','针织','蕾丝绣品'];
 
     /**
      * 获取采购信息
