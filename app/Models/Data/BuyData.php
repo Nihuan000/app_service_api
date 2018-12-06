@@ -49,10 +49,22 @@ class BuyData
     private $tagData;
 
     /**
-     * 品类列表
+     * 二级品类列表
      * @var array
      */
-    protected $pro_cate = [ '辅料', '针织', '蕾丝/绣品', '皮革/皮草', '其他', '棉类', '麻类', '呢料毛纺', '丝绸/真丝', '化纤'];
+    protected $pro_cate = [ '绒布', '梭织提花', '灯芯绒', '麻棉弹力', '羽绒服','棉服','羽绒服、棉服'];
+
+    /**
+     * 搜索指定列表
+     * @var array
+     */
+    protected $search_key = ['印花','时装','格纹','牛仔','粗纺','网布','衬衫','雪纺','风衣裤'];
+
+    /**
+     * 顶级类列表
+     * @var array
+     */
+    protected $top_tag = ['呢料毛纺','蕾丝绣品','针织面料'];
 
     /**
      * 获取采购信息
@@ -180,11 +192,20 @@ class BuyData
             foreach ($buy_ids as $buy_id) {
                 $id_list[] = $buy_id['buyId'];
             }
-            $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name']);
+            $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name','parent_name']);
             if(!empty($buy_tags)){
                 foreach ($buy_tags as $tag) {
-                    $tag_name = str_replace('面料','',$tag['topName']);
-                    $relation_tags[$tag_name][] = 100;
+                    $tag_name = [];
+                    $top_keyword = str_replace('面料','',$tag['topName']);
+                    $parent_keyword = str_replace('面料','',$tag['parent_name']);
+                    if(in_array($top_keyword,$this->top_tag)){
+                        $tag_name = $top_keyword;
+                    }elseif(in_array($parent_keyword,$this->pro_cate)){
+                        $tag_name = $parent_keyword;
+                    }
+                    if(!empty($tag_name)){
+                        $relation_tags[$tag_name][] = 100;
+                    }
                 }
             }
         }
@@ -204,15 +225,11 @@ class BuyData
         if(!empty($keyword_list)){
             foreach ($keyword_list as $item) {
                 if(!empty($item['keyword'])){
-                    $tag_list = $this->tagData->getTopTagByKeyword($item['keyword']);
-                    if(!empty($tag_list)){
-                        foreach ($tag_list as $tv) {
-                            $tag_name = str_replace('面料','',$tv);
-                            $search_tag[$tag_name][] = 30;
-                        }
+                    $keyword = str_replace('面料','',$item['keyword']);
+                    if(in_array($keyword,$this->search_key) || in_array($keyword,$this->pro_cate) || in_array($keyword,$this->top_tag)){
+                        $search_tag[$keyword][] = 30;
                     }
                 }
-
             }
         }
         return $search_tag;
