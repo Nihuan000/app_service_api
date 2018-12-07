@@ -105,7 +105,7 @@ class ProductData
         $product_list = [];
         $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
         if(count($last_waterfall_count) == 0){
-            $last_info = $this->redis->zRevRange($waterfall_index,-1,0,true);
+            $last_info = $this->redis->zRange($waterfall_index,0,0,true);
             $last_time_arr = array_values($last_info);
             $prev_time = (int)$last_time_arr[1];
             $prev_date = date('Y-m-d',$prev_time);
