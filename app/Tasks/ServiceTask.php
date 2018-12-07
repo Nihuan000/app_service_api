@@ -195,63 +195,63 @@ class ServiceTask
     }
 
 
-    /**
-     * 采购商个性化标签
-     * @throws \Swoft\Db\Exception\DbException
-     *  @Scheduled(cron="0 30 03 * * *")
-     */
-    public function userCustomerTagTask()
-    {
-        $tag_index = 'user_customer_tag:';
-        $last_time = strtotime("-60 day");
-        $userResult = User::findAll(
-            [['last_time','>=',$last_time], 'status' => 1],
-            ['orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
-        )->getResult();
-        if(!empty($userResult)){
-            foreach ($userResult as $item) {
-                $custom_tag_list = [];
-                //发布采购品类
-                $tag_list = $this->buyData->getUserBuyIdsHalfYear($item['userId']);
-                if(!empty($tag_list)){
-                    foreach ($tag_list as $key => $tag) {
-                        $custom_tag_list[$key] = array_sum($tag);
-                    }
-                }
-                //搜索关键词
-                $search_list = $this->buyData->getUserSearchKeyword($item['userId']);
-                if(!empty($search_list)){
-                    foreach ($search_list as $sk => $search) {
-                        if(isset($custom_tag_list[$sk])){
-                            $custom_tag_list[$sk] += array_sum($search);
-                        }else{
-                            $custom_tag_list[$sk] = array_sum($search);
-                        }
-                    }
-                }
-                //产品品类
-                $product_list = $this->productData->getUserVisitProduct($item['userId']);
-                if(!empty($product_list)){
-                    foreach ($product_list as $pk => $pv) {
-                        if(isset($custom_tag_list[$pk])){
-                            $custom_tag_list[$pk] += array_sum($pv);
-                        }else{
-                            $custom_tag_list[$pk] = array_sum($pv);
-                        }
-                    }
-                }
-                if(!empty($custom_tag_list)){
-                    $this->redis->delete($tag_index . $item['userId']);
-                    foreach ($custom_tag_list as $ck => $cv) {
-                        $this->redis->zAdd($tag_index . $item['userId'],$cv,$ck);
-                    }
-                }
-                $tag_list = [];
-                $search_list = [];
-                $product_list = [];
-            }
-        }
-    }
+//    /**
+//     * 采购商个性化标签
+//     * @throws \Swoft\Db\Exception\DbException
+//     *  @Scheduled(cron="0 30 03 * * *")
+//     */
+//    public function userCustomerTagTask()
+//    {
+//        $tag_index = 'user_customer_tag:';
+//        $last_time = strtotime("-60 day");
+//        $userResult = User::findAll(
+//            [['last_time','>=',$last_time], 'status' => 1],
+//            ['orderBy' => ['user_id' => 'ASC'], 'fields' => ['user_id']]
+//        )->getResult();
+//        if(!empty($userResult)){
+//            foreach ($userResult as $item) {
+//                $custom_tag_list = [];
+//                //发布采购品类
+//                $tag_list = $this->buyData->getUserBuyIdsHalfYear($item['userId']);
+//                if(!empty($tag_list)){
+//                    foreach ($tag_list as $key => $tag) {
+//                        $custom_tag_list[$key] = array_sum($tag);
+//                    }
+//                }
+//                //搜索关键词
+//                $search_list = $this->buyData->getUserSearchKeyword($item['userId']);
+//                if(!empty($search_list)){
+//                    foreach ($search_list as $sk => $search) {
+//                        if(isset($custom_tag_list[$sk])){
+//                            $custom_tag_list[$sk] += array_sum($search);
+//                        }else{
+//                            $custom_tag_list[$sk] = array_sum($search);
+//                        }
+//                    }
+//                }
+//                //产品品类
+//                $product_list = $this->productData->getUserVisitProduct($item['userId']);
+//                if(!empty($product_list)){
+//                    foreach ($product_list as $pk => $pv) {
+//                        if(isset($custom_tag_list[$pk])){
+//                            $custom_tag_list[$pk] += array_sum($pv);
+//                        }else{
+//                            $custom_tag_list[$pk] = array_sum($pv);
+//                        }
+//                    }
+//                }
+//                if(!empty($custom_tag_list)){
+//                    $this->redis->delete($tag_index . $item['userId']);
+//                    foreach ($custom_tag_list as $ck => $cv) {
+//                        $this->redis->zAdd($tag_index . $item['userId'],$cv,$ck);
+//                    }
+//                }
+//                $tag_list = [];
+//                $search_list = [];
+//                $product_list = [];
+//            }
+//        }
+//    }
 
 
     /**
