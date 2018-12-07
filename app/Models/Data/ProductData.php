@@ -103,7 +103,7 @@ class ProductData
         $product_list = [];
         $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
         if(!empty($last_waterfall_count)){
-            $flx_count = $params['psize'] - count($last_waterfall_count);
+            $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
             $i = 1;
             while ($flx_count > 0){
                 $prev_time = end($last_waterfall_count);
@@ -113,14 +113,16 @@ class ProductData
                 $params['limit'] = $flx_count;
                 $this->general_waterfolls_data($waterfall_index,$params);
                 $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
-                $flx_count = $params['psize'] - count($last_waterfall_count);
+                $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
                 $i++;
             }
             $waterfall_list = $last_waterfall_count;
             if(!empty($waterfall_list)){
                 foreach ($waterfall_list as $wk => $wv) {
-                    $wtDetail = explode('#',$wk);
-                    $product_list[] = (int)$wtDetail[1];
+                    if($wk % 2 == 1){
+                        $wtDetail = explode('#',$wk);
+                        $product_list[] = (int)$wtDetail[1];
+                    }
                 }
             }
         }
