@@ -119,8 +119,8 @@ class ProductData
             $waterfall_list = $last_waterfall_count;
             if(!empty($waterfall_list)){
                 foreach ($waterfall_list as $wk => $wv) {
-                    if($wk % 2 == 1){
-                        $wtDetail = explode('#',$wk);
+                    if($wk % 2 == 0){
+                        $wtDetail = explode('#',$wv);
                         $product_list[] = (int)$wtDetail[1];
                     }
                 }
