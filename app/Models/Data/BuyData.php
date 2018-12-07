@@ -192,8 +192,9 @@ class BuyData
             foreach ($buy_ids as $buy_id) {
                 $id_list[] = $buy_id['buyId'];
             }
-            $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name','parent_name']);
+            $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name','parent_name','buy_id']);
             if(!empty($buy_tags)){
+                $cache_buy_tag = [];
                 foreach ($buy_tags as $tag) {
                     $tag_name = [];
                     $top_keyword = str_replace('面料','',$tag['topName']);
@@ -203,7 +204,8 @@ class BuyData
                     }elseif(in_array($parent_keyword,$this->pro_cate)){
                         $tag_name = $parent_keyword;
                     }
-                    if(!empty($tag_name)){
+                    if(!empty($tag_name) && !isset($cache_buy_tag[$tag['buyId']])){
+                        $cache_buy_tag[$tag['buyId']] = 1;
                         $relation_tags[$tag_name][] = 100;
                     }
                 }

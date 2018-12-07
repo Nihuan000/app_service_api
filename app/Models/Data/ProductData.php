@@ -87,12 +87,14 @@ class ProductData
     {
         $waterfall_index = 'index_water_falls_list_' . $params['cycle'] . '_' . $params['display_count'];
         if($this->redis->exists($waterfall_index)){
-            $last_info = $this->redis->zRevRange($waterfall_index,0,0,true);
-            $last_time_arr = array_values($last_info);
-            $last_time = (int)$last_time_arr[1];
-            if(!empty($last_time)){
-                $params['prev_time'] = $last_time;
-                $this->general_waterfolls_data($waterfall_index,$params);
+            if($params['page'] == 1){
+                $last_info = $this->redis->zRevRange($waterfall_index,0,0,true);
+                $last_time_arr = array_values($last_info);
+                $last_time = (int)$last_time_arr[1];
+                if(!empty($last_time)){
+                    $params['prev_time'] = $last_time;
+                    $this->general_waterfolls_data($waterfall_index,$params);
+                }
             }
         }else{
             $this->general_waterfolls_data($waterfall_index,$params);
@@ -102,27 +104,34 @@ class ProductData
         $offset = $params['page'] * $params['psize'] - 1;
         $product_list = [];
         $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
-        if(!empty($last_waterfall_count)){
+        if(count($last_waterfall_count) == 0){
+            $last_info = $this->redis->zRevRange($waterfall_index,-1,0,true);
+            $last_time_arr = array_values($last_info);
+            $prev_time = (int)$last_time_arr[1];
+            $prev_date = date('Y-m-d',$prev_time);
+            $flx_count = $params['psize'];
+        }else{
             $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
-            $i = 1;
-            while ($flx_count > 0){
-                $prev_time = end($last_waterfall_count);
-                $prev_date = date('Y-m-d',$prev_time);
-                $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
-                $params['end_time'] = strtotime($prev_date);
-                $params['limit'] = $flx_count;
-                $this->general_waterfolls_data($waterfall_index,$params);
-                $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
-                $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
-                $i++;
-            }
-            $waterfall_list = $last_waterfall_count;
-            if(!empty($waterfall_list)){
-                foreach ($waterfall_list as $wk => $wv) {
-                    if($wk % 2 == 0){
-                        $wtDetail = explode('#',$wv);
-                        $product_list[] = (int)$wtDetail[1];
-                    }
+            $prev_time = end($last_waterfall_count);
+            $prev_date = date('Y-m-d',$prev_time);
+        }
+
+        $i = 1;
+        while ($flx_count > 0){
+            $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
+            $params['end_time'] = strtotime($prev_date);
+            $params['limit'] = $flx_count;
+            $this->general_waterfolls_data($waterfall_index,$params);
+            $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
+            $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
+            $i++;
+        }
+        $waterfall_list = $last_waterfall_count;
+        if(!empty($waterfall_list)){
+            foreach ($waterfall_list as $wk => $wv) {
+                if($wk % 2 == 0){
+                    $wtDetail = explode('#',$wv);
+                    $product_list[] = (int)$wtDetail[1];
                 }
             }
         }
@@ -143,6 +152,10 @@ class ProductData
         }else{
             $last_pro = $this->productDao->getLastProductInfo();
             $prev_time = $last_time = $last_pro['addTime'];
+            $last_sync_time = $this->redis->get('waterfall_newest_time_' . $params['cycle'] . '_' . $params['display_count']);
+            if($prev_time <= $last_sync_time){
+                return;
+            }
         }
 
         $start_time = strtotime(date('Y-m-d',$prev_time));
@@ -173,15 +186,16 @@ class ProductData
                 $current_list = $this->redis->zRangeByScore($waterfall_index,$current_user_start_time,$current_user_end_time);
                 //周期内产品数判断
                 if(!empty($current_list)){
-                    $user_has_queue_count[$item['userId']] = 0;
+                    $user_has_queue_count[$item['userId']] = [];
                     foreach ($current_list as $pk => $pv) {
                         $pro_arr = explode('#',$pv);
                         if($pro_arr[0] == $item['userId']){
-                            $user_has_queue_count[$item['userId']] += 1;
+                            $user_has_queue_count[$item['userId']][] = 1;
                         }
                     }
-                    if($user_has_queue_count[$item['userId']] < $params['display_count']){
-                        $limit_count = $params['display_count'] - $user_has_queue_count[$item['userId']];
+                    $user_queue_count = array_sum($user_has_queue_count[$item['userId']]);
+                    if($user_queue_count < $params['display_count']){
+                        $limit_count = $params['display_count'] - $user_queue_count;
                     }
                 }else{
                     $limit_count = $params['display_count'];
@@ -197,7 +211,7 @@ class ProductData
                     ];
                     $prOption = [
                         'orderby' => ['pro_id' => 'asc'],
-                        'limit' => $params['display_count']
+                        'limit' => $limit_count
                     ];
                     $pro_info = $this->productDao->getUserProductListByParams($proParams,$prOption);
                     if(!empty($pro_info)){
@@ -206,6 +220,7 @@ class ProductData
                         }
                     }
                 }
+                $this->redis->set('waterfall_newest_time_' . $params['cycle'] . '_' . $params['display_count'],$item['addTime']);
             }
         }
     }
