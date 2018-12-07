@@ -88,7 +88,8 @@ class ProductData
         $waterfall_index = 'index_water_falls_list_' . $params['cycle'] . '_' . $params['display_count'];
         if($this->redis->exists($waterfall_index)){
             $last_info = $this->redis->zRevRange($waterfall_index,0,0,true);
-            $last_time = current(array_values($last_info));
+            $last_time_arr = array_values($last_info);
+            $last_time = (int)$last_time_arr[1];
             if(!empty($last_time)){
                 $params['prev_time'] = $last_time;
                 $this->general_waterfolls_data($waterfall_index,$params);
