@@ -136,6 +136,7 @@ class SearchController
         $cycle = $request->post('cycle_num');
         $display_count = $request->post('display_count');
         $pages = $request->post('page',1);
+        $pageSize = $request->post('pageSize',20);
         if(empty($cycle) || empty($display_count)){
             $code = 0;
             $result = [];
@@ -144,7 +145,8 @@ class SearchController
             $params = [
                 'cycle' => $cycle,
                 'display_count' => $display_count,
-                'page' => $pages
+                'page' => $pages,
+                'psize' => $pageSize
             ];
             /* @var ProductData $proLogic */
             $proLogic = App::getBean(ProductData::class);

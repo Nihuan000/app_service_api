@@ -65,10 +65,42 @@ class ProductDao
     /**
      * 获取用户列表
      * @param $add_time
+     * @param $end_time
      * @return mixed
      */
-    public function getProductUserByLastTime($add_time)
+    public function getProductUserByLastTime($add_time,$end_time)
     {
-        return Product::findAll([['add_time','>', $add_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'ASC'],'fields' => ['user_id','add_time','pro_id']])->getResult();
+        return Product::findAll([['add_time','>=', $add_time],['add_time','<', $end_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'ASC'],'fields' => ['user_id','add_time','pro_id']])->getResult();
+    }
+
+    /**
+     * 获取最后一条数据
+     * @return mixed
+     */
+    public function getLastProductInfo()
+    {
+        return Product::findOne(['del_status' => 1],['orderby' => ['add_time' => 'desc']])->getResult();
+    }
+
+    /**
+     * 获取用户产品列表
+     * @param array $params
+     * @param array $options
+     * @return mixed
+     */
+    public function getUserProductListByParams(array $params, array $options)
+    {
+        return Product::findAll($params,$options)->getResult();
+    }
+
+    /**
+     * 获取产品个数
+     * @param $add_time
+     * @param $limit
+     * @return mixed
+     */
+    public function getProductUserByPrevTime($add_time,$limit)
+    {
+        return Product::findAll([['add_time','<', $add_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'DESC'],'fields' => ['user_id','add_time','pro_id'],'limit' => $limit])->getResult();
     }
 }

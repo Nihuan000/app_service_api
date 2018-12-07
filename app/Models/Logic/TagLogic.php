@@ -93,12 +93,14 @@ class TagLogic
             }
             $tag_list = array_slice($subscription_tag,0,5);
             if(!empty($tag_list)){
+                $buy_ids = [];
                 foreach ($tag_list as $tag) {
-                    $buy_info = $this->buyDao->getBuyInfoByTagId($tag);
+                    $buy_info = $this->buyDao->getBuyInfoByTagId($tag,$buy_ids);
                     if(!empty($buy_info)){
                         $match_buy = current($buy_info);
                         if(!empty($match_buy)){
                             $this->searchRedis->lPush($recommend_key,$user_id . '#' . $match_buy['buy_id']);
+                            $buy_ids[] = $match_buy['buy_id'];
                             $msg_count += 1;
                         }
                     }

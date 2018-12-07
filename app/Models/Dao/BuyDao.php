@@ -89,12 +89,18 @@ class BuyDao
     /**
      * 根据标签获取采购信息
      * @param $tag_id
+     * @param array $current_ids
      * @return mixed
      * @throws \Swoft\Db\Exception\DbException
      */
-    public function getBuyInfoByTagId($tag_id)
+    public function getBuyInfoByTagId($tag_id,array $current_ids)
     {
+        if(!empty($current_ids)){
+            $ids = implode(',',$current_ids);
+        }else{
+            $ids = 0;
+        }
         $last_time = strtotime('-3 day');
-        return Db::query("SELECT b.* FROM sb_buy b LEFT JOIN sb_buy_relation_tag AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND b.del_status = 1 AND b.is_audit = 0 AND b.amount >= 100 AND a.tag_id = {$tag_id} AND refresh_time >= {$last_time} ORDER BY b.refresh_time DESC LIMIT 1")->getResult();
+        return Db::query("SELECT b.* FROM sb_buy b LEFT JOIN sb_buy_relation_tag AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND b.del_status = 1 AND b.is_audit = 0 AND b.amount >= 100 AND a.tag_id = {$tag_id} AND refresh_time >= {$last_time} AND buy_id NOT IN ({$ids}) ORDER BY b.refresh_time DESC LIMIT 1")->getResult();
     }
 }
