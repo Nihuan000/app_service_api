@@ -82,9 +82,9 @@ class TagController
         }else{
             /* @var TagLogic $tag_logic */
             $tag_logic = App::getBean(TagLogic::class);
-            $tag_logic->refresh_tag($user_id);
+            $result = $tag_logic->refresh_tag($user_id);
             $code = 200;
-            $result = [];
+            $result = [$result];
             $msg = '请求成功';
         }
         return compact('code','result','msg');

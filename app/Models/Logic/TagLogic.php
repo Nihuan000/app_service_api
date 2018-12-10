@@ -153,6 +153,7 @@ class TagLogic
             foreach ($custom_tag_list as $ck => $cv) {
                 $this->redis->zAdd($tag_index . $user_id,$cv,$ck);
             }
+            return $custom_tag_list;
         }
     }
 }

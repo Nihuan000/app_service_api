@@ -198,10 +198,11 @@ class BuyData
                 foreach ($buy_tags as $tag) {
                     $tag_name = [];
                     $top_keyword = str_replace('面料','',$tag['topName']);
-                    $parent_keyword = str_replace('面料','',$tag['parent_name']);
+                    $parent_keyword = str_replace('面料','',$tag['parentName']);
                     if(in_array($top_keyword,$this->top_tag)){
                         $tag_name = $top_keyword;
-                    }elseif(in_array($parent_keyword,$this->pro_cate)){
+                    }
+                    if(in_array($parent_keyword,$this->pro_cate)){
                         $tag_name = $parent_keyword;
                     }
                     if(!empty($tag_name) && !isset($cache_buy_tag[$tag['buyId']])){
