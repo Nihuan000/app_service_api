@@ -470,7 +470,7 @@ function similar_acquisition($judgment,$match_list)
         }
     }
     krsort($current_level);
-    $current_score = current($match_list);
+    $current_score = current($current_level);
     $current_match_value = $match_list[$current_score];
     return $current_match_value;
 }
