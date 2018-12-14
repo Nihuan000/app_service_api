@@ -459,9 +459,10 @@ function create_guid(){
  * 近似值匹配
  * @param $judgment
  * @param $match_list
+ * @param int $get_type 1:取最小 2:取最大
  * @return mixed
  */
-function similar_acquisition($judgment,$match_list)
+function similar_acquisition($judgment,$match_list,$get_type = 1)
 {
     $current_level = [];
     $current_match_value = 0;
@@ -470,7 +471,11 @@ function similar_acquisition($judgment,$match_list)
             $current_level[] = $ck;
         }
     }
-    krsort($current_level);
+    if($get_type == 1){
+        ksort($current_level);
+    }else{
+        krsort($current_level);
+    }
     $current_score = current($current_level);
     if(!empty($current_score)){
         $current_match_value = $match_list[$current_score];
