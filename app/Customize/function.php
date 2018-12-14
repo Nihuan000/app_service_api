@@ -464,6 +464,7 @@ function create_guid(){
 function similar_acquisition($judgment,$match_list)
 {
     $current_level = [];
+    $current_match_value = 0;
     foreach ($match_list as $ck => $cv) {
         if($ck >= $judgment){
             $current_level[] = $ck;
@@ -471,6 +472,8 @@ function similar_acquisition($judgment,$match_list)
     }
     krsort($current_level);
     $current_score = current($current_level);
-    $current_match_value = $match_list[$current_score];
+    if(!empty($current_score)){
+        $current_match_value = $match_list[$current_score];
+    }
     return $current_match_value;
 }
