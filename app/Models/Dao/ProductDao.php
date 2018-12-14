@@ -31,7 +31,7 @@ class ProductDao
      */
     public function getUserProductVisitLog($user_id,$last_time)
     {
-        return Db::query("select pro_id from sb_product_records where user_id = {$user_id} and r_time >= {$last_time}")->getResult();
+        return Db::query("select pro_id,r_time from sb_product_records where user_id = {$user_id} and r_time >= {$last_time}")->getResult();
     }
 
     /**

@@ -454,3 +454,23 @@ function create_guid(){
         .substr($charid,12, 3);
     return $uuid;
 }
+
+/**
+ * 近似值匹配
+ * @param $judgment
+ * @param $match_list
+ * @return mixed
+ */
+function similar_acquisition($judgment,$match_list)
+{
+    $current_level = [];
+    foreach ($match_list as $ck => $cv) {
+        if($ck >= $judgment){
+            $current_level[] = $ck;
+        }
+    }
+    krsort($current_level);
+    $current_score = current($match_list);
+    $current_match_value = $match_list[$current_score];
+    return $current_match_value;
+}

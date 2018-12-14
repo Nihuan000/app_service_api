@@ -67,6 +67,12 @@ class BuyData
     protected $top_tag = ['呢料毛纺','蕾丝','针织','蕾丝绣品'];
 
     /**
+     * 时间维度
+     * @var array
+     */
+    protected $timeRank = [86400 => 10000,604800 => 100];
+
+    /**
      * 获取采购信息
      * @author Nihuan
      * @param int $bid
@@ -181,7 +187,7 @@ class BuyData
     public function getUserBuyIdsHalfYear($user_id)
     {
         $relation_tags = [];
-        $last_time = strtotime('-3 month');
+        $last_time = strtotime('-2 month');
         $params = [
             'user_id' => $user_id,
             'last_time' => $last_time
@@ -189,12 +195,15 @@ class BuyData
         $buy_ids = $this->buyDao->getUserBuyIds($params);
         if(!empty($buy_ids)){
             $id_list = [];
+            $buy_score_list = [];
             foreach ($buy_ids as $buy_id) {
                 $id_list[] = $buy_id['buyId'];
+                $buy_score_list[$buy_id['buyId']] = $buy_id['addTime'];
             }
             $buy_tags = $this->buyRelationTagDao->getRelationTagList($id_list,['top_name','parent_name','buy_id']);
             if(!empty($buy_tags)){
                 $cache_buy_tag = [];
+                $now_time = time();
                 foreach ($buy_tags as $tag) {
                     $tag_name = [];
                     $top_keyword = str_replace('面料','',$tag['topName']);
@@ -206,8 +215,14 @@ class BuyData
                         $tag_name = $parent_keyword;
                     }
                     if(!empty($tag_name) && !isset($cache_buy_tag[$tag['buyId']])){
+                        $tag_score = 100;
+                        $tag_mictime = $now_time - $buy_score_list[$tag['buyId']];
+                        $value_add = similar_acquisition($tag_mictime,$this->timeRank);
+                        if(!empty($value_add)){
+                            $tag_score *= $value_add;
+                        }
                         $cache_buy_tag[$tag['buyId']] = 1;
-                        $relation_tags[$tag_name][] = 100;
+                        $relation_tags[$tag_name][] = $tag_score;
                     }
                 }
             }
@@ -226,11 +241,18 @@ class BuyData
         $last_time = strtotime('-1 month');
         $keyword_list = $this->buyDao->getUserSearchLog($user_id,$last_time);
         if(!empty($keyword_list)){
+            $now_time = time();
             foreach ($keyword_list as $item) {
                 if(!empty($item['keyword'])){
                     $keyword = str_replace('面料','',$item['keyword']);
                     if(in_array($keyword,$this->search_key) || in_array($keyword,$this->pro_cate) || in_array($keyword,$this->top_tag)){
-                        $search_tag[$keyword][] = 30;
+                        $tag_score = 30;
+                        $tag_mictime = $now_time - $item['search_time'];
+                        $value_add = similar_acquisition($tag_mictime,$this->timeRank);
+                        if(!empty($value_add)){
+                            $tag_score *= $value_add;
+                        }
+                        $search_tag[$keyword][] = $tag_score;
                     }
                 }
             }

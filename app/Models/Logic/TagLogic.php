@@ -113,6 +113,7 @@ class TagLogic
     /**
      * 刷新个性化标签
      * @param int $user_id
+     * @return array
      * @throws \Swoft\Db\Exception\DbException
      */
     public function refresh_tag(int $user_id)
@@ -155,5 +156,6 @@ class TagLogic
             }
             return $custom_tag_list;
         }
+        return [];
     }
 }

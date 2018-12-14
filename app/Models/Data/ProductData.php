@@ -50,6 +50,12 @@ class ProductData
     ];
 
     /**
+     * 时间维度
+     * @var array
+     */
+    protected $timeRank = [86400 => 10000,604800 => 100];
+
+    /**
      * @param $user_id
      * @return mixed
      * @throws \Swoft\Db\Exception\DbException
@@ -61,16 +67,25 @@ class ProductData
         $visit_list = $this->productDao->getUserProductVisitLog($user_id, $last_time);
         if(!empty($visit_list)){
             $pro_ids = [];
+            $pro_id_time = [];
             foreach ($visit_list as $item) {
                 $pro_ids[] = $item['pro_id'];
+                $pro_id_time[$item['pro_id']] = $item['r_time'];
             }
-            $fields = ['type'];
+            $fields = ['type','pro_id'];
             $product_types = $this->productDao->getProductTypeList($pro_ids,$fields);
             if(!empty($product_types)){
+                $now_time = time();
                 foreach ($product_types as $product_type) {
                     $type_name = isset($this->pro_cate[$product_type['type']]) ? $this->pro_cate[$product_type['type']] : '';
                     if(!empty($type_name)){
-                        $product_tag[$type_name][] = 1;
+                        $tag_score = 1;
+                        $tag_mictime = $now_time - $pro_id_time[$product_type['proId']];
+                        $value_add = similar_acquisition($tag_mictime,$this->timeRank);
+                        if(!empty($value_add)){
+                            $tag_score *= $value_add;
+                        }
+                        $product_tag[$type_name][] = $tag_score;
                     }
                 }
             }

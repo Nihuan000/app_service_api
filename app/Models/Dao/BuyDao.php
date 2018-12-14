@@ -71,7 +71,7 @@ class BuyDao
     public function getUserBuyIds($params)
     {
         return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'del_status' => 1 ,'user_id' => $params['user_id']],
-            ['fields' => ['buy_id']])->getResult();
+            ['fields' => ['buy_id','add_time']])->getResult();
     }
 
     /**
@@ -83,7 +83,7 @@ class BuyDao
      */
     public function getUserSearchLog($user_id, $last_time)
     {
-        return Db::query("select keyword from sb_product_search_log where user_id = {$user_id} and page_num = 1 and keyword <>'' and search_time >= {$last_time}")->getResult();
+        return Db::query("select search_time,keyword from sb_product_search_log where user_id = {$user_id} and page_num = 1 and keyword <>'' and search_time >= {$last_time}")->getResult();
     }
 
     /**
