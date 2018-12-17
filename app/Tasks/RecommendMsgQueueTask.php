@@ -42,12 +42,12 @@ class RecommendMsgQueueTask
      */
     private $buyData;
 
-    private $limit = 1000;
+    private $limit = 500;
 
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
      * @author Nihuan
-     * @Scheduled(cron="*\/20 * * * * *")
+     * @Scheduled(cron="10 * * * * *")
      * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()

@@ -159,12 +159,12 @@ class ServiceTask
     /**
      * 供应商个性化标签缓存
      * @author Nihuan
-     * @Scheduled(cron="0 00 18 * * *")
+     * @Scheduled(cron="0 0 06 * * *")
      */
     public function userViewBuyTagTask()
     {
         $tag_index = 'user_personal_tag:';
-        $last_time = strtotime("-15 day");
+        $last_time = strtotime("-3 day");
 //        $last_id = 0;
 //        $userCount = User::count('*',[['last_time','>=',$last_time], 'status' => 1,['user_id','>',$last_id]])->getResult();
 //        $pages = ceil($userCount/$limit);

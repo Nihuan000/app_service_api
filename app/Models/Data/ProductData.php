@@ -56,6 +56,13 @@ class ProductData
     protected $timeRank = [86400 => 10000,604800 => 100];
 
     /**
+     * 内部用户
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+    /**
      * @param $user_id
      * @return mixed
      * @throws \Swoft\Db\Exception\DbException
@@ -158,6 +165,7 @@ class ProductData
      * 生成瀑布流数据
      * @param $waterfall_index
      * @param $params
+     * @throws \Swoft\Db\Exception\DbException
      */
     protected function general_waterfolls_data($waterfall_index,$params)
     {
@@ -187,7 +195,11 @@ class ProductData
         }
         $user_list = $this->productDao->getProductUserByLastTime($last_cache_time,$last_time);
         if(!empty($user_list)){
+            $test_list = $this->userData->getTesters();
             foreach ($user_list as $key => $item) {
+                if(in_array($item['userId'],$test_list)){
+                    continue;
+                }
                 //判断所属周期
                 $current_level = [];
                 foreach ($cycle_time_list as $ck => $cv) {
