@@ -48,34 +48,65 @@ class BuySearchData
 
         //过滤基本信息
         $filter = $this->baseFilter();
-
-        $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
-        $user_tag_list = json_decode($user_tag_string,true);
-        if(empty($user_tag_list)){
-            $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
-            if(!empty($user_tag_list)){
-                $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
+        if($params['type'] == 0){
+            $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
+            $user_tag_list = json_decode($user_tag_string,true);
+            if(empty($user_tag_list)){
+                $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
+                if(!empty($user_tag_list)){
+                    $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
+                }
             }
-        }
-        $parent_terms = [];
-        $product_terms = [];
-        $type_terms = [];
-        if(!empty($user_tag_list)){
-            foreach ($user_tag_list as $tag){
-                if($this->redis->exists($tag_index . $tag['top_id'])){
-                    $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
-                    $tag_list = json_decode($tag_list_cache,true);
-                    if(!in_array($tag['parent_name'],$tag_list)){
-                        $parent_terms[] = $tag['parent_id'];
+            $parent_terms = [];
+            $product_terms = [];
+            $type_terms = [];
+            if(!empty($user_tag_list)){
+                foreach ($user_tag_list as $tag){
+                    if($this->redis->exists($tag_index . $tag['top_id'])){
+                        $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
+                        $tag_list = json_decode($tag_list_cache,true);
+                        if(!in_array($tag['parent_name'],$tag_list)){
+                            $parent_terms[] = $tag['parent_id'];
+                        }else{
+                            $product_terms[] = $tag['tag_name'];
+                        }
                     }else{
                         $product_terms[] = $tag['tag_name'];
                     }
-                }else{
-                    $product_terms[] = $tag['tag_name'];
+                    $type_terms[] = $tag['top_id'];
                 }
-                $type_terms[] = $tag['top_id'];
+            }
+        }else{
+            $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
+            $user_tag_list = json_decode($user_tag_string,true);
+            if(empty($user_tag_list)){
+                $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
+                if(!empty($user_tag_list)){
+                    $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
+                }
+            }
+            if(!empty($user_tag_list)){
+                foreach ($user_tag_list as $tag) {
+                    if($tag['top_id'] == $params['type']){
+                        if($this->redis->exists($tag_index . $tag['top_id'])){
+                            $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
+                            $tag_list = json_decode($tag_list_cache,true);
+                            if(!in_array($tag['parent_name'],$tag_list)){
+                                $parent_terms[] = $tag['parent_id'];
+                            }else{
+                                $product_terms[] = $tag['tag_name'];
+                            }
+                        }else{
+                            $product_terms[] = $tag['tag_name'];
+                        }
+                        $type_terms[] = $tag['top_id'];
+                    }
+                }
             }
         }
+
+        $must_not = [];
+
         //大类过滤
         if(!empty($type_terms)){
             $new_type_list = array_unique($type_terms);
@@ -113,20 +144,32 @@ class BuySearchData
             ]
         ];
 
-        //发布时间过滤
-        $filter[] = [
-            'range' => [
-                'audit_time' => [
-                    'from' => $last_time
+        //不匹配列表
+        if(isset($params['black_ids']) && !empty($params['black_ids'])){
+            $must_not[] = [
+                'term' => [
+                    '_id' => $params['black_ids']
                 ]
-            ]
-        ];
+            ];
+        }
+
+        //发布时间过滤
+        if(!isset($params['type']) || $params['type'] == 0){
+            $filter[] = [
+                'range' => [
+                    'audit_time' => [
+                        'from' => $last_time
+                    ]
+                ]
+            ];
+        }
         //搜索语句拼接
         $query = [
             'size' => $size,
             'query' => [
                 'bool' => [
-                    'filter' => $filter
+                    'filter' => $filter,
+                    'must_not' => $must_not
                 ]
             ],
             '_source' => [

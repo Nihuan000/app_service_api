@@ -59,13 +59,17 @@ class SearchController
     public function recommend_by_tags(Request $request)
     {
         $user_id = $request->post('user_id');
+        $type = $request->post('type',0);
+        $black_ids = $request->post('black_list');
         if($user_id == false){
             $code = 0;
             $result = [];
             $msg = '请求参数错误: user_id';
         }else{
             $params = [
-                'user_id' => $user_id
+                'user_id' => $user_id,
+                'type' => $type,
+                'black_ids' => $black_ids
             ];
             $module = RECOMMEND_MODULE_NAME;
             /* @var ElasticsearchLogic $elastic_logic */
