@@ -10,8 +10,10 @@
 
 namespace App\Models\Logic;
 
+use App\Models\Data\UserData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
+use Swoft\Bean\Annotation\Inject;
 
 /**
  * 用户逻辑层
@@ -40,6 +42,13 @@ class UserLogic
      */
     private $demoServiceV2;
 
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+
     public function rpcCall()
     {
         return ['bean', $this->demoService->getUser('12'), $this->demoServiceV2->getUser('16')];
@@ -59,5 +68,16 @@ class UserLogic
         }
 
         return $data;
+    }
+
+    /**
+     * @param array $params
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function checkUserTagExists(array $params)
+    {
+        $is_meet = $this->userData->isUserTagInActivity($params['user_id'],$params['tag_id']);
+        return $is_meet;
     }
 }

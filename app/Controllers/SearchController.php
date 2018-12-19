@@ -10,7 +10,9 @@ namespace App\Controllers;
 
 use App\Models\Data\ProductData;
 use App\Models\Data\TbPushBuyRecordData;
+use App\Models\Data\UserData;
 use App\Models\Logic\ElasticsearchLogic;
+use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -163,6 +165,41 @@ class SearchController
                 $code = 0;
                 $result = [];
                 $msg = '数据获取失败';
+            }
+        }
+        return compact('code','result','msg');
+    }
+
+    /**
+     * 进货资格判断
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function purchase_judgment(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        $tag_id = $request->post('tag_id');
+        if($user_id == false ){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $params = [
+                'user_id' => $user_id,
+                'tag_id' => $tag_id
+            ];
+            /* @var UserLogic $userLogic */
+            $userLogic = App::getBean(UserLogic::class);
+            $result = $userLogic->checkUserTagExists($params);
+            if($result !== false){
+                $code = 200;
+                $result = ['is_meet' => $result];
+                $msg = '获取成功';
+            }else{
+                $code = 0;
+                $result = [];
+                $msg = '获取失败';
             }
         }
         return compact('code','result','msg');
