@@ -41,7 +41,8 @@ class BuySearchData
      */
     public function recommendByTag(array $params)
     {
-        $size = 100;
+        $from = ($params['page'] - 1) * $params['psize'];
+        $size = $params['psize'];
         $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
         $last_time = strtotime("-{$last_days} day");
@@ -155,6 +156,7 @@ class BuySearchData
 
         //发布时间过滤
         if(!isset($params['type']) || $params['type'] == 0){
+            $size = 100;
             $filter[] = [
                 'range' => [
                     'audit_time' => [
@@ -165,6 +167,7 @@ class BuySearchData
         }
         //搜索语句拼接
         $query = [
+            'from' => $from,
             'size' => $size,
             'query' => [
                 'bool' => [
