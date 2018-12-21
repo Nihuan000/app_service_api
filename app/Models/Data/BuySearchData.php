@@ -41,7 +41,7 @@ class BuySearchData
      */
     public function recommendByTag(array $params)
     {
-        $from = ($params['page'] - 1) * $params['psize'];
+        $from = $params['page'] == 0 ? $params['page'] : $params['page'] - 1;
         $size = $params['psize'];
         $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
