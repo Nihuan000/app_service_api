@@ -137,7 +137,7 @@ class UserLogic
 
         $match_record_list = [];
         if(!empty($match_list)){
-            for ($i = 0; $i <= 3;){
+            for ($i = 1; $i <= 3;){
                 $total_count = 0;
                 foreach ($match_list as $key => $item) {
                     $current_item = array_splice($item,0,1);
