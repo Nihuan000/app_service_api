@@ -110,18 +110,7 @@ class UserLogic
     public function getRecommendShopList(array $params)
     {
         $shop_info = [];
-        $tag_list = [];
-        if(isset($params['remark']) && !empty($params['remark'])){
-            $analyzer_url = env('ES_CLUSTER_HOSTS') . '/' . env('ES_BUY_MASTER') . '/_analyze?analyzer=ik_smart&text=' . $params['remark'];
-            $tag_analyzer_list = CURL(['url' => $analyzer_url, 'timeout' => 2]);
-            if(!empty($tag_analyzer_list)){
-                $analyzer_list = json_decode($tag_analyzer_list,true);
-                $tag_list = array_column($analyzer_list['tokens'],'token');
-            }
-        }else{
-            $tag_list = $params['tag_list'];
-        }
-
+        $tag_list = $params['tag_list'];
         $match_list = [];
         if(!empty($tag_list)){
             foreach ($tag_list as $tag) {

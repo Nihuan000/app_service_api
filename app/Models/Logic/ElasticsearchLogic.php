@@ -100,6 +100,33 @@ class ElasticsearchLogic
     }
 
     /**
+     * 分词处理
+     * @param $text
+     * @return array
+     */
+    public function tokenAnalyzer($text)
+    {
+        $master_name = $this->esConfig->getBuyMaster();
+        $params = [
+            'index' => $master_name,
+            'body' => [
+                'text' => $text,
+                'analyzer'=>'ik_smart'
+            ]
+        ];
+
+        try {
+            $connect = $this->simpleConnectionPool();
+            $result = $connect->indices()->analyze($params);
+            if(!empty($result)){
+                return $result;
+            }
+        } catch (PoolException $e) {
+            print_r($e->getMessage());
+        }
+    }
+
+    /**
      * 采购列表
      * author: nihuan
      * @param int $last_time 最后请求时间

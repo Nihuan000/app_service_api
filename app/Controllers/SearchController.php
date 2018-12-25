@@ -225,10 +225,19 @@ class SearchController
             $result = [];
             $msg = '参数错误';
         }else{
+            if(!empty($remark)){
+                /* @var ElasticsearchLogic $elastic_logic */
+                $elastic_logic = App::getBean(ElasticsearchLogic::class);
+                $tag_list = $elastic_logic->tokenAnalyzer($remark);
+                if(isset($tag_list['tokens']) && !empty($tag_list['tokens'])){
+                    foreach ($tag_list['tokens'] as $analyzer) {
+                        $tag_list[] = $analyzer['token'];
+                    }
+                }
+            }
             $params = [
                 'user_id' => $user_id,
-                'tag_list' => $tag_list,
-                'remark' => $remark
+                'tag_list' => $tag_list
             ];
             /* @var UserLogic $user_logic */
             $user_logic = App::getBean(UserLogic::class);
