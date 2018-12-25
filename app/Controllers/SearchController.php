@@ -228,9 +228,9 @@ class SearchController
             if(!empty($remark)){
                 /* @var ElasticsearchLogic $elastic_logic */
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                $tag_list = $elastic_logic->tokenAnalyzer($remark);
-                if(isset($tag_list['tokens']) && !empty($tag_list['tokens'])){
-                    foreach ($tag_list['tokens'] as $analyzer) {
+                $tag_list_analyzer = $elastic_logic->tokenAnalyzer($remark);
+                if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
+                    foreach ($tag_list_analyzer['tokens'] as $analyzer) {
                         $tag_list[] = $analyzer['token'];
                     }
                 }
