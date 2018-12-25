@@ -59,6 +59,13 @@ class ElasticsearchPoolConfig
      */
     protected $buy_master;
 
+    /**
+     * shop search master
+     * @Value(env="${ES_SHOP_MASTER}")
+     * @var string
+     */
+    protected $shop_master;
+
 
     /**
      * index settings
@@ -112,5 +119,13 @@ class ElasticsearchPoolConfig
     public function getBuyMaster() : string
     {
         return $this->buy_master;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShopMaster() : string
+    {
+        return $this->shop_master;
     }
 }

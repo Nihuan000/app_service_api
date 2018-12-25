@@ -102,4 +102,26 @@ class UserData
         }
         return $tag_meet_at;
     }
+
+    /**
+     * 实商列表
+     * @param array $params
+     * @param array $field
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getStrengthList(array $params = [], array $field = [])
+    {
+        return $this->userDao->getUserStrengthList($params, $field);
+    }
+
+    /**
+     * @param array $user_id
+     * @param string $tag
+     * @return mixed
+     */
+    public function getUserByTag(array $user_id, string $tag)
+    {
+        return $this->userDao->getUserListBySecTag($user_id,$tag);
+    }
 }

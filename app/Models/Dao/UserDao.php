@@ -13,6 +13,7 @@ namespace App\Models\Dao;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
 use Swoft\Db\Db;
+use Swoft\Db\Query;
 
 /**
  * 用户数据对象
@@ -76,5 +77,49 @@ class UserDao
         }
 
         return $user_list;
+    }
+
+    /**
+     * 返回包含某二级标签用户
+     * @param array $user_id
+     * @param string $tag
+     * @return mixed
+     */
+    public function getUserListBySecTag(array $user_id, string $tag)
+    {
+        return Query::table('sb_user_subscription_tag')
+            ->whereIn('user_id',$user_id)
+            ->where('parent_name',$tag)
+            ->groupBy('user_id')
+            ->get(['user_id','top_name'])
+            ->getResult();
+    }
+
+    /**
+     * 实商&保证金用户获取
+     * @param array $params
+     * @param array $field
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getUserStrengthList(array $params = [], array $field = [])
+    {
+        $queryModel = Query::table('sb_user_strength','t');
+        $queryModel->leftJoin('sb_user',"u.user_id = t.user_id",'u');
+        $queryModel->where('t.is_expire',0);
+        $queryModel->where('t.level',0,'>');
+        $queryModel->where('u.safe_price',0,'>');
+        $queryModel->where('t.remark','');
+        $queryModel->groupBy('t.user_id');
+        if(!empty($params)){
+            if(isset($params['user_ids'])){
+                $queryModel->whereIn('t.user_id',$params['user_ids']);
+            }
+        }
+        if(!empty($field)){
+            return $queryModel->get($field)->getResult();
+        }else{
+            return $queryModel->get(['t.user_id'])->getResult();
+        }
     }
 }

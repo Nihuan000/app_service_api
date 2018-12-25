@@ -28,4 +28,14 @@ class OfferDao
     {
         return Offer::findAll($params,['fields' => ['buy_id']])->getResult();
     }
+
+    /**
+     * 获取符合条件报价数
+     * @param array $params
+     * @return mixed
+     */
+    public function getUserOfferCount(array $params)
+    {
+        return Offer::count('*',$params)->getResult();
+    }
 }

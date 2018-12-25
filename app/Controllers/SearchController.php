@@ -208,4 +208,41 @@ class SearchController
         }
         return compact('code','result','msg');
     }
+
+    /**
+     * 供应商推荐
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function recommend_shop_by_buy(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        $tag_list = $request->post('tag_list',[]);
+        $remark = $request->post('remark','');
+        if($user_id == false || (empty($tag_list) && empty($remark))){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $params = [
+                'user_id' => $user_id,
+                'tag_list' => $tag_list,
+                'remark' => $remark
+            ];
+            /* @var UserLogic $user_logic */
+            $user_logic = App::getBean(UserLogic::class);
+            $list = $user_logic->getRecommendShopList($params);
+            if(!empty($list)){
+                $code = 200;
+                $result = ['shop_list' => $list];
+                $msg = '获取成功';
+            }else{
+                $code = 0;
+                $result = [];
+                $msg = '获取失败';
+            }
+        }
+        return compact('code','result','msg');
+    }
 }

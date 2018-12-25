@@ -148,7 +148,7 @@ class BuySearchData
         //不匹配列表
         if(isset($params['black_ids']) && !empty($params['black_ids'])){
             $must_not[] = [
-                'term' => [
+                'terms' => [
                     '_id' => $params['black_ids']
                 ]
             ];
