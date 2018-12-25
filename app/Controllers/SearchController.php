@@ -233,7 +233,7 @@ class SearchController
             /* @var UserLogic $user_logic */
             $user_logic = App::getBean(UserLogic::class);
             $list = $user_logic->getRecommendShopList($params);
-            if(!empty($list)){
+            if($list !== false){
                 $code = 200;
                 $result = ['shop_list' => $list];
                 $msg = '获取成功';
