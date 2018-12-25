@@ -45,9 +45,7 @@ class RecommendShopTask
         $user_ids = array_column($user_list, 'user_id');
         $last_days = strtotime('-30 day');
         foreach ($tag_list as $key => $item) {
-            $tag_match = $this->userLogic->getRecommendUserList($user_ids, $key, $item, $last_days);
-            echo $key . json_encode($tag_match);
-            Log::trace('match tag:' . $key . ', match userIds:' . json_encode($tag_match));
+           $this->userLogic->getRecommendUserList($user_ids, $key, $item, $last_days);
         }
     }
 
