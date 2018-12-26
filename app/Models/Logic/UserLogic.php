@@ -157,7 +157,7 @@ class UserLogic
                 foreach ($shop_info as $key => $user) {
                     $shop_info[$key]['match_tag_desc'] = $match_record_list[$user['user_id']] . '优质供应商';
                     $shop_info[$key]['deposit'] = 1;
-                    $shop_info[$key]['deposit_type'] = (int)$user['deposit_level']/2;
+                    $shop_info[$key]['deposit_type'] = (int)$user['deposit_level']/5;
                     unset($shop_info[$key]['deposit_level']);
                 }
             }
