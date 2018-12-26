@@ -120,7 +120,7 @@ class RecommendMsgQueueTask
                             $extra['data'] = [$extraData];
                             $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                             $notice['extra'] = $extra;
-                            sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
+                            sendInstantMessaging('11', (string)$user_id, json_encode($notice['extra']));
                             $this->searchRedis->sAdd($historyIndex . $date, $item);
                         }
                     }
