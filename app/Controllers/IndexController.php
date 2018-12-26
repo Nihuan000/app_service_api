@@ -93,7 +93,6 @@ class IndexController
         ################## 消息基本信息结束 #######################
 
         $notice['extra'] = $extra;
-        Log::info(json_encode($notice));
         $sendRes = sendInstantMessaging('11', (string)$user_id, json_encode($notice['extra']));
         $name = '未知结果';
         if($sendRes){
