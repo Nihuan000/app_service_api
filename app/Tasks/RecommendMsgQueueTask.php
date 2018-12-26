@@ -94,7 +94,7 @@ class RecommendMsgQueueTask
                             ################## 消息展示内容开始 #######################
                             $extra = $sys_msg;
                             $extra['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
-                            $extra['type'] = 1;
+                            $extra['type'] = $buyInfo['status'];
                             $extra['id'] = $buy_id;
                             $extra['buy_id'] = $buy_id;
                             $extra['name'] = $buyer['name'];
