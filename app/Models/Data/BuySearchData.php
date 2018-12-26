@@ -10,6 +10,7 @@ namespace App\Models\Data;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -49,18 +50,18 @@ class BuySearchData
 
         //过滤基本信息
         $filter = $this->baseFilter();
-        if($params['type'] == 0){
-            $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
-            $user_tag_list = json_decode($user_tag_string,true);
-            if(empty($user_tag_list)){
-                $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
-                if(!empty($user_tag_list)){
-                    $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
-                }
+        $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
+        $user_tag_list = json_decode($user_tag_string,true);
+        if(empty($user_tag_list)){
+            $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
+            if(!empty($user_tag_list)){
+                $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
             }
-            $parent_terms = [];
-            $product_terms = [];
-            $type_terms = [];
+        }
+        $parent_terms = [];
+        $product_terms = [];
+        $type_terms = [];
+        if($params['type'] == 0){
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag){
                     if($this->redis->exists($tag_index . $tag['top_id'])){
@@ -78,14 +79,6 @@ class BuySearchData
                 }
             }
         }else{
-            $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
-            $user_tag_list = json_decode($user_tag_string,true);
-            if(empty($user_tag_list)){
-                $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
-                if(!empty($user_tag_list)){
-                    $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
-                }
-            }
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag) {
                     if($tag['top_id'] == $params['type']){
@@ -105,6 +98,11 @@ class BuySearchData
                 }
             }
         }
+
+        Log::info(json_encode($user_tag_list));
+        Log::info(json_encode($parent_terms));
+        Log::info(json_encode($product_terms));
+        Log::info(json_encode($type_terms));
 
         $must_not = [];
 

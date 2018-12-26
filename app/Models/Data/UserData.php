@@ -94,8 +94,8 @@ class UserData
         }
         if(!empty($user_tag_list)){
             foreach ($user_tag_list as $item) {
-                if($tag_id == $item['parent_id']){
-                    $this->redis->sAdd($cache_index . $item['parent_id'],$user_id);
+                if($tag_id == $item['top_id']){
+                    $this->redis->sAdd($cache_index . $item['top_id'],$user_id);
                     $tag_meet_at = 1;
                 }
             }
