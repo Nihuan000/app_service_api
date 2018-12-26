@@ -10,6 +10,11 @@
 
 namespace App\Controllers;
 
+use App\Models\Data\BuyData;
+use App\Models\Data\UserData;
+use Swoft\Http\Message\Server\Request;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Redis\Redis;
 use Swoft\App;
 use Swoft\Core\Coroutine;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -26,6 +31,17 @@ use Swoft\Http\Message\Server\Response;
  */
 class IndexController
 {
+    /**
+     * @Inject()
+     * @var BuyData
+     */
+    private $buyData;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
 
     /**
      * @RequestMapping("/")
@@ -34,190 +50,65 @@ class IndexController
      */
     public function index(): array
     {
-        $name = 'Swoft';
+        $name = 'Framework';
         $notes = [
             'New Generation of PHP Framework',
             'Hign Performance, Coroutine and Full Stack'
         ];
         $links = [
-            [
-                'name' => 'Home',
-                'link' => 'http://www.swoft.org',
-            ],
-            [
-                'name' => 'Documentation',
-                'link' => 'http://doc.swoft.org',
-            ],
-            [
-                'name' => 'Case',
-                'link' => 'http://swoft.org/case',
-            ],
-            [
-                'name' => 'Issue',
-                'link' => 'https://github.com/swoft-cloud/swoft/issues',
-            ],
-            [
-                'name' => 'GitHub',
-                'link' => 'https://github.com/swoft-cloud/swoft',
-            ],
         ];
         // 返回一个 array 或 Arrayable 对象，Response 将根据 Request Header 的 Accept 来返回数据，目前支持 View, Json, Raw
         return compact('name', 'notes', 'links');
     }
 
     /**
-     * show view by view function
+     * @param Request $request
      */
-    public function templateView(): Response
+    public function offer_test(Request $request)
     {
-        $name = 'Swoft View';
-        $notes = [
-            'New Generation of PHP Framework',
-            'Hign Performance, Coroutine and Full Stack'
-        ];
-        $links = [
-            [
-                'name' => 'Home',
-                'link' => 'http://www.swoft.org',
-            ],
-            [
-                'name' => 'Documentation',
-                'link' => 'http://doc.swoft.org',
-            ],
-            [
-                'name' => 'Case',
-                'link' => 'http://swoft.org/case',
-            ],
-            [
-                'name' => 'Issue',
-                'link' => 'https://github.com/swoft-cloud/swoft/issues',
-            ],
-            [
-                'name' => 'GitHub',
-                'link' => 'https://github.com/swoft-cloud/swoft',
-            ],
-        ];
-        $data = compact('name', 'notes', 'links');
+        $msg_arr = explode('#',$request->post('msg_record'));
+        $user_id = (int)$msg_arr[0];
+        $buy_id = (int)$msg_arr[1];
+        $buyInfo = $this->buyData->getBuyInfo($buy_id);
+        $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
+        $config = \Swoft::getBean('config');
+        $sys_msg = $config->get('sysMsg');
 
-        return view('index/index', $data);
-    }
+        //发送系统消息
+        ################## 消息展示内容开始 #######################
+        $buy_info['image'] = !is_null($buyInfo['pic']) ? get_img_url($buyInfo['pic']) : '';
+        $buy_info['type'] = 1;
+        $buy_info['title'] = (string)$buyInfo['remark'];
+        $buy_info['id'] = $buy_id;
+        $buy_info['price'] = isset($buyInfo['price']) ? $buyInfo['price'] : "";
+        $buy_info['amount'] = $buyInfo['amount'];
+        $buy_info['unit'] = $buyInfo['unit'];
+        $buy_info['url'] = '';
+        ################## 消息展示内容结束 #######################
 
-    /**
-     * @RequestMapping()
-     * @View(template="index/index")
-     * @return \Swoft\Contract\Arrayable|__anonymous@836
-     */
-    public function arrayable(): Arrayable
-    {
-        return new class implements Arrayable
-        {
-            /**
-             * @return array
-             */
-            public function toArray(): array
-            {
-                return [
-                    'name'  => 'Swoft',
-                    'notes' => ['New Generation of PHP Framework', 'Hign Performance, Coroutine and Full Stack'],
-                    'links' => [
-                        [
-                            'name' => 'Home',
-                            'link' => 'http://www.swoft.org',
-                        ],
-                        [
-                            'name' => 'Documentation',
-                            'link' => 'http://doc.swoft.org',
-                        ],
-                        [
-                            'name' => 'Case',
-                            'link' => 'http://swoft.org/case',
-                        ],
-                        [
-                            'name' => 'Issue',
-                            'link' => 'https://github.com/swoft-cloud/swoft/issues',
-                        ],
-                        [
-                            'name' => 'GitHub',
-                            'link' => 'https://github.com/swoft-cloud/swoft',
-                        ],
-                    ]
-                ];
-            }
+        ################## 消息基本信息开始 #######################
+        $extra = $sys_msg;
+        $extra['title'] = '收到邀请';
+        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
+        $extra['commendUser'] = [];
+        $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
+        ################## 消息基本信息结束 #######################
 
-        };
-    }
+        ################## 消息扩展字段开始 #######################
+        $extraData['keyword'] = '#查看详情#';
+        $extraData['type'] = 1;
+        $extraData['id'] = (int)$buy_id;
+        $extraData['url'] = '';
+        ################## 消息扩展字段结束 #######################
 
-    /**
-     * @RequestMapping()
-     * @return Response
-     */
-    public function absolutePath(): Response
-    {
-        $data = [
-            'name'  => 'Swoft',
-            'notes' => ['New Generation of PHP Framework', 'Hign Performance, Coroutine and Full Stack'],
-            'links' => [
-                [
-                    'name' => 'Home',
-                    'link' => 'http://www.swoft.org',
-                ],
-                [
-                    'name' => 'Documentation',
-                    'link' => 'http://doc.swoft.org',
-                ],
-                [
-                    'name' => 'Case',
-                    'link' => 'http://swoft.org/case',
-                ],
-                [
-                    'name' => 'Issue',
-                    'link' => 'https://github.com/swoft-cloud/swoft/issues',
-                ],
-                [
-                    'name' => 'GitHub',
-                    'link' => 'https://github.com/swoft-cloud/swoft',
-                ],
-            ]
-        ];
-        $template = 'index/index';
-        return view($template, $data);
-    }
-
-    /**
-     * @RequestMapping()
-     * @return string
-     */
-    public function raw()
-    {
-        $name = 'Swoft';
-        return $name;
-    }
-
-    public function testLog()
-    {
-        App::trace('this is app trace');
-        Log::trace('this is log trace');
-        App::error('this is log error');
-        Log::trace('this is log error');
-        return ['log'];
-    }
-
-    /**
-     * @RequestMapping()
-     * @throws \Swoft\Http\Server\Exception\BadRequestException
-     */
-    public function exception()
-    {
-        throw new BadRequestException('bad request exception');
-    }
-
-    /**
-     * @RequestMapping()
-     * @param Response $response
-     * @return Response
-     */
-    public function redirect(Response $response): Response
-    {
-        return $response->redirect('/');
+        $extra['data'] = [$extraData];
+        $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
+        $notice['extra'] = $extra;
+        $sendRes = sendInstantMessaging('11', (string)$user_id, json_encode($notice['extra']));
+        $name = '未知结果';
+        if($sendRes){
+            $name = '发送成功';
+        }
+        return compact('name');
     }
 }
