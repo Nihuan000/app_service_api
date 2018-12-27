@@ -18,6 +18,7 @@ use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\App;
 use Swoft\Http\Message\Server\Request;
+use Swoft\Log\Log;
 
 /**
  * Class SearchController
@@ -235,6 +236,7 @@ class SearchController
                     }
                 }
             }
+            Log::info(json_encode($tag_list));
             $params = [
                 'user_id' => $user_id,
                 'tag_list' => $tag_list

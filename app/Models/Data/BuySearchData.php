@@ -10,7 +10,6 @@ namespace App\Models\Data;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
-use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -98,11 +97,6 @@ class BuySearchData
                 }
             }
         }
-
-        Log::info(json_encode($user_tag_list));
-        Log::info(json_encode($parent_terms));
-        Log::info(json_encode($product_terms));
-        Log::info(json_encode($type_terms));
 
         $must_not = [];
 
