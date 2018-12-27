@@ -32,4 +32,20 @@ class DemoRedisPoolConfig extends RedisPoolConfig
      * @var string
      */
     protected $prefix = '';
+
+    /**
+     * Whether to be serialized
+     *
+     * @Value(name="${config.cache.redis.serialize}", env="${REDIS_DEMO_SERIALIZE}")
+     * @var int
+     */
+    protected $serialize = 0;
+
+    /**
+     * @return int
+     */
+    public function getSerialize(): int
+    {
+        return $this->serialize;
+    }
 }
