@@ -78,7 +78,8 @@ class UserData
      */
     public function getSetting($keyword)
     {
-        $setting = $this->userDao->getSettingInfo($keyword);
+        $setting_info = $this->userDao->getSettingInfo($keyword);
+        $setting = current($setting_info);
         if(!empty($setting)){
             switch ($setting['value_type']){
                 case 1:

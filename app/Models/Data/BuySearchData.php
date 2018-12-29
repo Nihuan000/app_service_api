@@ -82,8 +82,7 @@ class BuySearchData
             $push_newest_key = 'push_newest_time_' . $params['user_id'] . '_' . $params['type'];
             if(!$this->redis->exists($push_newest_key) && $page == 0){
                 $push_newest_time = time();
-                $this->redis->set($push_newest_key,$push_newest_time);
-                $this->redis->expire($push_newest_key,120);
+                $this->redis->setex($push_newest_key,120,$push_newest_time);
             }else{
                 $push_newest_time = $this->redis->get($push_newest_key);
             }
