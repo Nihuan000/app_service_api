@@ -79,6 +79,7 @@ class BuySearchData
                 }
             }
         }else{
+            $type_terms[] = $params['type'];
             $push_newest_key = 'push_newest_time_' . $params['user_id'] . '_' . $params['type'];
             if(!$this->redis->exists($push_newest_key) && $page == 0){
                 $push_newest_time = time();
@@ -100,7 +101,6 @@ class BuySearchData
                         }else{
                             $product_terms[] = $tag['tag_name'];
                         }
-                        $type_terms[] = $tag['top_id'];
                     }
                 }
             }
