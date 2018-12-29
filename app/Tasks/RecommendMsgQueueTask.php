@@ -57,7 +57,7 @@ class RecommendMsgQueueTask
         $historyIndex = '@RecommendMsgHistory_';
         $len = $this->searchRedis->lLen($index . $date);
         $test_list = $this->userData->getTesters();
-        $is_send_offer = $this->userData->getSetting('recommend_deposit_switch');
+        $is_send_offer = env('SEND_OFFER_NOTICE');
         $grayscale = getenv('IS_GRAYSCALE');
         if($len > 0){
             $config = \Swoft::getBean('config');
