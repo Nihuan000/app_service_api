@@ -73,6 +73,8 @@ class IndexController
         $buyInfo = $this->buyData->getBuyInfo($buy_id);
         $buyer = $this->userData->getUserInfo((int)$buyInfo['userId']);
         $is_send_offer = env('SEND_OFFER_NOTICE');
+        $setting_info = $this->userData->getSetting('recommend_deposit_switch');
+        Log::info($setting_info);
         $config = \Swoft::getBean('config');
         $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
 
