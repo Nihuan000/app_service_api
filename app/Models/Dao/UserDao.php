@@ -122,4 +122,14 @@ class UserDao
             return $queryModel->get(['t.user_id'])->getResult();
         }
     }
+
+    /**
+     * 配置获取
+     * @param $keywrod
+     * @return mixed
+     */
+    public function getSettingInfo($keywrod)
+    {
+        return Query::table('sb_setting')->where('keyword',$keywrod)->where('status',1)->get(['value','value_type'])->getResult();
+    }
 }

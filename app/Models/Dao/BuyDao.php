@@ -101,6 +101,6 @@ class BuyDao
             $ids = 0;
         }
         $last_time = strtotime('-3 day');
-        return Db::query("SELECT b.* FROM sb_buy b LEFT JOIN sb_buy_relation_tag AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND b.del_status = 1 AND b.is_audit = 0 AND b.amount >= 100 AND a.tag_id = {$tag_id} AND refresh_time >= {$last_time} AND buy_id NOT IN ({$ids}) ORDER BY b.refresh_time DESC LIMIT 1")->getResult();
+        return Db::query("SELECT b.* FROM sb_buy b LEFT JOIN sb_buy_relation_tag AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND b.del_status = 1 AND b.is_audit = 0 AND b.amount >= 100 AND a.tag_id = {$tag_id} AND refresh_time >= {$last_time} AND b.buy_id NOT IN ({$ids}) ORDER BY b.refresh_time DESC LIMIT 1")->getResult();
     }
 }

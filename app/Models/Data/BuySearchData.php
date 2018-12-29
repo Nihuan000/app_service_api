@@ -41,8 +41,9 @@ class BuySearchData
      */
     public function recommendByTag(array $params)
     {
-        $from = $params['page'] == 0 ? $params['page'] : $params['page'] - 1;
+        $page = $params['page'] == 0 ? $params['page'] : $params['page'] - 1;
         $size = $params['psize'];
+        $from = $page * $size;
         $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
         $last_time = strtotime("-{$last_days} day");
@@ -78,6 +79,14 @@ class BuySearchData
                 }
             }
         }else{
+            $push_newest_key = 'push_newest_time_' . $params['user_id'] . '_' . $params['type'];
+            if(!$this->redis->exists($push_newest_key) && $page == 0){
+                $push_newest_time = time();
+                $this->redis->set($push_newest_key,$push_newest_time);
+                $this->redis->expire($push_newest_key,120);
+            }else{
+                $push_newest_time = $this->redis->get($push_newest_key);
+            }
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag) {
                     if($tag['top_id'] == $params['type']){
@@ -96,6 +105,13 @@ class BuySearchData
                     }
                 }
             }
+            $filter[] = [
+                'range' => [
+                    'refresh_time' => [
+                        'to' => $push_newest_time
+                    ]
+                ]
+            ];
         }
 
         $must_not = [];

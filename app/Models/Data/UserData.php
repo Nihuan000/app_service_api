@@ -72,6 +72,46 @@ class UserData
     }
 
     /**
+     * 配置获取
+     * @param $keyword
+     * @return array|bool|int|string|null
+     */
+    public function getSetting($keyword)
+    {
+        $setting = $this->userDao->getSettingInfo($keyword);
+        if(!empty($setting)){
+            switch ($setting['value_type']){
+                case 1:
+                    $value = (string)$setting['value'];
+                    break;
+
+                case 2:
+                    $value = (int)$setting['value'];
+                    break;
+
+                case 3:
+                    $value = [];
+                    if(!empty($setting['value'])){
+                        $value = explode(',',$setting['value']);
+                    }
+                    break;
+
+                case 4:
+                    $value = (bool)$setting['value'];
+                    break;
+
+
+                default:
+                    $value = (string)$setting['value'];
+            }
+
+            return $value;
+        }else{
+            return null;
+        }
+    }
+
+    /**
      * @param $user_id
      * @param $tag_id
      * @return int
