@@ -10,11 +10,9 @@
 
 namespace App\Tasks;
 
-use Swoft\App;
-// use Swoft\Bean\Annotation\Inject;
-// use Swoft\HttpClient\Client;
-// use Swoft\Rpc\Client\Bean\Annotation\Reference;
-use Swoft\Db\Db;
+use App\Models\Data\UserData;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -27,24 +25,30 @@ use Swoft\Task\Bean\Annotation\Task;
  */
 class WaterFollsTaskTask{
 
-//    /**
-//     * @Inject("demoRedis")
-//     * @var Redis
-//     */
-//    private $redis;
-//
-//    /**
-//     * A cronTab task
-//     * 每天5点清除7天以前的数据
-//     * @Scheduled(cron="0 0 5 * * *")
-//     */
-//    public function waterFollsExpireTask()
-//    {
-//        $last_time = strtotime('-7 day');
-//        $setting = Db::query("SELECT &")->getResult();
-//        $waterfall_index = 'index_water_falls_list_' . $params['cycle'] . '_' . $params['display_count'];
-//        $len = $this->searchRedis->lLen($index . $date);
-//        $current_list = $this->redis->zRangeByScore($waterfall_index,$current_user_start_time,$current_user_end_time);
-//        return ['过期瀑布流数据清除'];
-//    }
+    /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    private $redis;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+    /**
+     * 每天5点清除一个月以前的数据
+     * @Scheduled(cron="0 0 5 * * *")
+     */
+    public function waterFollsExpireTask()
+    {
+        $last_time = strtotime('-1 month');
+        $display_filter_num = $this->userData->getSetting('pro_display_fliter_number');
+        $product_count = $this->userData->getSetting('pro_display_number');
+        $waterfall_index = 'index_water_falls_list_' . $display_filter_num . '_' . $product_count;
+        $remRes = $this->redis->zRemRangeByScore($waterfall_index,0,$last_time);
+        Log::info('瀑布流过期数据清除数:' . (int)$remRes);
+        return ['过期瀑布流数据清除'];
+    }
 }
