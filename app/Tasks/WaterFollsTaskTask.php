@@ -48,7 +48,7 @@ class WaterFollsTaskTask{
         $product_count = $this->userData->getSetting('pro_display_number');
         $waterfall_index = 'index_water_falls_list_' . $display_filter_num . '_' . $product_count;
         $waterfall_len = $this->redis->lLen($waterfall_index);
-        if($waterfall_len > 3000){
+        if($waterfall_len > 10000){
             $remRes = $this->redis->zRemRangeByScore($waterfall_index,0,$last_time);
             Log::info('瀑布流过期数据清除数:' . (int)$remRes);
         }else{

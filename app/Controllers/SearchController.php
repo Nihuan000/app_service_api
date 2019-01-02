@@ -153,7 +153,7 @@ class SearchController
             $code = 0;
             $result = [];
             $msg = '参数错误';
-        }elseif($pages > 50){
+        }elseif($pages > 100){
             $code = 200;
             $result = ['list' => []];
             $msg = '获取成功';
