@@ -141,6 +141,7 @@ class SearchController
      * 瀑布流列表
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function waterfalls_product(Request $request)
     {
@@ -148,10 +149,14 @@ class SearchController
         $display_count = $request->post('display_count');
         $pages = $request->post('page',1);
         $pageSize = $request->post('pageSize',20);
-        if(empty($cycle) || empty($display_count)){
+        if(empty($cycle) || empty($display_count)) {
             $code = 0;
             $result = [];
             $msg = '参数错误';
+        }elseif($pages > 50){
+            $code = 200;
+            $result = ['list' => []];
+            $msg = '获取成功';
         }else{
             $params = [
                 'cycle' => $cycle,

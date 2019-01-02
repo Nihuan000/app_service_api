@@ -104,6 +104,7 @@ class ProductData
      * 首页瀑布流数据缓存获取
      * @param array $params
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getIndexWaterfalls(array $params)
     {
