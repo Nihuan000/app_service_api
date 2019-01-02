@@ -47,8 +47,13 @@ class WaterFollsTaskTask{
         $display_filter_num = $this->userData->getSetting('pro_display_fliter_number');
         $product_count = $this->userData->getSetting('pro_display_number');
         $waterfall_index = 'index_water_falls_list_' . $display_filter_num . '_' . $product_count;
-        $remRes = $this->redis->zRemRangeByScore($waterfall_index,0,$last_time);
-        Log::info('瀑布流过期数据清除数:' . (int)$remRes);
+        $waterfall_len = $this->redis->lLen($waterfall_index);
+        if($waterfall_len > 3000){
+            $remRes = $this->redis->zRemRangeByScore($waterfall_index,0,$last_time);
+            Log::info('瀑布流过期数据清除数:' . (int)$remRes);
+        }else{
+            Log::info('瀑布流数据量不足最低值,跳过:');
+        }
         return ['过期瀑布流数据清除'];
     }
 }
