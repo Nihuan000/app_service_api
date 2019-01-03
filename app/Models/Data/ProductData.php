@@ -170,6 +170,7 @@ class ProductData
      */
     protected function general_waterfolls_data($waterfall_index,$params)
     {
+        $member_pro_cache = 'shop_product_process';
         if(isset($params['end_time']) && $params['end_time'] > 0 && isset($params['prev_time'])){
             $prev_time = $params['prev_time'];
             $last_time = $params['end_time'];
@@ -230,7 +231,7 @@ class ProductData
                 }
 
                 //周期内产品补充
-                if(isset($limit_count) && $limit_count > 0){
+                if(isset($limit_count) && $limit_count > 0 && $this->redis->sIsmember($member_pro_cache,$item['userId']) == false){
                     $proParams = [
                         ['add_time','>=',$current_user_start_time],
                         ['add_time','<=',$current_user_end_time],
@@ -241,12 +242,14 @@ class ProductData
                         'orderby' => ['pro_id' => 'asc'],
                         'limit' => $limit_count
                     ];
+                    $this->redis->sAdd($member_pro_cache,$item['userId']);
                     $pro_info = $this->productDao->getUserProductListByParams($proParams,$prOption);
                     if(!empty($pro_info)){
                         foreach ($pro_info as $pro) {
                             $this->redis->zAdd($waterfall_index,$pro['addTime'],$pro['userId'] . '#' .$pro['proId']);
                         }
                     }
+                    $this->redis->sRem($member_pro_cache,$item['userId']);
                 }
                 $this->redis->set('waterfall_newest_time_' . $params['cycle'] . '_' . $params['display_count'],$item['addTime']);
             }
