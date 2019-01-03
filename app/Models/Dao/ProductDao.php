@@ -103,4 +103,14 @@ class ProductDao
     {
         return Product::findAll([['add_time','<', $add_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'DESC'],'fields' => ['user_id','add_time','pro_id'],'limit' => $limit])->getResult();
     }
+
+    /**
+     * 获取符合条件的产品数
+     * @param array $params
+     * @return mixed
+     */
+    public function getProductCountByParams(array $params)
+    {
+        return Product::count('*',$params)->getResult();
+    }
 }
