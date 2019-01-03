@@ -233,7 +233,7 @@ class ProductData
 
 
                 //周期内产品补充
-                if(isset($limit_count) && $limit_count > 0 && $this->redis->sIsmember($member_pro_cache,$item['userId']) == false){
+                if(isset($limit_count) && $limit_count > 0 && !$this->redis->sIsMember($member_pro_cache,$item['userId'])){
                     $proParams = [
                         ['add_time','>=',$current_user_start_time],
                         ['add_time','<=',$current_user_end_time],
@@ -242,7 +242,7 @@ class ProductData
                     ];
                     //符合条件产品数修改
                     $pro_count = $this->productDao->getProductCountByParams($proParams);
-                    if($pro_count >= $params['display_count']){
+                    if($pro_count >= $limit_count){
                         $prOption = [
                             'fields' => ['user_id','pro_id'],
                             'limit' => $limit_count
