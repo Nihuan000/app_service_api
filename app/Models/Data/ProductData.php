@@ -234,7 +234,7 @@ class ProductData
 
 
                 //周期内产品补充
-                if(isset($limit_count) && $limit_count > 0 && !$this->redis->sIsMember($member_pro_cache,(string)$item['userId'])){
+                if(isset($limit_count) && $limit_count > 0){
                     Log::info($item['userId']);
                     $proParams = [
                         ['add_time','>=',$current_user_start_time],
@@ -247,14 +247,12 @@ class ProductData
                         'fields' => ['user_id','pro_id'],
                         'limit' => $limit_count
                     ];
-                    $this->redis->sAdd($member_pro_cache,$item['userId']);
                     $pro_info = $this->productDao->getUserProductListByParams($proParams,$prOption);
                     if(!empty($pro_info)){
                         foreach ($pro_info as $pro) {
                             $this->redis->zAdd($waterfall_index,$pro['addTime'],$pro['userId'] . '#' .$pro['proId']);
                         }
                     }
-                    $this->redis->sRem($member_pro_cache,$item['userId']);
                 }
                 $this->redis->set('waterfall_newest_time_' . $params['cycle'] . '_' . $params['display_count'],$item['addTime']);
             }
