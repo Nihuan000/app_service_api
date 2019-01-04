@@ -280,9 +280,10 @@ class BuySearchData
         $buyLog = [
             'user_id' => $params['user_id'],
             'parentid' => $params['type'],
-            'lable_ids' => json_encode($params['lable_ids']),
+            'label_ids' => json_encode($params['label_ids']),
             'is_hot' => $hot_type,
-            'page_num' => $params['page']
+            'page_num' => $params['page'],
+            'version' => $params['version']
         ];
         $this->buyburiedDao->saveSearchBuried($buyLog);
     }

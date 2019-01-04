@@ -52,7 +52,8 @@ class BuyBuriedDao
         $buried->setParentid($buy['parentid']);
         $buried->setPageNum($buy['page_num']);
         $buried->setIsHot($buy['is_hot']);
-        $buried->setLabelIds($buy['lable_ids']);
+        $buried->setLabelIds($buy['label_ids']);
+        $buried->setAppVersion($buy['version']);
         $buried->setSearchTime(time());
         return $buried->save()->getResult();
     }

@@ -66,6 +66,7 @@ class SearchController
         $black_ids = $request->post('black_list');
         $page = $request->post('page',1);
         $psize = $request->post('pageSize',20);
+        $version = $request->post('version','');
         if($user_id == false){
             $code = 0;
             $result = [];
@@ -74,6 +75,7 @@ class SearchController
             $params = [
                 'user_id' => $user_id,
                 'type' => $type,
+                'version' => $version,
                 'black_ids' => $black_ids,
                 'page' => $page,
                 'psize' => $psize
