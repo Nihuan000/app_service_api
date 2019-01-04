@@ -109,8 +109,8 @@ class BuySearchData
                         }else{
                             $product_terms[] = $tag['tag_name'];
                         }
+                        $label_ids[] = $tag['tag_id'];
                     }
-                    $label_ids[] = $tag['tag_id'];
                 }
             }
             $filter[] = [
