@@ -7,6 +7,7 @@
 
 namespace App\Models\Data;
 
+use App\Models\Dao\BuyBuriedDao;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
@@ -32,6 +33,12 @@ class BuySearchData
      * @var UserDao
      */
     private $userDao;
+
+    /**
+     * @Inject()
+     * @var BuyBuriedDao
+     */
+    private $buyburiedDao;
 
     /**
      * 根据标签推荐与我相关
@@ -61,6 +68,7 @@ class BuySearchData
         $parent_terms = [];
         $product_terms = [];
         $type_terms = [];
+        $label_ids = [];
         if($params['type'] == 0){
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag){
@@ -102,6 +110,7 @@ class BuySearchData
                             $product_terms[] = $tag['tag_name'];
                         }
                     }
+                    $label_ids[] = $tag['tag_id'];
                 }
             }
             $filter[] = [
@@ -191,6 +200,9 @@ class BuySearchData
                 ]
             ]
         ];
+        //记录日志
+        $params['label_ids'] = $label_ids;
+        $this->search_log($params,6);
         //搜索执行语句生成
         return $query;
     }
@@ -256,5 +268,22 @@ class BuySearchData
             ]
         ];
         return $filter;
+    }
+
+    /**
+     * 搜索日志添加
+     * @param $params
+     * @param int $hot_type
+     */
+    private function search_log($params,$hot_type = 6)
+    {
+        $buyLog = [
+            'user_id' => $params['user_id'],
+            'parentid' => $params['type'],
+            'lable_ids' => json_encode($params['lable_ids']),
+            'is_hot' => $hot_type,
+            'page_num' => $params['page']
+        ];
+        $this->buyburiedDao->saveSearchBuried($buyLog);
     }
 }

@@ -9,6 +9,7 @@
 namespace App\Models\Dao;
 
 
+use App\Models\Entity\BuySearchLog;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\BuyBuried;
 
@@ -36,6 +37,23 @@ class BuyBuriedDao
         $buried->setBuyStatus($buy['buy_status']);
         $buried->setFindStatus($buy['find_status']);
         $buried->setOfferId($buy['offer_id']);
+        return $buried->save()->getResult();
+    }
+
+    /**
+     * 搜索日志添加
+     * @param array $buy
+     * @return mixed
+     */
+    public function saveSearchBuried(array $buy)
+    {
+        $buried = new BuySearchLog();
+        $buried->setUserId($buy['user_id']);
+        $buried->setParentid($buy['parentid']);
+        $buried->setPageNum($buy['page_num']);
+        $buried->setIsHot($buy['is_hot']);
+        $buried->setLabelIds($buy['lable_ids']);
+        $buried->setSearchTime(time());
         return $buried->save()->getResult();
     }
 }
