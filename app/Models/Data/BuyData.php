@@ -64,7 +64,7 @@ class BuyData
      * 顶级类列表
      * @var array
      */
-    protected $top_tag = ['呢料毛纺','蕾丝','针织','蕾丝绣品'];
+    protected $top_tag = ['呢料毛纺','针织','蕾丝绣品'];
 
     /**
      * 时间维度
@@ -206,11 +206,7 @@ class BuyData
                 $now_time = time();
                 foreach ($buy_tags as $tag) {
                     $tag_name = [];
-                    $top_keyword = str_replace('面料','',$tag['topName']);
                     $parent_keyword = str_replace('面料','',$tag['parentName']);
-                    if(in_array($top_keyword,$this->top_tag)){
-                        $tag_name = $top_keyword;
-                    }
                     if(in_array($parent_keyword,$this->pro_cate)){
                         $tag_name = $parent_keyword;
                     }
