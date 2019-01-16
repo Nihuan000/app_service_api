@@ -287,6 +287,7 @@ class SearchController
                 'content' => $content,
                 'pic' => $pic
             ];
+            Log::info(json_encode($params));
             /* @var ElasticsearchLogic $elastic_logic */
             $elastic_logic = App::getBean(ElasticsearchLogic::class);
             $pushRes = $elastic_logic->push_buy_to_queue($params);
