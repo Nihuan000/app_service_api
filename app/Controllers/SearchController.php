@@ -271,10 +271,11 @@ class SearchController
      */
     public function recommend_buy_push(Request $request)
     {
-        $buy_id = $request->post('buy_id');
+        $buy_id = $request->post('buyId');
         $title = $request->post('title','商机推荐');
         $content = $request->post('context');
         $pic = $request->post('pic');
+        Log::info($buy_id . '|' . $title . '|' . $content . '|' . $pic);
         if(empty($buy_id) || empty($title) || empty($content) || empty($pic))
         {
             $code = -1;
