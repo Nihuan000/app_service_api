@@ -128,7 +128,6 @@ class ElasticsearchLogic
                 $result = $connect->search($params);
                 if(!empty($result)){
                     $count = (int)$result['hits']['total'];
-                    return $count;
                 }
             } catch (PoolException $e) {
                 print_r($e->getMessage());
