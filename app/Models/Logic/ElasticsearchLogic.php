@@ -118,14 +118,14 @@ class ElasticsearchLogic
         if(!empty($params)){
             $query = $this->buySearchData->recommendCheckInfoSync($params['buy_id']);
             //搜索执行语句生成
-            $params = [
+            $indexParams = [
                 'index' => $master_name,
                 'type' => 'buy',
                 'body' => $query,
             ];
             try {
                 $connect = $this->simpleConnectionPool();
-                $result = $connect->search($params);
+                $result = $connect->search($indexParams);
                 if(!empty($result)){
                     $count = (int)$result['hits']['total'];
                 }
