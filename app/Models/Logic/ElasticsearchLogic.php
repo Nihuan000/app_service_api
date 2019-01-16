@@ -16,6 +16,7 @@ use Swoft\Bean\Annotation\Bean;
 use App\Pool\ElasticsearchPool;
 use Swoft\Exception\PoolException;
 use Swoft\Log\Log;
+use Swoft\Redis\Redis;
 
 /**
  * 采购搜索
@@ -38,6 +39,12 @@ class ElasticsearchLogic
      * @var BuySearchData
      */
     public $buySearchData;
+
+    /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    public $redis;
 
     /**
      * 单连接池
@@ -97,6 +104,102 @@ class ElasticsearchLogic
             }
         }
         return ['status' => $status,'list' => []];
+    }
+
+    /**
+     * 验证索引是否已生成
+     * @param array $params
+     * @return int
+     */
+    public function checkDataExists(array $params)
+    {
+        $count = 0;
+        $master_name = $this->esConfig->getBuyMaster();
+        if(!empty($params)){
+            $query = $this->buySearchData->recommendCheckInfoSync($params['buy_id']);
+            //搜索执行语句生成
+            $params = [
+                'index' => $master_name,
+                'type' => 'buy',
+                'body' => $query,
+            ];
+            try {
+                $connect = $this->simpleConnectionPool();
+                $result = $connect->search($params);
+                if(!empty($result)){
+                    $count = (int)$result['hits']['total'];
+                    return $count;
+                }
+            } catch (PoolException $e) {
+                print_r($e->getMessage());
+            }
+        }
+        $pushRes = 0;
+        if($count > 0){
+            //处理推送请求
+            $pushParams = [
+                'serviceName' => env('RECOMMEND_SERVICENAME'),
+                'methodName' => env('RECOMMEND_METHODNAME'),
+                'applicationName' => env('RECOMMEND_APPNAME'),
+                'inputParameter' => $params
+            ];
+            $params_json = json_encode($pushParams);
+            $service_url = env('SEARCH_HOST');
+            $header_data = [
+                'Content-Type: application/json',
+            ];
+            $pushAction = [
+                'url' => $service_url,
+                'timeout' => 5,
+                'headers' => $header_data,
+                'post_params' => $params_json
+            ];
+            $pushResponse = CURL($pushAction,'post');
+            $push_arr = json_decode($pushResponse,true);
+            Log::info("推送结果: {$pushResponse}");
+            if($push_arr['code'] == 0 && $push_arr['data']['status'] == 2){
+                $pushRes = 1;
+            }
+        }else{
+            //队列回写
+            $date = date('Y-m-d');
+            $index = '@RecommendPushQueue_';
+            $msg_json = json_encode($params);
+            $this->redis->rPush($index . $date, $msg_json);
+            $pushRes = 2;
+        }
+        return $pushRes;
+    }
+
+    /**
+     * 推送写入队列
+     * @param array $params
+     * @return bool|int
+     */
+    public function push_buy_to_queue(array $params)
+    {
+        $queue_res = true;
+        $date = date('Y-m-d');
+        $index = '@RecommendPushQueue_';
+        $historyIndex = '@RecommendPushHistory_';
+        $checkHistory = $this->redis->exists($historyIndex . $date);
+        $msg_json = json_encode($params);
+        $history = false;
+        if($checkHistory){
+            $historyExists = $this->redis->sIsMember($historyIndex . $date, $params['buy_id']);
+            if($historyExists == false){
+                $waitHistory = $this->redis->exists($index . $date,$msg_json);
+                if($waitHistory == true){
+                    $history = true;
+                }
+            }else{
+                $history = true;
+            }
+        }
+        if($history == false){
+            $queue_res = $this->redis->rPush($index . $date, $msg_json);
+        }
+        return $queue_res;
     }
 
     /**

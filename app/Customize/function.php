@@ -144,6 +144,10 @@ function get_img_url($pic)
         curl_setopt_array($ch, $params['other_options']);
     }
 
+    if(isset($params['headers'])){
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $params['headers']);
+    }
+
     if($request_type === 'post') {
         curl_setopt($ch, CURLOPT_POST, TRUE);
         if (isset($params['post_params'])) curl_setopt($ch,CURLOPT_POSTFIELDS,$params['post_params']);

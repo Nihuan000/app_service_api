@@ -263,4 +263,39 @@ class SearchController
         }
         return compact('code','result','msg');
     }
+
+    /**
+     * 采购审核通过验证索引是否存在
+     * @param Request $request
+     * @return array
+     */
+    public function recommend_buy_push(Request $request)
+    {
+        $buy_id = $request->post('buy_id');
+        $title = $request->post('title','商机推荐');
+        $content = $request->post('context');
+        $pic = $request->post('pic');
+        if(empty($buy_id) || empty($title) || empty($content) || empty($pic))
+        {
+            $code = -1;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $params = [
+                'buy_id' => (int)$buy_id,
+                'title' => $title,
+                'content' => $content,
+                'pic' => $pic
+            ];
+            /* @var ElasticsearchLogic $elastic_logic */
+            $elastic_logic = App::getBean(ElasticsearchLogic::class);
+            $pushRes = $elastic_logic->push_buy_to_queue($params);
+            if($pushRes){
+                $code = 0;
+                $result = ['status' => 2, 'uuid' => ''];
+                $msg = 'SUCCESS';
+            }
+        }
+        return compact('code','result','msg');
+    }
 }

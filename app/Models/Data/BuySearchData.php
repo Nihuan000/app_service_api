@@ -208,6 +208,35 @@ class BuySearchData
     }
 
     /**
+     * 采购推送判断索引是否已存在
+     * @param int $buy_id
+     * @return array
+     */
+    public function recommendCheckInfoSync(int $buy_id)
+    {
+        $query = [];
+        $filter = $this->baseFilter();
+        if($buy_id > 0)
+        {
+            //过滤基本信息
+            $filter[] = [
+                'terms' => [
+                    '_id' => $buy_id
+                ]
+            ];
+            $query = [
+                'size' => 0,
+                'query' => [
+                    'bool' => [
+                        'filter' => $filter,
+                    ]
+                ]
+            ];
+        }
+        return $query;
+    }
+
+    /**
      * 搜索返回字段
      * @author Nihuan
      * @return array
