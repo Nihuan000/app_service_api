@@ -61,13 +61,14 @@ class PushQueueTask{
                 'pic' => (string)$buy_info['pic']
             ];
             //判断当前记录是否已推送
-            $historyRes = $historyExists = $this->redis->sIsMember($historyIndex . $date, $params['buy_id']);
+            $historyRes = $this->redis->sIsMember($historyIndex . $date, $params['buy_id']);
             if($historyRes == true){
                 Log::info("记录已存在: {$params['buy_id']} - {$params['content']}");
             }else{
                 $pushRes = $this->esLogic->checkDataExists($params);
                 if($pushRes == 1){
                     Log::info("消息已推送: {$params['buy_id']} - {$params['content']}");
+                    $this->redis->sAdd($historyIndex . $date, $params['buy_id']);
                 }elseif($pushRes == 2){
                     Log::info("索引记录不存在，等待下次推送: {$params['buy_id']} - {$params['content']}");
                 }else{
