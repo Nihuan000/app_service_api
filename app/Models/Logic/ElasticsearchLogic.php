@@ -153,6 +153,7 @@ class ElasticsearchLogic
                 'headers' => $header_data,
                 'post_params' => $params_json
             ];
+            Log::info(json_encode($pushAction));
             $pushResponse = CURL($pushAction,'post');
             $push_arr = json_decode($pushResponse,true);
             Log::info("推送结果: {$pushResponse}");

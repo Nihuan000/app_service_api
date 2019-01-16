@@ -276,7 +276,7 @@ class SearchController
         $content = $request->post('context');
         $pic = $request->post('pic');
         Log::info($buy_id . '|' . $title . '|' . $content . '|' . $pic);
-        if(empty($buy_id) || empty($title) || empty($content) || empty($pic))
+        if(empty($buy_id))
         {
             $code = -1;
             $result = [];
