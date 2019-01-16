@@ -11,6 +11,7 @@ use App\Models\Dao\BuyBuriedDao;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -220,7 +221,7 @@ class BuySearchData
         {
             //过滤基本信息
             $filter[] = [
-                'terms' => [
+                'term' => [
                     '_id' => $buy_id
                 ]
             ];
@@ -233,6 +234,7 @@ class BuySearchData
                 ]
             ];
         }
+        Log::info(json_encode($query));
         return $query;
     }
 
