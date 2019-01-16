@@ -116,7 +116,7 @@ class ElasticsearchLogic
         $count = 0;
         $master_name = $this->esConfig->getBuyMaster();
         if(!empty($params)){
-            $query = $this->buySearchData->recommendCheckInfoSync($params['buy_id']);
+            $query = $this->buySearchData->recommendCheckInfoSync($params['buyId']);
             //搜索执行语句生成
             $indexParams = [
                 'index' => $master_name,
@@ -157,7 +157,7 @@ class ElasticsearchLogic
             $pushResponse = CURL($pushAction,'post');
             $push_arr = json_decode($pushResponse,true);
             Log::info("推送结果: {$pushResponse}");
-            if($push_arr['code'] == 0 && $push_arr['data']['status'] == 2){
+            if($push_arr['code'] == 0 && in_array($push_arr['data']['status'],[1,2])){
                 $pushRes = 1;
             }
         }else{

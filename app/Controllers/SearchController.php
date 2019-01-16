@@ -283,7 +283,7 @@ class SearchController
             $msg = '参数错误';
         }else{
             $params = [
-                'buy_id' => (int)$buy_id,
+                'buyId' => (int)$buy_id,
                 'title' => $title,
                 'content' => $content,
                 'pic' => $pic
