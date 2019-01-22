@@ -21,7 +21,6 @@ use Swoft\Redis\Redis;
  * @Bean()
  * @uses      UserData
  * @author    Nihuan
- * @method saveSupplierData(array $supplierAll)
  */
 class UserData
 {
@@ -202,6 +201,7 @@ class UserData
      * @param int $user_id
      * @param int $last_day_time
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getUserLoginTimes(int $user_id, int $last_day_time)
     {
@@ -277,5 +277,15 @@ class UserData
         $visit['count'] = count($visit_list);
         $visit['un_chat_count'] = $visit['count'] - $visit_chat;
         return $visit;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function saveSupplierData($data)
+    {
+        return $this->userDao->saveSupplierData($data);
     }
 }

@@ -115,7 +115,7 @@ class BuyDao
      */
     public function getBuyListByTagList($tag_ids, $day_list)
     {
-        $buy_count = Query::table('sb_buy t')->leftJoin('sb_buy_relation_tag',"t.buy_id = rt.buy_id",'rt')->whereIn('rt.tag_id',$tag_ids)->whereIn("from_unixtime(add_time,'%Y-%m-%d')",$day_list)->groupBy('t.buy_id')->count();
+        $buy_count = Query::table('sb_buy')->leftJoin('sb_buy_relation_tag',"sb_buy.buy_id = rt.buy_id",'rt')->whereIn('rt.tag_id',$tag_ids)->whereIn("from_unixtime(sb_buy.add_time,'%Y-%m-%d')",$day_list)->groupBy('sb_buy.buy_id')->count()->getResult();
         return $buy_count;
     }
 }
