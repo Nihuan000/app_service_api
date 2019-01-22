@@ -160,11 +160,12 @@ class UserDao
      * @param int $user_id
      * @param int $last_time
      * @return \Swoft\Core\ResultInterface
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getUserLoginDays(int $user_id, int $last_time)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Query::table($table)->where('user_id',$user_id)->where('addtime', $last_time,'>=')->groupBy("from_unixtime(addtime,'%Y-%m-%d')")->get(['addtime'])->getResult();
+        return Db::query("select from_unixtime(addtime,'%Y-%m-%d') as addtime from {$table} where user_id = {$user_id} AND addtime >= {$last_time} group by from_unixtime(addtime,'%Y-%m-%d')")->getResult();
     }
 
     /**
