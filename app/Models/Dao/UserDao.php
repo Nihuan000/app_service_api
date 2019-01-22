@@ -10,6 +10,7 @@
 
 namespace App\Models\Dao;
 
+use App\Models\Entity\SupplierDataStatistic;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
 use Swoft\Db\Db;
@@ -207,10 +208,9 @@ class UserDao
      * 供应商数据写入
      * @param $data
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function saveSupplierData($data)
     {
-        return Query::table('sb_supplier_data_statistic')->batchInsert($data)->getResult();
+        return SupplierDataStatistic::batchInsert($data)->getResult();
     }
 }

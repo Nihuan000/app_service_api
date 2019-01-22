@@ -60,7 +60,6 @@ class UserLogic
      * @param $last_day_time
      * @param $day_type
      * @throws \Swoft\Db\Exception\DbException
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function supplierDataList($params, $last_day_time, $day_type)
     {

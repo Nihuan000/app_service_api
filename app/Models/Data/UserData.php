@@ -257,7 +257,7 @@ class UserData
                 $visit_list[] = $item['user_id'];
             }
         }
-        $visit_chat = 0;
+        $visit_chat_count = 0;
         if(!empty($visit_list)){
             $chat_user_list = [];
             $chat_list = $this->userDao->getUserChatStatisitcs($user_id,$last_day_time);
@@ -272,17 +272,17 @@ class UserData
                 }
                 array_unique($chat_user_list);
                 $visit_chat = array_intersect($visit_list,$chat_user_list);
+                $visit_chat_count = count($visit_chat);
             }
         }
         $visit['count'] = count($visit_list);
-        $visit['un_chat_count'] = $visit['count'] - $visit_chat;
+        $visit['un_chat_count'] = $visit['count'] - $visit_chat_count;
         return $visit;
     }
 
     /**
      * @param $data
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function saveSupplierData($data)
     {

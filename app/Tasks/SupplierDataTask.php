@@ -38,6 +38,7 @@ class SupplierDataTask{
      *
      * @Scheduled(cron="0 34 14 * * *")
      * @throws \Swoft\Db\Exception\DbException
+     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function cronTask()
     {
