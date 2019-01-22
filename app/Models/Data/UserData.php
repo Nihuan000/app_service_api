@@ -229,6 +229,7 @@ class UserData
      * @param int $user_id
      * @param int $last_day_time
      * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getUserChatData(int $user_id, int $last_day_time)
     {

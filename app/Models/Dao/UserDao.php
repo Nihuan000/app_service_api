@@ -164,7 +164,7 @@ class UserDao
     public function getUserLoginDays(int $user_id, int $last_time)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Query::table($table)->where('user_id',$user_id)->where('addtime', $last_time,'>=')->groupBy("from_unixtime(addtime,'%Y-%m-%d')")->get(["from_unixtime(addtime,'%Y-%m-%d') AS addtime"])->getResult();
+        return Query::table($table)->where('user_id',$user_id)->where('addtime', $last_time,'>=')->groupBy("from_unixtime(addtime,'%Y-%m-%d')")->get(['addtime'])->getResult();
     }
 
     /**
@@ -172,10 +172,12 @@ class UserDao
      * @param int $user_id
      * @param int $last_time
      * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getUserChatDuration(int $user_id, int $last_time)
     {
-        return Query::table('sb_chat_user_dialog')->where('user_id',$user_id)->where('record_date',$last_time,'>=')->get(['avg(avg_chat_duration) as avg_chat_duration','sum(un_reply_count) as un_reply_count'])->getResult();
+        $list = Db::query("select avg(avg_chat_duration) as avg_chat_duration,sum(un_reply_count) as un_reply_count from sb_chat_user_dialog WHERE user_id = {$user_id} AND record_date >= {$last_time}")->getResult();
+        return $list;
     }
 
     /**
