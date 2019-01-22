@@ -186,11 +186,13 @@ class ElasticsearchLogic
         $msg_json = json_encode($params);
         $history = false;
         if($checkHistory){
-            $historyExists = $this->redis->sIsMember($historyIndex . $date, $params['buy_id']);
+            $historyExists = $this->redis->sIsMember($historyIndex . $date, $params['buyId']);
             if($historyExists == false){
-                $waitHistory = $this->redis->exists($index . $date,$msg_json);
-                if($waitHistory == true){
-                    $history = true;
+                $waitHistory = $this->redis->lrange($index . $date,0,-1);
+                if(!empty($waitHistory)){
+                    if(in_array($msg_json,$waitHistory)){
+                        $history = true;
+                    }
                 }
             }else{
                 $history = true;

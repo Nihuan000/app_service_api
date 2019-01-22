@@ -137,11 +137,22 @@ class UserDao
      * 返回指定用户指定字段
      * @param array $params
      * @param array $fields
+     * @param int $limit
      * @return mixed
      */
-    public function getUserListByParams(array $params, array $fields)
+    public function getUserListByParams(array $params, array $fields, int $limit = 20)
     {
-        return User::findAll($params,['field' => $fields])->getResult();
+        return User::findAll($params,['field' => $fields, 'limit' => $limit])->getResult();
+    }
+
+    /**
+     * 获取指定条件的用户数
+     * @param array $params
+     * @return mixed
+     */
+    public function getUserCountByParams(array $params)
+    {
+        return User::count('user_id',$params)->getResult();
     }
 
     /**

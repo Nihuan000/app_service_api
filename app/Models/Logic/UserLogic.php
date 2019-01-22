@@ -67,47 +67,47 @@ class UserLogic
         for ($i = 1;$i<=$day_type;$i++){
             $day_list[] = date('Y-m-d',strtotime("-{$i} day"));
         }
-        $user_list = $this->userData->getUserDataByParams($params, $last_day_time);
-        if(!empty($user_list)){
-            $user_count = count($user_list);
-            $pages = ceil($user_count/$limit);
-            if($pages >= 0){
-                for ($i = 0;$i < $pages; $i++){
-                    $supplierAll = [];
-                    $list = array_slice($user_list,$i,$limit);
-                    foreach ($list as $item) {
-                        $user_id = $item['userId'];
-                        $data['user_id'] = $user_id;
-                        $data['days_type'] = $day_type;
-                        //登录天数获取
-                        $login_days = $this->userData->getUserLoginTimes($user_id, $last_day_time);
-                        $data['login_days'] = count($login_days);
-                        //未读采购数获取
-                        $unread_count = 0;
-                        if(!empty($login_days)){
-                            $unread_list = array_diff($day_list, $login_days);
-                            $unread_count = $this->userData->getUserSubscriptBuyCount($user_id,$unread_list);
-                        }
-                        $data['unread_count'] = (int)$unread_count;
-                        //消息回复情况
-                        $data['avg_reply_sec'] = 0;
-                        $data['un_reply_count'] = 0;
-                        $userDialog = $this->userData->getUserChatData($user_id,$last_day_time);
-                        if(!empty($userDialog)){
-                            $data['avg_reply_sec'] = $userDialog['avg_chat_duration'];
-                            $data['un_reply_count'] = $userDialog['un_reply_count'];
-                        }
-                        //访客数据情况
-                        $userVisit = $this->userData->getUserVisitData($user_id,$last_day_time);
-                        if(!empty($userVisit)){
-                            $data['total_visit_count'] = $userVisit['count'];
-                            $data['un_reply_visit'] = (int)$userVisit['un_chat_count'];
-                        }
-                        $data['record_time'] = time();
-                        $supplierAll[] = $data;
+        $user_count = $this->userData->getUserCountByParams($params);
+        $pages = ceil($user_count/$limit);
+        if($pages >= 0){
+            $last_id = 0;
+            for ($i = 0;$i < $pages; $i++){
+                $supplierAll = [];
+                $params[] = ['user_id','>',$last_id];
+                $list = $this->userData->getUserDataByParams($params, $limit);
+                foreach ($list as $item) {
+                    $user_id = $item['userId'];
+                    $data['user_id'] = $user_id;
+                    $data['days_type'] = $day_type;
+                    //登录天数获取
+                    $login_days = $this->userData->getUserLoginTimes($user_id, $last_day_time);
+                    $data['login_days'] = count($login_days);
+                    //未读采购数获取
+                    $unread_count = 0;
+                    if(!empty($login_days)){
+                        $unread_list = array_diff($day_list, $login_days);
+                        $unread_count = $this->userData->getUserSubscriptBuyCount($user_id,$unread_list);
                     }
-                    $this->userData->saveSupplierData($supplierAll);
+                    $data['unread_count'] = (int)$unread_count;
+                    //消息回复情况
+                    $data['avg_reply_sec'] = 0;
+                    $data['un_reply_count'] = 0;
+                    $userDialog = $this->userData->getUserChatData($user_id,$last_day_time);
+                    if(!empty($userDialog)){
+                        $data['avg_reply_sec'] = $userDialog['avg_chat_duration'];
+                        $data['un_reply_count'] = $userDialog['un_reply_count'];
+                    }
+                    //访客数据情况
+                    $userVisit = $this->userData->getUserVisitData($user_id,$last_day_time);
+                    if(!empty($userVisit)){
+                        $data['total_visit_count'] = $userVisit['count'];
+                        $data['un_reply_visit'] = (int)$userVisit['un_chat_count'];
+                    }
+                    $data['record_time'] = time();
+                    $supplierAll[] = $data;
+                    $last_id = $item['userId'];
                 }
+                $this->userData->saveSupplierData($supplierAll);
             }
         }
     }

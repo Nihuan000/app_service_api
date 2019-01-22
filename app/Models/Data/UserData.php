@@ -175,15 +175,25 @@ class UserData
     }
 
     /**
+     * 获取用户数
+     * @param array $params
+     * @return mixed
+     */
+    public function getUserCountByParams(array $params)
+    {
+        return $this->userDao->getUserCountByParams($params);
+    }
+
+    /**
      * 用户数据列表
      * @param array $params
-     * @param int $last_day_time
+     * @param int $limit
      * @return array
      */
-    public function getUserDataByParams(array $params, int $last_day_time)
+    public function getUserDataByParams(array $params, int $limit)
     {
         $fields = ['user_id'];
-        $user_list = $this->userDao->getUserListByParams($params,$fields);
+        $user_list = $this->userDao->getUserListByParams($params,$fields,$limit);
         return $user_list;
     }
 
