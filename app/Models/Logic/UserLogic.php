@@ -13,6 +13,7 @@ namespace App\Models\Logic;
 use App\Models\Dao\OfferDao;
 use App\Models\Data\UserData;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Bean\Annotation\Inject;
 
@@ -68,6 +69,7 @@ class UserLogic
             $day_list[] = date('Y-m-d',strtotime("-{$i} day"));
         }
         $user_count = $this->userData->getUserCountByParams($params);
+        Log::info('user_count:' . $user_count);
         $pages = ceil($user_count/$limit);
         if($pages >= 0){
             $last_id = 0;
@@ -75,6 +77,7 @@ class UserLogic
                 $supplierAll = [];
                 $params[] = ['user_id','>',$last_id];
                 $list = $this->userData->getUserDataByParams($params, $limit);
+                Log::info('user_list:' . json_encode($list));
                 foreach ($list as $item) {
                     $user_id = $item['userId'];
                     $data['user_id'] = $user_id;
@@ -104,6 +107,7 @@ class UserLogic
                         $data['un_reply_visit'] = (int)$userVisit['un_chat_count'];
                     }
                     $data['record_time'] = time();
+                    Log::info('user_list:' . json_encode($data));
                     $supplierAll[] = $data;
                     $last_id = $item['userId'];
                 }
