@@ -10,9 +10,11 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\Buy;
 use App\Models\Entity\BuyRecords;
+use App\Models\Entity\BuyRelationTag;
 use Elasticsearch\Endpoints\DeleteByQuery;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
+use Swoft\Db\Query;
 
 /**
  * 采购数据对象
@@ -102,5 +104,18 @@ class BuyDao
         }
         $last_time = strtotime('-3 day');
         return Db::query("SELECT b.* FROM sb_buy b LEFT JOIN sb_buy_relation_tag AS a ON b.buy_id = a.buy_id WHERE b.status = 0 AND b.del_status = 1 AND b.is_audit = 0 AND b.amount >= 100 AND a.tag_id = {$tag_id} AND refresh_time >= {$last_time} AND b.buy_id NOT IN ({$ids}) ORDER BY b.refresh_time DESC LIMIT 1")->getResult();
+    }
+
+    /**
+     * 订阅采购数获取
+     * @param $tag_ids
+     * @param $day_list
+     * @return \Swoft\Core\ResultInterface
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getBuyListByTagList($tag_ids, $day_list)
+    {
+        $buy_count = Query::table('sb_buy t')->leftJoin('sb_buy_relation_tag',"t.buy_id = rt.buy_id",'rt')->whereIn('rt.tag_id',$tag_ids)->whereIn("from_unixtime(add_time,'%Y-%m-%d')",$day_list)->groupBy('t.buy_id')->count();
+        return $buy_count;
     }
 }

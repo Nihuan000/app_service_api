@@ -132,4 +132,71 @@ class UserDao
     {
         return Query::table('sb_setting')->where('keyword',$keywrod)->where('status',1)->get(['value','value_type'])->getResult();
     }
+
+    /**
+     * 返回指定用户指定字段
+     * @param array $params
+     * @param array $fields
+     * @return mixed
+     */
+    public function getUserListByParams(array $params, array $fields)
+    {
+        return User::findAll($params,['field' => $fields])->getResult();
+    }
+
+    /**
+     * 返回用户登录天数
+     * @param int $user_id
+     * @param int $last_time
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getUserLoginDays(int $user_id, int $last_time)
+    {
+        $table = 'sb_login_log_' . date('Y');
+        return Query::table($table)->where('user_id',$user_id)->where('addtime', $last_time,'>=')->groupBy("from_unixtime(addtime,'%Y-%m-%d')")->get(["from_unixtime(addtime,'%Y-%m-%d') AS addtime"])->getResult();
+    }
+
+    /**
+     * 用户回复数据
+     * @param int $user_id
+     * @param int $last_time
+     * @return mixed
+     */
+    public function getUserChatDuration(int $user_id, int $last_time)
+    {
+        return Query::table('sb_chat_user_dialog')->where('user_id',$user_id)->where('record_date',$last_time,'>=')->get(['avg(avg_chat_duration) as avg_chat_duration','sum(un_reply_count) as un_reply_count'])->getResult();
+    }
+
+    /**
+     * 访客列表
+     * @param int $user_id
+     * @param int $last_time
+     * @return mixed
+     */
+    public function getUserVisitData(int $user_id, int $last_time)
+    {
+        return Query::table('sb_user_visit')->where('visit_id',$user_id)->where('visit_time',$last_time,'>=')->groupBy('user_id')->get(['user_id'])->getResult();
+    }
+
+    /**
+     * 用户对话数据
+     * @param int $user_id
+     * @param int $last_time
+     * @return mixed
+     */
+    public function getUserChatStatisitcs(int $user_id, int $last_time)
+    {
+        return Query::table('sb_chat_user_statistics')->where('from_id',$user_id)->orWhere('target_id',$user_id)->andWhere('record_date',$last_time,'>=')->get(['from_id','target_id'])->getResult();
+    }
+
+    /**
+     * 供应商数据写入
+     * @param $data
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function saveSupplierData($data)
+    {
+        return Query::table('sb_supplier_data_statistic')->batchInsert($data)->getResult();
+    }
 }

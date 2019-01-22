@@ -11,6 +11,7 @@
 namespace App\Models\Data;
 
 use App\Models\Dao\UserDao;
+use App\Models\Dao\BuyRelationTagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Redis\Redis;
@@ -20,6 +21,7 @@ use Swoft\Redis\Redis;
  * @Bean()
  * @uses      UserData
  * @author    Nihuan
+ * @method saveSupplierData(array $supplierAll)
  */
 class UserData
 {
@@ -28,6 +30,12 @@ class UserData
      * @var UserDao
      */
     private $userDao;
+
+    /**
+     * @Inject()
+     * @var BuyRelationTagDao
+     */
+    private $buyRelDao;
 
 
     /**
@@ -164,5 +172,99 @@ class UserData
     public function getUserByTag(array $user_id, string $tag)
     {
         return $this->userDao->getUserListBySecTag($user_id,$tag);
+    }
+
+    /**
+     * 用户数据列表
+     * @param array $params
+     * @param int $last_day_time
+     * @return array
+     */
+    public function getUserDataByParams(array $params, int $last_day_time)
+    {
+        $fields = ['user_id'];
+        $user_list = $this->userDao->getUserListByParams($params,$fields);
+        return $user_list;
+    }
+
+    /**
+     * 用户登录次数
+     * @param int $user_id
+     * @param int $last_day_time
+     * @return array
+     */
+    public function getUserLoginTimes(int $user_id, int $last_day_time)
+    {
+        $login_days = [];
+        $login_list = $this->userDao->getUserLoginDays($user_id, $last_day_time);
+        foreach ($login_list as $item) {
+            $login_days[] = $item['addtime'];
+        }
+        return $login_days;
+    }
+
+    /**
+     * @param int $user_id
+     * @param array $days
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getUserSubscriptBuyCount(int $user_id, array $days)
+    {
+        return $this->buyRelDao->getUserSubscriptBuy($user_id, $days);
+    }
+
+    /**
+     * 用户回复数据
+     * @param int $user_id
+     * @param int $last_day_time
+     * @return mixed
+     */
+    public function getUserChatData(int $user_id, int $last_day_time)
+    {
+        $chat_info = [];
+        $chatInfo = $this->userDao->getUserChatDuration($user_id,$last_day_time);
+        if(!empty($chatInfo)){
+            $chat_info['avg_chat_duration'] = (int)$chatInfo['avg_chat_duration'];
+            $chat_info['un_reply_count'] = (int)$chatInfo['un_reply_count'];
+        }
+        return $chat_info;
+    }
+
+    /**
+     * 用户访客数据
+     * @param int $user_id
+     * @param int $last_day_time
+     * @return array
+     */
+    public function getUserVisitData(int $user_id, int $last_day_time)
+    {
+        $visit_list = [];
+        $visitInfo = $this->userDao->getUserVisitData($user_id, $last_day_time);
+        if(!empty($visitInfo)){
+            foreach ($visitInfo as $item) {
+                $visit_list[] = $item['user_id'];
+            }
+        }
+        $visit_chat = 0;
+        if(!empty($visit_list)){
+            $chat_user_list = [];
+            $chat_list = $this->userDao->getUserChatStatisitcs($user_id,$last_day_time);
+            if(!empty($chat_list)){
+                foreach ($chat_list as $item) {
+                    if($item['from_id'] != $user_id){
+                        $chat_user_list[] = $item['from_id'];
+                    }
+                    if($item['target_id'] != $user_id){
+                        $chat_user_list[] = $item['target_id'];
+                    }
+                }
+                array_unique($chat_user_list);
+                $visit_chat = array_intersect($visit_list,$chat_user_list);
+            }
+        }
+        $visit['count'] = count($visit_list);
+        $visit['un_chat_count'] = $visit['count'] - $visit_chat;
+        return $visit;
     }
 }
