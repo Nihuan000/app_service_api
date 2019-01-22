@@ -43,7 +43,7 @@ class PushQueueTask{
      * A cronTab task
      * 3-5 seconds per minute 每分钟第3-5秒执行
      *
-     * @Scheduled(cron="*\/10 * * * * *")
+     * @Scheduled(cron="15 * * * * *")
      */
     public function PushProcessTask()
     {
