@@ -36,7 +36,7 @@ class SupplierDataTask{
      * 报表数据统计 task
      *  3 o'clock every day
      *
-     * @Scheduled(cron="0 34 14 * * *")
+     * @Scheduled(cron="0 01 00 * * 01")
      * @throws \Swoft\Db\Exception\DbException
      * @throws \Swoft\Db\Exception\MysqlException
      */
