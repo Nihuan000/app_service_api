@@ -67,7 +67,14 @@ class BuyRelationTagDao
         }
 
         if(!empty($user_tags)){
-            $buy_count = $this->buyDao->getBuyListByTagList($user_tags, $buy_days);
+            $buy_count_list = $this->buyDao->getBuyListByTagList($user_tags, $buy_days);
+            $count_list = [];
+            if(!empty($buy_count_list)){
+                foreach ($buy_count_list as $item) {
+                    $count_list[] = $item['buy_id'];
+                }
+            }
+            $buy_count = count($count_list);
         }
         return $buy_count;
     }
