@@ -236,8 +236,9 @@ class UserData
         $chat_info = [];
         $chatInfo = $this->userDao->getUserChatDuration($user_id,$last_day_time);
         if(!empty($chatInfo)){
-            $chat_info['avg_chat_duration'] = (int)$chatInfo['avg_chat_duration'];
-            $chat_info['un_reply_count'] = (int)$chatInfo['un_reply_count'];
+            $chat_duration = current($chatInfo);
+            $chat_info['avg_chat_duration'] = isset($chat_duration['avg_chat_duration']) ? (int)$chat_duration['avg_chat_duration'] : 0;
+            $chat_info['un_reply_count'] = isset($chat_duration['un_reply_count']) ? (int)$chat_duration['un_reply_count'] : 0;
         }
         return $chat_info;
     }

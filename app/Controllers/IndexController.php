@@ -12,6 +12,7 @@ namespace App\Controllers;
 
 use App\Models\Data\BuyData;
 use App\Models\Data\UserData;
+use App\Models\Logic\UserLogic;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Redis\Redis;
@@ -135,5 +136,36 @@ class IndexController
             $name = '发送成功';
         }
         return compact('name');
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function supplier_test(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        if(empty($user_id)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $last_days = date('Y-m-d',strtotime("-50 day"));
+            $last_day_time = strtotime($last_days);
+            if($last_days > 0){
+                $params = [
+                    ['last_time','>=', $last_day_time],
+                    'user_id' => $user_id
+                ];
+                /* @var UserLogic $user_logic */
+                $user_logic = App::getBean(UserLogic::class);
+                $user_logic->supplierDataList($params, $last_day_time, 50);
+            }
+            $code = 200;
+            $result = ['list' => []];
+            $msg = '获取成功';
+        }
+        return compact('code','result','msg');
     }
 }
