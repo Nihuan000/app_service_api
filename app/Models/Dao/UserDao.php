@@ -257,8 +257,8 @@ class UserDao
     public function getStrengthActivity($time,$activity_type)
     {
         return Query::table('sb_user_strength_activity')
-            ->where('start_time',$time,'>=')
-            ->where('end_time',$time,'<')
+            ->where('start_time',$time,'<=')
+            ->where('end_time',$time,'>')
             ->where('activity_type',$activity_type)
             ->where('is_enable',1)
             ->get()->getResult();
