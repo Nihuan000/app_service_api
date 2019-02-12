@@ -247,9 +247,9 @@ class UserLogic
             $activity_info = $this->userData->getStrengthActivity($pay_time,2);
             if(!empty($activity_info)){
                 $checkRec = $this->userData->checkStrengthOrderRecord($user_id,$order_num);
-                if($checkRec['scount'] == 0){
+                if(!$checkRec){
                     Db::beginTransaction();
-                    $order_total = $strength_info['totalAmount'] + $total_amount;
+                    $order_total = $strength_info['total_amount'] + $total_amount;
                     $params = [
                         'total_amount' => $order_total,
                         'update_time' => $pay_time

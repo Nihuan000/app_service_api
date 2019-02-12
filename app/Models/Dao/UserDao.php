@@ -245,7 +245,7 @@ class UserDao
         $queryModel->where('is_expire',0);
         $queryModel->where('user_id',$user_id);
         $queryModel->where('level',0,'>');
-        return $queryModel->get()->getResult();
+        return $queryModel->one(['*'])->getResult();
     }
 
     /**
