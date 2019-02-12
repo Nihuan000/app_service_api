@@ -255,7 +255,7 @@ class UserLogic
                         'update_time' => $pay_time
                     ];
                     $totalRes = $this->userData->userStrengthPlus($user_id,$strength_info['id'],$params);
-                    $recordRes = $this->userData->saveStrengthOrder($user_id,$order_num,$total_amount,$pay_time,$strength_info['totalAmount']);
+                    $recordRes = $this->userData->saveStrengthOrder($user_id,$order_num,$total_amount,$pay_time,$strength_info['total_amount']);
                     if($totalRes && $recordRes){
                         Db::commit();
                     }else{

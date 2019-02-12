@@ -360,6 +360,6 @@ class UserData
      */
     public function checkStrengthOrderRecord(int $user_id, string $order_num)
     {
-        return $this->userDao->checkStrengthOrderRecord($user_id,$order_num);
+        return $this->userDao->checkStrengthOrderRecord($order_num,$user_id);
     }
 }
