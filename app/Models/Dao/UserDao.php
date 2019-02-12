@@ -273,7 +273,7 @@ class UserDao
      */
     public function userStrengthPlus($user_id, $strength_id,$params)
     {
-        return Query::table('sb_user_strength')->where('user_id',$user_id)->where('id',$strength_id)->update($params);
+        return Query::table('sb_user_strength')->where('user_id',$user_id)->where('id',$strength_id)->update($params)->getResult();
     }
 
     /**
