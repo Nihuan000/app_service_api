@@ -20,9 +20,9 @@ use App\Models\Entity\Order;
 class OrderDao
 {
 
-    public function getOrderInfo()
+    public function getOrderInfo($order_num,$fields)
     {
-
+        return Order::findOne(['order_num' => $order_num,['fields' => $fields]])->getResult();
     }
 
 

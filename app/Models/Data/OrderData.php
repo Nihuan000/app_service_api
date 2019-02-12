@@ -39,4 +39,15 @@ class OrderData
     {
         return $this->orderDao->getOrderWithKeyword($keyword);
     }
+
+    /**
+     * 获取订单信息
+     * @param $order_num
+     * @param array $fields
+     * @return mixed
+     */
+    public function getOrderInfo($order_num,$fields = ['*'])
+    {
+        return $this->orderDao->getOrderInfo($order_num,$fields);
+    }
 }

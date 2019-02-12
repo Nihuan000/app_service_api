@@ -27,4 +27,9 @@ class OrderLogic
      */
     private $orderData;
 
+    public function get_order_info($order_num,$fields = [])
+    {
+        return $this->orderData->getOrderInfo($order_num,$fields);
+    }
+
 }

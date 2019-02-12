@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Logic\OrderLogic;
 use App\Models\Logic\UserLogic;
 use Swoft\App;
 use Swoft\Db\Db;
@@ -95,13 +96,24 @@ class OrderController
             $result = [];
             $msg = '参数错误';
         }else{
-            /* @var UserLogic $user_logic */
-            $user_logic = App::getBean(UserLogic::class);
-            $plusRes = $user_logic->strengthUserOrderTotal($user_id,$order_num,$total_amount,$take_time);
-            if($plusRes){
-                $code = 200;
+            //判断订单状态
+            /* @var OrderLogic $order_logic */
+            $order_logic = App::getBean(OrderLogic::class);
+            $fields = ['status','order_num'];
+            $checkOrder = $order_logic->get_order_info($order_num,$fields);
+            if($checkOrder['status'] == 4){
+                /* @var UserLogic $user_logic */
+                $user_logic = App::getBean(UserLogic::class);
+                $plusRes = $user_logic->strengthUserOrderTotal($user_id,$order_num,$total_amount,$take_time);
+                if($plusRes){
+                    $code = 200;
+                    $result = [];
+                    $msg = '更新成功';
+                }
+            }else{
+                $code = 0;
                 $result = [];
-                $msg = '更新成功';
+                $msg = '订单状态不正确';
             }
         }
 
