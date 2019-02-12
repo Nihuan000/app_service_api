@@ -289,4 +289,77 @@ class UserData
     {
         return $this->userDao->saveSupplierData($data);
     }
+
+    /**
+     * @param $condition
+     * @param int $limit
+     * @return mixed
+     */
+    public function getSupplierData($condition,$limit = 500)
+    {
+        return $this->userDao->getSupplierData($condition,$limit);
+    }
+
+    /**
+     * @param $condition
+     * @return mixed
+     */
+    public function getSupplierCount($condition)
+    {
+        return $this->userDao->getSupplierCount($condition);
+    }
+
+    /**
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getUserStrengthInfo(int $user_id)
+    {
+        return $this->userDao->getUserStrengthInfo($user_id);
+    }
+
+    /**
+     * @param int $pay_time
+     * @param int $type
+     * @return mixed
+     */
+    public function getStrengthActivity(int $pay_time, int $type)
+    {
+        return $this->userDao->getStrengthActivity($pay_time, $type);
+    }
+
+    /**
+     * @param int $user_id
+     * @param int $id
+     * @param array $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function userStrengthPlus(int $user_id, int $id, array $params)
+    {
+        return $this->userDao->userStrengthPlus($user_id, $id, $params);
+    }
+
+    /**
+     * @param int $user_id
+     * @param string $order_num
+     * @param $total_amount
+     * @param $take_time
+     * @param $strength_amount
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function saveStrengthOrder(int $user_id, string $order_num, $total_amount, $take_time, $strength_amount)
+    {
+        return $this->userDao->strengthOrderRecord($user_id, $order_num, $total_amount, $take_time, $strength_amount);
+    }
+
+    /**
+     * @param int $user_id
+     * @param string $order_num
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function checkStrengthOrderRecord(int $user_id, string $order_num)
+    {
+        return $this->userDao->checkStrengthOrderRecord($user_id,$order_num);
+    }
 }

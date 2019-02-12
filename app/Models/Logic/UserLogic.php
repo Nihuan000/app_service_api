@@ -13,9 +13,11 @@ namespace App\Models\Logic;
 use App\Models\Dao\OfferDao;
 use App\Models\Data\UserData;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Db\Db;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Bean\Annotation\Inject;
+use Zend\Stdlib\Request;
 
 /**
  * 用户逻辑层
@@ -225,5 +227,44 @@ class UserLogic
             }
         }
         return $shop_info;
+    }
+
+    /**
+     * 实商交易额更新
+     * @param $user_id
+     * @param $order_num
+     * @param $total_amount
+     * @param $pay_time
+     * @return bool|\Swoft\Core\ResultInterface
+     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function strengthUserOrderTotal($user_id,$order_num,$total_amount,$pay_time)
+    {
+        $plusRes = true;
+        $strength_info = $this->userData->getUserStrengthInfo($user_id);
+        if(!empty($strength_info)){
+            $activity_info = $this->userData->getStrengthActivity($pay_time,2);
+            if(!empty($activity_info)){
+                $checkRec = $this->userData->checkStrengthOrderRecord($user_id,$order_num);
+                if($checkRec['scount'] == 0){
+                    Db::beginTransaction();
+                    $order_total = $strength_info['totalAmount'] + $total_amount;
+                    $params = [
+                        'total_amount' => $order_total,
+                        'update_time' => $pay_time
+                    ];
+                    $totalRes = $this->userData->userStrengthPlus($user_id,$strength_info['id'],$params);
+                    $recordRes = $this->userData->saveStrengthOrder($user_id,$order_num,$total_amount,$pay_time,$strength_info['totalAmount']);
+                    if($totalRes && $recordRes){
+                        Db::commit();
+                    }else{
+                        Db::rollback();
+                        $plusRes = false;
+                    }
+                }
+            }
+        }
+        return $plusRes;
     }
 }

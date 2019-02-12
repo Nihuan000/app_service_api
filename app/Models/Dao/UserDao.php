@@ -213,4 +213,99 @@ class UserDao
     {
         return SupplierDataStatistic::batchInsert($data)->getResult();
     }
+
+    /**
+     * 符合条件的数据
+     * @param $params
+     * @param $limit
+     * @return mixed
+     */
+    public function getSupplierData($params,$limit)
+    {
+        return SupplierDataStatistic::findAll($params,['fields' => ['sds_id','user_id'],'limit' => $limit])->getResult();
+    }
+
+    /**
+     * 符合条件的数据量
+     * @param $params
+     * @return mixed
+     */
+    public function getSupplierCount($params)
+    {
+        return SupplierDataStatistic::count(['sds_id'],$params)->getResult();
+    }
+
+    /**
+     * @param $user_id
+     * @return mixed
+     */
+    public function getUserStrengthInfo($user_id)
+    {
+        $queryModel = Query::table('sb_user_strength');
+        $queryModel->where('is_expire',0);
+        $queryModel->where('user_id',$user_id);
+        $queryModel->where('level',0,'>');
+        return $queryModel->get()->getResult();
+    }
+
+    /**
+     * 实商活动
+     * @param $time
+     * @param $activity_type
+     * @return mixed
+     */
+    public function getStrengthActivity($time,$activity_type)
+    {
+        return Query::table('sb_user_strength_activity')
+            ->where('start_time',$time,'>=')
+            ->where('end_time',$time,'<')
+            ->where('activity_type',$activity_type)
+            ->where('is_enable',1)
+            ->get()->getResult();
+    }
+
+    /**
+     * 实商交易额更新
+     * @param $user_id
+     * @param $strength_id
+     * @param $params
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function userStrengthPlus($user_id, $strength_id,$params)
+    {
+        return Query::table('sb_user_strength')->where('user_id',$user_id)->where('id',$strength_id)->update($params);
+    }
+
+    /**
+     * @param $user_id
+     * @param $order_num
+     * @param $total_amount
+     * @param $take_time
+     * @param $prev_amount
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function strengthOrderRecord($user_id, $order_num, $total_amount, $take_time, $prev_amount)
+    {
+        $insert = [
+            'user_id' => $user_id,
+            'order_num' => $order_num,
+            'total_amount' => $total_amount,
+            'take_time' => $take_time,
+            'prev_amount' => $prev_amount,
+            'record_time' => time()
+        ];
+        return Query::table('sb_user_strength_order_list')->insert($insert)->getResult();
+    }
+
+    /**
+     * 实商交易记录
+     * @param $order_num
+     * @param $user_id
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function checkStrengthOrderRecord($order_num,$user_id)
+    {
+        return Query::table('sb_user_strength_order_list')->where('user_id',$user_id)->where('order_num',$order_num)->count('usol_id','scount')->getResult();
+    }
 }

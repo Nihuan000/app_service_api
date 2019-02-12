@@ -8,6 +8,8 @@
 
 namespace App\Controllers;
 
+use App\Models\Logic\UserLogic;
+use Swoft\App;
 use Swoft\Db\Db;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -73,5 +75,36 @@ class OrderController
             $result = ['order_list' => $order_list];
         }
         return compact("code","result","msg");
+    }
+
+    /**
+     * 订单服务费统计
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function order_service_fee(Request $request)
+    {
+        $order_num = $request->post('order_num');
+        $user_id = $request->post('user_id');
+        $take_time = $request->post('take_time');
+        $total_amount = $request->post('total_amount');
+        if(empty($order_num) || empty($user_id) || empty($take_time) || empty($total_amount)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            /* @var UserLogic $user_logic */
+            $user_logic = App::getBean(UserLogic::class);
+            $plusRes = $user_logic->strengthUserOrderTotal($user_id,$order_num,$total_amount,$take_time);
+            if($plusRes){
+                $code = 200;
+                $result = [];
+                $msg = '更新成功';
+            }
+        }
+
+        return compact('code','result','msg');
     }
 }
