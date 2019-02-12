@@ -22,7 +22,7 @@ class OrderDao
 
     public function getOrderInfo($order_num,$fields)
     {
-        return Order::findOne(['order_num' => $order_num,['fields' => $fields]])->getResult();
+        return Order::findOne(['order_num' => $order_num],['fields' => $fields])->getResult();
     }
 
 
