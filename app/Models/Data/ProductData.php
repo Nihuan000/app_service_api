@@ -144,7 +144,7 @@ class ProductData
         Log::info('flx_count:' . $flx_count);
 
         $i = 1;
-        while ($flx_count > 0 && $i < 3){
+        while ($flx_count > 0){
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;

@@ -121,6 +121,6 @@ class ProductDao
      */
     public function getProductInfoByPid(int $pid)
     {
-        return Product::findOne(['pro_id' => $pid]);
+        return Product::findOne(['pro_id' => $pid])->getResult();
     }
 }
