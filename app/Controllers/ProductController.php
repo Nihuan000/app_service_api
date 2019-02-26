@@ -60,7 +60,6 @@ class ProductController{
                     foreach ($tag_list_analyzer['tokens'] as $analyzer) {
                         $token_key = $keys . md5($analyzer['token']);
                         $this->redis->sAdd($token_key, $pro_id . '#' . $user_id);
-                        $this->redis->set($pro_cache_key,$pro_name);
                         $cache_list[] = $analyzer['token'];
                     }
                 }

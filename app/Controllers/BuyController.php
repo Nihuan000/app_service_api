@@ -40,6 +40,8 @@ class BuyController{
             $result = [];
             $msg = '请求参数错误';
         }else{
+            $tag_list = json_decode($tag_list,true);
+            $buy_img_list = json_decode($buy_img_list,true);
             /* @var ElasticsearchLogic $elastic_logic */
             $elastic_logic = App::getBean(ElasticsearchLogic::class);
             $tag_list_analyzer = $elastic_logic->tokenAnalyzer($buy_remark);

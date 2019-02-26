@@ -58,7 +58,7 @@ class ProductLogic
                 if(!empty($img_list)){
                     $product_ai = new ProductAI\API(env('MALONG_ACCESS_ID'),env('MALONG_SECRET_KEY'));
                     foreach ($img_list as $img) {
-                        $response = $product_ai->searchImage('search',env('MALONG_SERVICE_ID'),$img,[],[],50);
+                        $response = $product_ai->searchImage('search',env('MALONG_SERVICE_ID'),get_img_url($img),[],[],50);
                         if($response != false && $response['is_err'] == 0){
                             foreach ($response['results'] as $result) {
                                 $pro_id = $result['metadata'];
