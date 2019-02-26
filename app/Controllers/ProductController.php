@@ -58,7 +58,7 @@ class ProductController{
                 $tag_list_analyzer = $elastic_logic->tokenAnalyzer($pro_name);
                 if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
                     foreach ($tag_list_analyzer['tokens'] as $analyzer) {
-                        $token_key = $keys . json_encode($analyzer['token']);
+                        $token_key = $keys . md5($analyzer['token']);
                         $this->redis->sAdd($token_key, $pro_id . '#' . $user_id);
                         $this->redis->set($pro_cache_key,$pro_name);
                         $cache_list[] = $analyzer['token'];
@@ -76,8 +76,8 @@ class ProductController{
                 if(!empty($tokenize_cache)){
                     $tokenize_list = json_decode($tokenize_cache,true);
                     foreach ($tokenize_list as $item) {
-                        if($this->redis->exists($keys . json_encode($item))){
-                            $this->redis->sRem($keys . json_encode($item),$pro_id . '#' . $user_id);
+                        if($this->redis->exists($keys . md5($item))){
+                            $this->redis->sRem($keys . md5($item),$pro_id . '#' . $user_id);
                         }
                     }
                 }

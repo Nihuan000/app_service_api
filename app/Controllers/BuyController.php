@@ -52,7 +52,7 @@ class BuyController{
             //匹配产品数据
             /* @var ProductLogic $product_logic */
             $product_logic = App::getBean(ProductLogic::class);
-            $match_result = $product_logic->match_product_tokenize($buy_id, $buy_tag_list, $buy_img_list);
+            $product_logic->match_product_tokenize($buy_id, $buy_tag_list, $buy_img_list);
         }
         return compact("code","result","msg");
     }

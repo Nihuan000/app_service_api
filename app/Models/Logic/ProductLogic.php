@@ -39,8 +39,8 @@ class ProductLogic
         if(!empty($buy_tags)){
             //根据分词与后台标签查询匹配报价产品缓存
             foreach ($buy_tags as $buy_tag) {
-                if($this->redis->exists($keys . json_encode($buy_tag))){
-                    $product_list = $this->redis->sMembers($keys . json_encode($buy_tag));
+                if($this->redis->exists($keys . md5($buy_tag))){
+                    $product_list = $this->redis->sMembers($keys . md5($buy_tag));
                     if(!empty($product_list)){
                         foreach ($product_list as $pro) {
                             $match_pro = explode('#',$pro);
