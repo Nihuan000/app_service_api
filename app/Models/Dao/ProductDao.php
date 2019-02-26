@@ -113,4 +113,14 @@ class ProductDao
     {
         return Product::count('*',$params)->getResult();
     }
+
+    /**
+     * 获取产品信息
+     * @param int $pid
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getProductInfoByPid(int $pid)
+    {
+        return Product::findOne(['pro_id' => $pid]);
+    }
 }

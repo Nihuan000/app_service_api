@@ -256,4 +256,13 @@ class ProductData
             }
         }
     }
+
+    /**
+     * @param $pro_id
+     * @return \Swoft\Core\ResultInterface
+     */
+    public function getProductInfo($pro_id)
+    {
+        return $this->productDao->getProductInfoByPid($pro_id);
+    }
 }

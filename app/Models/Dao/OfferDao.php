@@ -10,6 +10,7 @@ namespace App\Models\Dao;
 
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\Offer;
+use Swoft\Db\Query;
 
 /**
  * 订单数据对象
@@ -37,5 +38,27 @@ class OfferDao
     public function getUserOfferCount(array $params)
     {
         return Offer::count('*',$params)->getResult();
+    }
+
+    /**
+     * 写入报价数据
+     * @param array $params
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function setOfferInfo(array $params)
+    {
+        return Query::table(Offer::class)->insert($params)->getResult();
+    }
+
+    /**
+     * 报价产品写入
+     * @param array $data
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function setOfferPro(array $data)
+    {
+        return Query::table('sb_offer_relation_product')->insert($data)->getResult();
     }
 }
