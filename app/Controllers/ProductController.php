@@ -80,6 +80,7 @@ class ProductController{
                             $this->redis->sRem($keys . md5($item),$pro_id . '#' . $user_id);
                         }
                     }
+                    $this->redis->delete($pro_cache_key .$pro_id);
                 }
                 $code = 1;
                 $result = [];
