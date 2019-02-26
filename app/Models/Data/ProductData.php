@@ -128,6 +128,7 @@ class ProductData
         $offset = $params['page'] * $params['psize'] - 1;
         $product_list = [];
         $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
+        Log::info('waterfall_count' . count($last_waterfall_count));
         if(count($last_waterfall_count) == 0){
             $last_info = $this->redis->zRange($waterfall_index,0,0,true);
             $last_time_arr = array_values($last_info);
@@ -140,8 +141,10 @@ class ProductData
             $prev_date = date('Y-m-d',$prev_time);
         }
 
+        Log::info('flx_count:' . $flx_count);
+
         $i = 1;
-        while ($flx_count > 0){
+        while ($flx_count > 0 && $i < 3){
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;

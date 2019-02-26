@@ -110,8 +110,8 @@ class OfferTask{
                         }else{
                             $history = false;
                         }
-                        Log::info($offerer_id . ' => ' . $buyer['user_id'] . '###' . $user_info['role'] . '<<>>' . $history);
-                        if($offerer_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
+                        Log::info($offerer_id . ' => ' . $buyInfo['userId'] . '###' . $user_info['role'] . '<<>>' . $history);
+                        if($offerer_id != $buyInfo['userId'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
                             //报价记录写入
                             $data['buy_id'] = $buy_id;
                             $data['user_id'] = $buyInfo['userId'];
