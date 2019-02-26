@@ -214,6 +214,7 @@ class ProductData
                     $current_user_start_time = current($current_level);
                     $current_user_end_time = $cycle_time_list[$current_user_start_time];
                     $current_list = $this->redis->zRangeByScore($waterfall_index,$current_user_start_time,$current_user_end_time);
+                    Log::info($current_list);
                     //周期内产品数判断
                     if(!empty($current_list)){
                         $user_has_queue_count[$item['userId']] = [];
@@ -239,6 +240,7 @@ class ProductData
                             'user_id' => $item['userId'],
                             'del_status' => 1
                         ];
+                        Log::info(json_encode($proParams));
                         //符合条件产品数修改
                         $prOption = [
                             'fields' => ['user_id','pro_id','add_time'],

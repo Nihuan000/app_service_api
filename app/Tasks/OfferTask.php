@@ -16,6 +16,7 @@ use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
 use Swoft\App;
  use Swoft\Bean\Annotation\Inject;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -78,12 +79,14 @@ class OfferTask{
         }
         $test_list = $this->userData->getTesters();
         $grayscale = getenv('IS_GRAYSCALE');
+        Log::info('len:' . $len);
         if($len > 0){
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('offerMsg');
             $pages = ceil($len/$this->limit);
             for ($i=1;$i<=$pages;$i++){
                 $list = $this->searchRedis->lrange($index . $date,0, $this->limit);
+                Log::info('count:' . count($list));
                 if(!empty($list)){
                     foreach ($list as $item) {
                         $msg_arr = explode('#',$item);
@@ -98,6 +101,7 @@ class OfferTask{
                         if(($grayscale == 1 && in_array($offerer_id, $test_list)) || $grayscale == 0){
                             $receive_status = 1;
                         }
+                        Log::info('receive_status:' . $receive_status);
                         //队列当前内容删除
                         $this->searchRedis->lPop($index . $date);
                         //历史推送记录查询
@@ -106,6 +110,7 @@ class OfferTask{
                         }else{
                             $history = false;
                         }
+                        Log::info($offerer_id . ' => ' . $buyer['user_id'] . '###' . $user_info['role'] . '<<>>' . $history);
                         if($offerer_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
                             //报价记录写入
                             $data['buy_id'] = $buy_id;
@@ -121,6 +126,7 @@ class OfferTask{
                             $data['offer_time'] = $data['audit_time'] = time();
                             $data['offer_source'] = 19; //自动报价
                             $result = $this->offerData->saveOffer($data);
+                            Log::info('result:' . $result);
                             if($result){
                                 //报价产品写入
                                 $offer_pro_data['offer_id'] = $result;

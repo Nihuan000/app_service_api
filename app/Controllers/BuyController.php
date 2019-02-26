@@ -55,6 +55,9 @@ class BuyController{
             /* @var ProductLogic $product_logic */
             $product_logic = App::getBean(ProductLogic::class);
             $product_logic->match_product_tokenize($buy_id, $buy_tag_list, $buy_img_list);
+            $code = 0;
+            $result = [];
+            $msg = '成功';
         }
         return compact("code","result","msg");
     }
