@@ -11,6 +11,7 @@ namespace App\Controllers;
 use App\Models\Data\ProductData;
 use App\Models\Data\TbPushBuyRecordData;
 use App\Models\Data\UserData;
+use App\Models\Data\BuyData;
 use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
@@ -31,6 +32,14 @@ class SearchController
      * @var TbPushBuyRecordData
      */
     protected $pushBuyData;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    protected $userData;
+
+
     /**
      * 指定时间内刷新采购数查询
      * @RequestMapping()
@@ -296,6 +305,64 @@ class SearchController
                 $code = 0;
                 $result = ['status' => 2, 'uuid' => ''];
                 $msg = 'SUCCESS';
+            }
+        }
+        return compact('code','result','msg');
+    }
+
+    /**
+     * 根据采购标签推荐给供应商
+     * @author yang
+     * @param Request $request
+     * @return array
+     */
+    public function recommend_buy_tag(Request $request)
+    {
+        $buy_id = $request->post('buy_id');
+        $code = -1;
+        $msg = '参数错误';
+        $result = [];
+        if(!empty($buy_id))
+        {
+            /* @var BuyData $buydate */
+            $buydate = App::getBean(BuyData::class);
+            $buyinfo = $buydate->getBuyInfo($buy_id);
+            if (!empty($buyinfo)){
+                //查询采购的标签，根据标签和实商过滤供应商
+                /* @var UserLogic $userLogic */
+                $userLogic = App::getBean(UserLogic::class);
+                $user_ids = $userLogic->buyTagRecommend($buy_id);
+                if (!empty($user_ids)){
+                    $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
+                    foreach ($user_ids as $key => $value) {
+                        ################## 消息展示内容开始 #######################
+                        $config = \Swoft::getBean('config');
+                        $sys_msg = $config->get('offerMsg');
+                        $extra = $sys_msg;
+                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
+                        $extra['type'] = $buyinfo['status'];
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['name'] = $buyer['name'];
+                        $extra['title'] = (string)$buyinfo['remark'];
+                        $extra['amount'] = $buyinfo['amount'];
+                        $extra['unit'] = $buyinfo['unit'];
+                        ################## 消息展示内容结束 #######################
+
+                        ################## 消息基本信息开始 #######################
+                        $extra['msgTitle'] = '收到邀请';
+                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
+                        ################## 消息基本信息结束 #######################
+
+                        $notice['extra'] = $extra;
+                        sendInstantMessaging('11', (string)$value, json_encode($notice['extra']));
+                    }
+                    $code = 1;
+                    $msg = '采购推荐已推送';
+                }else{
+                    $code = -1;
+                    $msg = '没有符合条件的供应商';
+                }
             }
         }
         return compact('code','result','msg');

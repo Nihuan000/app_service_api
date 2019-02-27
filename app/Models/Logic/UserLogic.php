@@ -12,6 +12,9 @@ namespace App\Models\Logic;
 
 use App\Models\Dao\OfferDao;
 use App\Models\Data\UserData;
+use App\Models\Data\TagData;
+use App\Models\Data\BuyRelationTagData;
+use App\Models\Data\UserSubscriptionTagData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
 use Swoft\Log\Log;
@@ -33,6 +36,25 @@ class UserLogic
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject()
+     * @var TagData
+     */
+    private $TagData;
+
+    /**
+     * @Inject()
+     * @var BuyRelationTagData
+     */
+    private $BuyRelationTagData;
+
+    /**
+     * @Inject()
+     * @var UserSubscriptionTagData
+     */
+    private $userSubscriptionTagData;
+
 
     /**
      * @Inject()
@@ -266,5 +288,21 @@ class UserLogic
             }
         }
         return $plusRes;
+    }
+
+    /**
+     * 根据采购标签推荐供应商
+     * @author yang
+     * @param Request $request
+     * @return array
+     */
+    public function buyTagRecommend($buy_id)
+    {
+        //1.获取标签id
+        $tag_ids = $this->BuyRelationTagData->getRealtionTagByIds([$buy_id],'tag_id');
+        $tag_ids = array_map('array_shift',$tag_ids);
+        //2.根据标签获取符合条件的全部供应商
+        $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids);
+        return $user_ids;
     }
 }
