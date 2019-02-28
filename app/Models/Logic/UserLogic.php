@@ -307,7 +307,7 @@ class UserLogic
             }
             //2.根据标签获取符合条件的全部供应商
             if (!empty($tag_ids_arr)){
-                $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids);
+                $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids_arr);
                 return $user_ids;
             }
         }
