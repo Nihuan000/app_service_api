@@ -333,30 +333,44 @@ class SearchController
                 $userLogic = App::getBean(UserLogic::class);
                 $user_ids = $userLogic->buyTagRecommend($buy_id);
                 if (!empty($user_ids)){
-                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids);
+                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids) . 'sendMessageing:';
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
                         ################## 消息展示内容开始 #######################
-                        $config = \Swoft::getBean('config');
-                        $sys_msg = $config->get('offerMsg');
-                        $extra = $sys_msg;
-                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
-                        $extra['type'] = $buyinfo['status'];
-                        $extra['id'] = $buy_id;
-                        $extra['buy_id'] = $buy_id;
-                        $extra['name'] = $buyer['name'];
-                        $extra['title'] = (string)$buyinfo['remark'];
-                        $extra['amount'] = $buyinfo['amount'];
-                        $extra['unit'] = $buyinfo['unit'];
+                        $buy_info['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
+                        $buy_info['type'] = 1;
+                        $buy_info['title'] = (string)$buyinfo['remark'];
+                        $buy_info['id'] = $buy_id;
+                        $buy_info['price'] = isset($buyinfo['price']) ? $buyinfo['price'] : "";
+                        $buy_info['amount'] = $buyinfo['amount'];
+                        $buy_info['unit'] = $buyinfo['unit'];
+                        $buy_info['url'] = '';
                         ################## 消息展示内容结束 #######################
 
                         ################## 消息基本信息开始 #######################
-                        $extra['msgTitle'] = '收到邀请';
-                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
+                        $config = \Swoft::getBean('config');
+                        $sys_msg = $config->get('offerMsg');
+                        $extra = $sys_msg;
+                        $extra['title'] = '收到邀请';
+                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
+                        $extra['commendUser'] = [];
+                        $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
                         ################## 消息基本信息结束 #######################
 
+                        ################## 消息扩展字段开始 #######################
+                        $extraData['keyword'] = '#查看详情#';
+                        $extraData['type'] = 1;
+                        $extraData['id'] = (int)$buy_id;
+                        $extraData['url'] = '';
+                        ################## 消息扩展字段结束 #######################
+
+                        $extra['data'] = [$extraData];
+                        $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                         $notice['extra'] = $extra;
-                        sendInstantMessaging('11', (string)$value, json_encode($notice['extra']));
+                        $sendRes = sendInstantMessaging('1', (string)$value, json_encode($notice['extra']));
+                        if ($sendRes){
+                            $log = $log . '{' . $value . '}';
+                        }
                     }
                     $code = 1;
                     $msg = '采购推荐已推送';
