@@ -15,6 +15,7 @@ use App\Models\Data\UserData;
 use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\ProductLogic;
 use Swoft\App;
+use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
