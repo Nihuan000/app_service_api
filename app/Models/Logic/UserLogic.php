@@ -300,11 +300,13 @@ class UserLogic
     {
         //1.获取标签id
         $tag_ids = $this->BuyRelationTagData->getRealtionTagByIds([$buy_id],['tag_id']);
-        return $tag_ids;
         if (!empty($tag_ids)){
-            $tag_ids = array_map('array_shift',$tag_ids);
+            $tag_ids_arr = [];
+            foreach ($tag_ids as $value) {
+                $tag_ids_arr[] = $value['tag_id'];
+            }
             //2.根据标签获取符合条件的全部供应商
-            if (is_array($tag_ids)){
+            if (!empty($tag_ids_arr)){
                 $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids);
                 return $user_ids;
             }
