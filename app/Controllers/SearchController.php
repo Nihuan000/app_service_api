@@ -332,10 +332,6 @@ class SearchController
                 /* @var UserLogic $userLogic */
                 $userLogic = App::getBean(UserLogic::class);
                 $user_ids = $userLogic->buyTagRecommend($buy_id);
-
-                $result = $user_ids;
-                return compact('code','result','msg');
-
                 if (!empty($user_ids)){
                     $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids);
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
