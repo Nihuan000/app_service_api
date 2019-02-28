@@ -333,7 +333,7 @@ class SearchController
                 $userLogic = App::getBean(UserLogic::class);
                 $user_ids = $userLogic->buyTagRecommend($buy_id);
                 if (!empty($user_ids)){
-                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids) . 'sendMessageing:';
+                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids) . ', sendMessageing:';
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
                         ################## 消息展示内容开始 #######################
@@ -367,7 +367,7 @@ class SearchController
                         $extra['data'] = [$extraData];
                         $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                         $notice['extra'] = $extra;
-                        $sendRes = sendInstantMessaging('1', (string)$value, json_encode($notice['extra']));
+                        $sendRes = sendInstantMessaging('2', (string)$value, json_encode($notice['extra']));
                         if ($sendRes){
                             $log = $log . '{' . $value . '}';
                         }
