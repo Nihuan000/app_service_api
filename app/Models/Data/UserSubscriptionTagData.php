@@ -34,7 +34,10 @@ class UserSubscriptionTagData
         $result_ids = [];
         $result = $this->userSubscriptionTagDao->getSubscriptionTagList($tag_ids, $fields);
         if (!empty($result)){
-            $user_ids = array_map('array_shift',$result);
+            $user_ids = [];
+            foreach ($result as $value) {
+                $user_ids[] = $value['userId'];
+            }
             $statistics = array_count_values($user_ids);
             $connt = count($tag_ids);
             foreach ($statistics as $key => $value) {
