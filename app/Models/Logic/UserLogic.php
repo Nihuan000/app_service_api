@@ -303,7 +303,7 @@ class UserLogic
         if (!empty($tag_ids)){
             $tag_ids_arr = [];
             foreach ($tag_ids as $value) {
-                $tag_ids_arr[] = $value['buyId'];
+                $tag_ids_arr[] = $value['tagId'];
             }
             //2.根据标签获取符合条件的全部供应商
             if (!empty($tag_ids_arr)){
