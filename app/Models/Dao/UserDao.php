@@ -135,6 +135,28 @@ class UserDao
     }
 
     /**
+     * 内部账号
+     * @param int $type
+     * @return array
+     */
+    public function getAgentInfo($type = 5)
+    {
+        $list = [];
+        $agent_list = Query::table('agent_user');
+        $agent_list->where('is_delete',0);
+        if(!empty($type)){
+            $agent_list->where('type',$type);
+        }
+        $agent_user = $agent_list->get(['uid'])->getResult();
+        if(!empty($agent_user)){
+            foreach ($agent_user as $item) {
+                $list[] = $item['uid'];
+            }
+        }
+        return $list;
+    }
+
+    /**
      * 返回指定用户指定字段
      * @param array $params
      * @param array $fields
