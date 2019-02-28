@@ -333,6 +333,7 @@ class SearchController
                 $userLogic = App::getBean(UserLogic::class);
                 $user_ids = $userLogic->buyTagRecommend($buy_id);
                 if (!empty($user_ids)){
+                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids);
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
                         ################## 消息展示内容开始 #######################
@@ -360,9 +361,11 @@ class SearchController
                     $code = 1;
                     $msg = '采购推荐已推送';
                 }else{
+                    $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids: 没有合适的供应商';
                     $code = -1;
                     $msg = '没有符合条件的供应商';
                 }
+                Log::info($log);
             }
         }
         return compact('code','result','msg');
