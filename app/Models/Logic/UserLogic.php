@@ -303,8 +303,10 @@ class UserLogic
         if (!empty($tag_ids)){
             $tag_ids = array_map('array_shift',$tag_ids);
             //2.根据标签获取符合条件的全部供应商
-            $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids);
-            return $user_ids;
+            if (is_array($tag_ids)){
+                $user_ids = $this->userSubscriptionTagData->getUserIds($tag_ids);
+                return $user_ids;
+            }
         }
         return [];
     }
