@@ -362,4 +362,13 @@ class UserData
     {
         return $this->userDao->checkStrengthOrderRecord($order_num,$user_id);
     }
+
+    /**
+     * @param int $type
+     * @return array
+     */
+    public function getAgentUser(int $type)
+    {
+        return $this->userDao->getAgentInfo($type);
+    }
 }
