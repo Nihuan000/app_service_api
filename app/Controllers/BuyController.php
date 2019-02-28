@@ -27,11 +27,13 @@ use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 class BuyController{
 
     /**
+     * @Inject()
      * @var BuyData
      */
     protected $buyData;
 
     /**
+     * @Inject()
      * @var UserData
      */
     protected $userData;
