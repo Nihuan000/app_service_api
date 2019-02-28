@@ -120,8 +120,6 @@ class ProductData
                     $this->general_waterfolls_data($waterfall_index,$params);
                 }
             }
-        }else{
-            $this->general_waterfolls_data($waterfall_index,$params);
         }
 
         $limit = ($params['page'] -1) * $params['psize'];
@@ -135,7 +133,7 @@ class ProductData
             $prev_date = date('Y-m-d',$prev_time);
             $flx_count = $params['psize'];
         }else{
-            $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
+            $flx_count = $params['psize'] - count($last_waterfall_count);
             $prev_time = end($last_waterfall_count);
             $prev_date = date('Y-m-d',$prev_time);
         }
@@ -153,8 +151,8 @@ class ProductData
         $waterfall_list = $last_waterfall_count;
         if(!empty($waterfall_list)){
             foreach ($waterfall_list as $wk => $wv) {
-                if($wk % 2 == 0){
-                    $wtDetail = explode('#',$wv);
+                if(!empty($wk)){
+                    $wtDetail = explode('#',$wk);
                     $product_list[] = (int)$wtDetail[1];
                 }
             }
@@ -214,7 +212,6 @@ class ProductData
                     $current_user_start_time = current($current_level);
                     $current_user_end_time = $cycle_time_list[$current_user_start_time];
                     $current_list = $this->redis->zRangeByScore($waterfall_index,$current_user_start_time,$current_user_end_time);
-                    Log::info($current_list);
                     //周期内产品数判断
                     if(!empty($current_list)){
                         $user_has_queue_count[$item['userId']] = [];
@@ -240,7 +237,6 @@ class ProductData
                             'user_id' => $item['userId'],
                             'del_status' => 1
                         ];
-                        Log::info(json_encode($proParams));
                         //符合条件产品数修改
                         $prOption = [
                             'fields' => ['user_id','pro_id','add_time'],
@@ -258,7 +254,6 @@ class ProductData
             }
         }
     }
-
     /**
      * @param $pro_id
      * @return \Swoft\Core\ResultInterface
