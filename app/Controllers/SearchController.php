@@ -340,10 +340,10 @@ class SearchController
                         $config = \Swoft::getBean('config');
                         $sys_msg = $config->get('offerMsg');
 
-                        /************************************************************************************************************************
+                        /************************************************************************************************************************/
                         ################## 消息展示内容开始 #######################
                         $buy_info['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
-                        $buy_info['type'] = 1;
+                        $buy_info['type'] = 0;
                         $buy_info['title'] = (string)$buyinfo['remark'];
                         $buy_info['id'] = $buy_id;
                         $buy_info['price'] = isset($buyinfo['price']) ? $buyinfo['price'] : "";
@@ -369,28 +369,6 @@ class SearchController
 
                         $extra['data'] = [$extraData];
                         $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
-                        $notice['extra'] = $extra;
-                        ************************************************************************************************************************/
-
-
-
-                        /************************************************************************************************************************/
-                        $extra = $sys_msg;
-                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
-                        $extra['type'] = $buyinfo['status'];
-                        $extra['id'] = $buy_id;
-                        $extra['buy_id'] = $buy_id;
-                        $extra['name'] = $buyer['name'];
-                        $extra['title'] = (string)$buyinfo['remark'];
-                        $extra['amount'] = $buyinfo['amount'];
-                        $extra['unit'] = $buyinfo['unit'];
-                        ################## 消息展示内容结束 #######################
-
-                        ################## 消息基本信息开始 #######################
-                        $extra['msgTitle'] = '收到邀请';
-                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
-                        ################## 消息基本信息结束 #######################
-
                         $notice['extra'] = $extra;
                         /************************************************************************************************************************/
 
