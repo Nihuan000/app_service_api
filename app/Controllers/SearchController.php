@@ -354,7 +354,11 @@ class SearchController
 
                         ################## 消息基本信息开始 #######################
                         $extra = $sys_msg;
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
                         $extra['title'] = '收到邀请';
+                        $extra['status'] = 0;
                         $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
                         $extra['commendUser'] = [];
                         $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
@@ -362,7 +366,7 @@ class SearchController
 
                         ################## 消息扩展字段开始 #######################
                         $extraData['keyword'] = '#查看详情#';
-                        $extraData['type'] = 1;
+                        $extraData['type'] = 0;
                         $extraData['id'] = (int)$buy_id;
                         $extraData['url'] = '';
                         ################## 消息扩展字段结束 #######################
