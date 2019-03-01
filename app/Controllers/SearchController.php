@@ -336,6 +336,11 @@ class SearchController
                     $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids) . ', sendMessageing:';
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
+
+                        $config = \Swoft::getBean('config');
+                        $sys_msg = $config->get('offerMsg');
+
+                        /************************************************************************************************************************
                         ################## 消息展示内容开始 #######################
                         $buy_info['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
                         $buy_info['type'] = 1;
@@ -348,8 +353,6 @@ class SearchController
                         ################## 消息展示内容结束 #######################
 
                         ################## 消息基本信息开始 #######################
-                        $config = \Swoft::getBean('config');
-                        $sys_msg = $config->get('offerMsg');
                         $extra = $sys_msg;
                         $extra['title'] = '收到邀请';
                         $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
@@ -367,6 +370,30 @@ class SearchController
                         $extra['data'] = [$extraData];
                         $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                         $notice['extra'] = $extra;
+                        ************************************************************************************************************************/
+
+
+
+                        /************************************************************************************************************************/
+                        $extra = $sys_msg;
+                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
+                        $extra['type'] = $buyinfo['status'];
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['name'] = $buyer['name'];
+                        $extra['title'] = (string)$buyinfo['remark'];
+                        $extra['amount'] = $buyinfo['amount'];
+                        $extra['unit'] = $buyinfo['unit'];
+                        ################## 消息展示内容结束 #######################
+
+                        ################## 消息基本信息开始 #######################
+                        $extra['msgTitle'] = '收到邀请';
+                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
+                        ################## 消息基本信息结束 #######################
+
+                        $notice['extra'] = $extra;
+                        /************************************************************************************************************************/
+
                         $sendRes = sendInstantMessaging('2', (string)$value, json_encode($notice['extra']));
                         if ($sendRes){
                             $log = $log . '{' . $value . '}';
