@@ -378,24 +378,22 @@ class SearchController
 
 
                         /************************************************************************************************************************/
-                        $type = 0;
                         $extra = $sys_msg;
-                        $extra['type'] = 0;
                         $extra['id'] = $buy_id;
                         $extra['buy_id'] = $buy_id;
-                        $extra['offer_id'] = $result;
+                        $extra['offer_id'] = null;
+                        $extra['type'] = 1;
                         $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
                         $extra['name'] = $buyer['name'];
-                        $extra['status'] = $type;
+                        $extra['status'] = 0;
                         $extra['amount'] = $buyinfo['amount'];
                         $extra['unit'] = $buyinfo['unit'];
                         $extra['title'] = $buyinfo['remark'];
                         $extra['msgTitle'] = '收到邀请';
-                        $notice['extra'] = $extra;
-                        $notice['extra']['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
+                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
                         /************************************************************************************************************************/
 
-                        $sendRes = sendInstantMessaging('2', (string)$value, json_encode($notice['extra']));
+                        $sendRes = sendInstantMessaging('2', (string)$value, json_encode($extra));
                         if ($sendRes){
                             $log = $log . '{' . $value . '}';
                         }
