@@ -382,7 +382,7 @@ class SearchController
                         $extra['id'] = $buy_id;
                         $extra['buy_id'] = $buy_id;
                         $extra['offer_id'] = null;
-                        $extra['type'] = 1;
+                        $extra['type'] = 2;
                         $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
                         $extra['name'] = $buyer['name'];
                         $extra['status'] = 0;
@@ -395,7 +395,7 @@ class SearchController
 
                         $sendRes = sendInstantMessaging('2', (string)$value, json_encode($extra));
                         if ($sendRes){
-                            $log = $log . '{' . $value . '}';
+                            $log = $log . '{' . $value . ':' . $extra['image'] .'}';
                         }
                     }
                     $code = 1;
