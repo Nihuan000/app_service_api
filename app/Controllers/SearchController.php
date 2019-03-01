@@ -340,7 +340,7 @@ class SearchController
                         $config = \Swoft::getBean('config');
                         $sys_msg = $config->get('offerMsg');
 
-                        /************************************************************************************************************************/
+                        /************************************************************************************************************************
                         ################## 消息展示内容开始 #######################
                         $buy_info['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
                         $buy_info['type'] = 0;
@@ -374,6 +374,25 @@ class SearchController
                         $extra['data'] = [$extraData];
                         $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
                         $notice['extra'] = $extra;
+                        ************************************************************************************************************************/
+
+
+                        /************************************************************************************************************************/
+                        $type = 0;
+                        $extra = $sys_msg;
+                        $extra['type'] = 0;
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['offer_id'] = $result;
+                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
+                        $extra['name'] = $buyer['name'];
+                        $extra['status'] = $type;
+                        $extra['amount'] = $buyinfo['amount'];
+                        $extra['unit'] = $buyinfo['unit'];
+                        $extra['title'] = $buyinfo['remark'];
+                        $extra['msgTitle'] = '收到邀请';
+                        $notice['extra'] = $extra;
+                        $notice['extra']['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
                         /************************************************************************************************************************/
 
                         $sendRes = sendInstantMessaging('2', (string)$value, json_encode($notice['extra']));
