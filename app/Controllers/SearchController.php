@@ -340,43 +340,6 @@ class SearchController
                         $config = \Swoft::getBean('config');
                         $sys_msg = $config->get('offerMsg');
 
-                        /************************************************************************************************************************
-                        ################## 消息展示内容开始 #######################
-                        $buy_info['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']) : '';
-                        $buy_info['type'] = 0;
-                        $buy_info['title'] = (string)$buyinfo['remark'];
-                        $buy_info['id'] = $buy_id;
-                        $buy_info['price'] = isset($buyinfo['price']) ? $buyinfo['price'] : "";
-                        $buy_info['amount'] = $buyinfo['amount'];
-                        $buy_info['unit'] = $buyinfo['unit'];
-                        $buy_info['url'] = '';
-                        ################## 消息展示内容结束 #######################
-
-                        ################## 消息基本信息开始 #######################
-                        $extra = $sys_msg;
-                        $extra['id'] = $buy_id;
-                        $extra['buy_id'] = $buy_id;
-                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
-                        $extra['title'] = '收到邀请';
-                        $extra['status'] = 0;
-                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！\n查看详情";
-                        $extra['commendUser'] = [];
-                        $extra['showData'] = empty($buy_info) ? [] : [$buy_info];
-                        ################## 消息基本信息结束 #######################
-
-                        ################## 消息扩展字段开始 #######################
-                        $extraData['keyword'] = '#查看详情#';
-                        $extraData['type'] = 0;
-                        $extraData['id'] = (int)$buy_id;
-                        $extraData['url'] = '';
-                        ################## 消息扩展字段结束 #######################
-
-                        $extra['data'] = [$extraData];
-                        $extra['content'] = "买家{$buyer['name']}邀请您为他报价！\n#查看详情#";
-                        $notice['extra'] = $extra;
-                        ************************************************************************************************************************/
-
-
                         /************************************************************************************************************************/
                         $extra = $sys_msg;
                         $extra['id'] = $buy_id;
@@ -393,7 +356,7 @@ class SearchController
                         $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
                         /************************************************************************************************************************/
 
-                        $sendRes = sendInstantMessaging('2', (string)$value, json_encode($extra));
+                        $sendRes = sendInstantMessaging('11', (string)$value, json_encode($extra));
                         if ($sendRes){
                             $log = $log . '{' . $value . ':' . $extra['image'] .'}';
                         }
