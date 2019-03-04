@@ -142,7 +142,7 @@ class UserDao
     public function getAgentInfo($type = 5)
     {
         $list = [];
-        $agent_list = Query::table('agent_user');
+        $agent_list = Query::table('sb_agent_user');
         $agent_list->where('is_delete',0);
         if(!empty($type)){
             $agent_list->where('type',$type);

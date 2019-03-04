@@ -2,6 +2,7 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\Tag;
+use App\Models\Entity\UserStrength;
 use Swoft\Bean\Annotation\Bean;
 
 /**
