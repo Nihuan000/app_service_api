@@ -144,7 +144,7 @@ class OfferTask{
                                         'offer_id' => $result,
                                         'score_source' => $source_code
                                     ];
-                                    $params = ['url' => '', 'timeout' => 5,'post_params' => $post_params];
+                                    $params = ['url' => env('API_SOURCE_URL') . '/OpenServices/auto_offer_score', 'timeout' => 5,'post_params' => $post_params];
                                     CURL($params,'post');
                                 }
 
