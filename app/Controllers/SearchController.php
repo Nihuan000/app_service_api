@@ -20,6 +20,7 @@ use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\App;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Log\Log;
+use Swoft\Redis\Redis;
 
 /**
  * Class SearchController
@@ -38,6 +39,12 @@ class SearchController
      * @var UserData
      */
     protected $userData;
+
+    /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    protected $redis;
 
 
     /**
@@ -328,6 +335,12 @@ class SearchController
             $buydate = App::getBean(BuyData::class);
             $buyinfo = $buydate->getBuyInfo($buy_id);
             if (!empty($buyinfo)){
+                $date = date('Y-m-d');
+                $inviteIndex = '@InviteQueueHistory_';
+                $expire_time = 0;
+                if(!$this->redis->exists($inviteIndex . $date)){
+                    $expire_time = 604800;
+                }
                 //查询采购的标签，根据标签和实商过滤供应商
                 /* @var UserLogic $userLogic */
                 $userLogic = App::getBean(UserLogic::class);
@@ -337,28 +350,40 @@ class SearchController
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
 
-                        $config = \Swoft::getBean('config');
-                        $sys_msg = $config->get('offerMsg');
+                        //历史推送记录查询
+                        if($this->redis->exists($inviteIndex . $date)){
+                            $history = $this->redis->sIsMember($inviteIndex . $date, $buy_id . '#' . $value);
+                        }else{
+                            $history = false;
+                        }
 
-                        /************************************************************************************************************************/
-                        $extra = $sys_msg;
-                        $extra['id'] = $buy_id;
-                        $extra['buy_id'] = $buy_id;
-                        $extra['offer_id'] = null;
-                        $extra['type'] = 2;
-                        $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
-                        $extra['name'] = $buyer['name'];
-                        $extra['status'] = 0;
-                        $extra['amount'] = $buyinfo['amount'];
-                        $extra['unit'] = $buyinfo['unit'];
-                        $extra['title'] = $buyinfo['remark'];
-                        $extra['msgTitle'] = '收到邀请';
-                        $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
-                        /************************************************************************************************************************/
+                        if($history == false){
+                            $config = \Swoft::getBean('config');
+                            $sys_msg = $config->get('offerMsg');
 
-                        $sendRes = sendInstantMessaging('11', (string)$value, json_encode($extra));
-                        if ($sendRes){
-                            $log = $log . '{' . $value . ':' . $extra['image'] .'}';
+                            /************************************************************************************************************************/
+                            $extra = $sys_msg;
+                            $extra['id'] = $buy_id;
+                            $extra['buy_id'] = $buy_id;
+                            $extra['offer_id'] = null;
+                            $extra['type'] = 2;
+                            $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
+                            $extra['name'] = $buyer['name'];
+                            $extra['status'] = 0;
+                            $extra['amount'] = $buyinfo['amount'];
+                            $extra['unit'] = $buyinfo['unit'];
+                            $extra['title'] = $buyinfo['remark'];
+                            $extra['msgTitle'] = '收到邀请';
+                            $extra['msgContent'] = "买家{$buyer['name']}邀请您为他报价！";
+                            /************************************************************************************************************************/
+
+                            $sendRes = sendInstantMessaging('11', (string)$value, json_encode($extra));
+                            if($sendRes){
+                                $this->redis->sAdd($inviteIndex . $date, $buy_id . '#' . $value);
+                                if($expire_time > 0){
+                                    $this->redis->expire($inviteIndex . $date,$expire_time);
+                                }
+                            }
                         }
                     }
                     $code = 1;
