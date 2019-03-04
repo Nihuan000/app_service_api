@@ -134,6 +134,20 @@ class OfferTask{
                                 $offer_pro_data['add_time'] = $data['offer_time'];
                                 $offer_pro_data['is_delete'] = 0;
                                 $this->offerData->saveOfferProduct($offer_pro_data);
+
+                                //实力值获取
+                                if($this->userData->getSetting('auto_offer_score_switch') == 1){
+                                    $source_code = create_guid();
+                                    $this->searchRedis->setex($result,60,$source_code);
+                                    $post_params = [
+                                        'user_id' => $offerer_id,
+                                        'offer_id' => $result,
+                                        'score_source' => $source_code
+                                    ];
+                                    $params = ['url' => '', 'timeout' => 5,'post_params' => $post_params];
+                                    CURL($params,'post');
+                                }
+
                                 //发送系统消息
                                 ################## 消息展示内容开始 #######################
                                 $type = $data['status'];
