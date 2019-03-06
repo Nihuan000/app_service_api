@@ -60,7 +60,8 @@ class OrderDao
     public function getUserWalletBalance(int $user_id)
     {
         $userBalance = Query::table('sb_order_wallet')->where('user_id',$user_id)->limit(1)->get()->getResult();
-        return $userBalance;
+        $balance_info = current($userBalance);
+        return $balance_info;
     }
 
     /**
@@ -74,6 +75,10 @@ class OrderDao
     {
         $return_amount = 50;
         $userBalance = $this->getUserWalletBalance($order_info['buyerId']);
+        if(!isset($userBalance['balance'])){
+            write_log(3,"用户{$order_info['buyerId']}钱包信息获取失败:" . json_encode($userBalance));
+            return false;
+        }
         write_log(3,"用户{$order_info['buyerId']}钱包余额:" . $userBalance['balance']);
         //开启事务
         Db::beginTransaction();
