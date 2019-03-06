@@ -25,6 +25,7 @@ use Swoft\View\Bean\Annotation\View;
 use Swoft\Contract\Arrayable;
 use Swoft\Http\Server\Exception\BadRequestException;
 use Swoft\Http\Message\Server\Response;
+use ProductAI;
 
 /**
  * Class IndexController
@@ -166,6 +167,34 @@ class IndexController
             $result = ['list' => []];
             $msg = '获取成功';
         }
+        return compact('code','result','msg');
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function malong_test(Request $request)
+    {
+        $img_url = $request->post('img_url');
+        if(empty($img_url)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $search_match = [];
+            $product_ai = new ProductAI\API(env('MALONG_ACCESS_ID'),env('MALONG_SECRET_KEY'));
+            $response = $product_ai->searchImage('search',env('MALONG_SERVICE_ID'),get_img_url($img_url),[],[],50);
+            if($response != false && $response['is_err'] == 0){
+                foreach ($response['results'] as $result) {
+                    $search_match[] = $result;
+                }
+            }
+            $code = 0;
+            $result = ['search_match' => $search_match];
+            $msg = '请求成功';
+        }
+
         return compact('code','result','msg');
     }
 }
