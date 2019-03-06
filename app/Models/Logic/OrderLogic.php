@@ -64,11 +64,13 @@ class OrderLogic
         //验证对公转账数据
         $transfer_info = $this->orderData->getPublicTransfer($order_info['orderNum']);
         if(empty($transfer_info)){
+            write_log(3,"订单{$order_info['orderNum']}转账记录不存在");
             return ;
         }
         //检测是否已返现
         $return_exists = $this->redis->sIsmember($return_cash_history,$order_info['orderNum']);
         if($return_exists){
+            write_log(3,"订单{$order_info['orderNum']}返现记录已存在");
             return ;
         }
 
@@ -81,6 +83,8 @@ class OrderLogic
             $res['extra']['content'] = '交易金额10000元以上订单使用公司转账付款，已成功返现50元至搜布钱包';
             $res['extra']['msgContent'] = '交易金额10000元以上订单使用公司转账付款，已成功返现50元至搜布钱包';
             sendInstantMessaging('1', (string)$order_info['buyerId'], json_encode($res['extra']));
+        }else{
+            write_log(3,"订单{$order_info['orderNum']}返现处理失败");
         }
     }
 
