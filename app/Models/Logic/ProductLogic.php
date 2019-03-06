@@ -62,7 +62,8 @@ class ProductLogic
                         if($response != false && $response['is_err'] == 0){
                             foreach ($response['results'] as $result) {
                                 $pro_id = $result['metadata'];
-                                if(!isset($search_match[$pro_id])){
+                                $score = round($result['score'],1);
+                                if(!isset($search_match[$pro_id]) && $score >= 0.9){
                                     $search_match[$pro_id] = $result['url'];
                                 }
                             }
