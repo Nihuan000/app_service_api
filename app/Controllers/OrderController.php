@@ -119,4 +119,43 @@ class OrderController
 
         return compact('code','result','msg');
     }
+
+    /**
+     * 对公转账满额返现
+     * @param Request $request
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function order_cash_back(Request $request)
+    {
+        $order_num = $request->post('order_num');
+        if(empty($order_num)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            //判断订单状态
+            /* @var OrderLogic $order_logic */
+            $order_logic = App::getBean(OrderLogic::class);
+            $fields = ['status','order_num','pay_type','total_order_price','real_get','coupon_price','buyer_id'];
+            $checkOrder = $order_logic->get_order_info($order_num,$fields);
+            if($checkOrder['status'] != 4){
+                $code = 0;
+                $result = [];
+                $msg = '订单状态不正确';
+            }elseif($checkOrder['realGet'] + $checkOrder['couponPrice'] < 10000){
+                $code = 0;
+                $result = [];
+                $msg = '订单金额不符合条件';
+            }else{
+                $order_logic->return_cash_action($checkOrder);
+                $code = 1;
+                $result = [];
+                $msg = '操作成功';
+            }
+        }
+
+        return compact('code','result','msg');
+    }
 }

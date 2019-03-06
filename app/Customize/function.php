@@ -442,9 +442,15 @@ function write_log($type,$data)
         case 2:
             $file = 'notice_' . date('Y_m_d') . '.log';
             break;
+
+        case 3:
+            $file = 'record_' . date('Y_m_d') . '.log';
+            break;
     }
     if(!empty($file)){
-        file_put_contents($log_dir . $file,$data . PHP_EOL,FILE_APPEND);
+        $date = date('Y-m-d H:i:s');
+        $log_date = "【{$date}】 ";
+        file_put_contents($log_dir . $file,$log_date . $data . PHP_EOL,FILE_APPEND);
     }
 }
 

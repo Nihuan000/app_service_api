@@ -50,4 +50,24 @@ class OrderData
     {
         return $this->orderDao->getOrderInfo($order_num,$fields);
     }
+
+    /**
+     * @param $order_num
+     * @return mixed
+     */
+    public function getPublicTransfer($order_num)
+    {
+        return $this->orderDao->getPublicTransferInfo($order_num);
+    }
+
+    /**
+     * @param $order_info
+     * @return bool
+     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function returnCashBack($order_info)
+    {
+        return $this->orderDao->returnCashBackToWlt($order_info);
+    }
 }
