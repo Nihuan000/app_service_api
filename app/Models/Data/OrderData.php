@@ -70,4 +70,13 @@ class OrderData
     {
         return $this->orderDao->returnCashBackToWlt($order_info);
     }
+
+    /**
+     * @param $user_id
+     * @return mixed
+     */
+    public function getUserBalance($user_id)
+    {
+        return $this->orderDao->getUserWalletBalance($user_id);
+    }
 }

@@ -53,16 +53,27 @@ class OrderDao
     }
 
     /**
+     * 用户钱包余额
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getUserWalletBalance(int $user_id)
+    {
+        $userBalance = Query::table('sb_order_wallet')->where('user_id',$user_id)->limit(1)->get()->getResult();
+        return $userBalance;
+    }
+
+    /**
      * 返现到钱包操作
-     * @param array $order_info
+     * @param $order_info
      * @return bool
      * @throws \Swoft\Db\Exception\MysqlException
      * @throws \Swoft\Db\Exception\DbException
      */
-    public function returnCashBackToWlt(array $order_info)
+    public function returnCashBackToWlt($order_info)
     {
         $return_amount = 50;
-        $userBalance = Query::table('sb_order_wallet')->where('user_id',$order_info['buyerId'])->get(['balance'])->getResult();
+        $userBalance = $this->getUserWalletBalance($order_info['buyerId']);
         write_log(3,"用户{$order_info['buyerId']}钱包余额:" . $userBalance['balance']);
         //开启事务
         Db::beginTransaction();
@@ -94,7 +105,7 @@ class OrderDao
             Db::commit();
             return true;
         }else{
-            $userBalance = Query::table('sb_order_wallet')->where('user_id',$order_info['buyerId'])->get(['balance'])->getResult();
+            $userBalance = $this->getUserWalletBalance($order_info['buyerId']);
             write_log(3,"用户{$order_info['buyerId']}返现{$return_amount}元操作失败, 失败原因: recordRes:{$recordRes},walletRec:{$walletRecRes},walletRes:{$walletRes} 当前余额:" . $userBalance['balance']);
             Db::rollback();
             return false;

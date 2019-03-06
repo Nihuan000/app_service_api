@@ -61,6 +61,10 @@ class OrderLogic
         if($now_time > $end_time || $now_time < $start_time){
             return ;
         }
+        //用户当前余额
+        $user_balance = $this->orderData->getUserBalance($order_info['buyerId']);
+        $balance_json = json_encode($user_balance);
+        write_log(3,"用户{$order_info['orderNum']}钱包余额信息:{$balance_json}");
         //验证对公转账数据
         $transfer_info = $this->orderData->getPublicTransfer($order_info['orderNum']);
         if(empty($transfer_info)){
