@@ -11,7 +11,9 @@
 namespace App\Controllers;
 
 use App\Models\Data\BuyData;
+use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
+use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\UserLogic;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Bean\Annotation\Inject;
@@ -44,6 +46,18 @@ class IndexController
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $redis;
+
+    /**
+     * @Inject()
+     * @var ProductData
+     */
+    private $proData;
 
     /**
      * @RequestMapping("/")
@@ -196,5 +210,63 @@ class IndexController
         }
 
         return compact('code','result','msg');
+    }
+
+    /**
+     * 刷新自动报价产品缓存
+     * @param Request $request
+     * @return array
+     */
+    public function refresh_auto_offer_product(Request $request)
+    {
+        $pro_ids = $request->post('pro_id');
+        if(empty($pro_ids)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $keys = '@OfferProduct_';
+            $pro_cache_key = '@OfferProName_';
+            $pro_arr = json_decode($pro_ids,true);
+            if(!empty($pro_arr)){
+                /* @var ElasticsearchLogic $elastic_logic */
+                foreach ($pro_arr as $pro_id => $user_id) {
+                    if($this->redis->exists($pro_cache_key . $pro_id)){
+                        //删除缓存数据
+                        $tokenize_cache = $this->redis->get($pro_cache_key . $pro_id);
+                        if(!empty($tokenize_cache)){
+                            $tokenize_list = json_decode($tokenize_cache,true);
+                            foreach ($tokenize_list as $item) {
+                                if($this->redis->exists($keys . md5($item))){
+                                    $this->redis->sRem($keys . md5($item),$pro_id . '#' . $user_id);
+                                }
+                            }
+                            $this->redis->delete($pro_cache_key .$pro_id);
+                        }
+                    }
+
+                    $proInfo = $this->proData->getProductInfo($pro_id);
+                    if(!empty($proInfo)){
+                        $cache_list = [];
+                        $elastic_logic = App::getBean(ElasticsearchLogic::class);
+                        $tag_list_analyzer = $elastic_logic->tagAnalyzer($proInfo['name']);
+                        if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
+                            foreach ($tag_list_analyzer as $analyzer) {
+                                $token_key = $keys . md5($analyzer);
+                                $this->redis->sAdd($token_key, $pro_id . '#' . $user_id);
+                                $cache_list[] = $analyzer;
+                            }
+                        }
+                        if(!empty($cache_list)){
+                            $this->redis->set($pro_cache_key . $pro_id,json_encode($cache_list));
+                        }
+                    }
+                }
+            }
+            $code = 1;
+            $result = [];
+            $msg = '缓存成功';
+        }
+        return compact("code","result","msg");
     }
 }
