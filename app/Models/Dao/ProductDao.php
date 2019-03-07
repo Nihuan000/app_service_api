@@ -12,6 +12,7 @@ use App\Models\Entity\Product;
 use App\Models\Entity\Tag;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
+use Swoft\Db\Query;
 
 /**
  * 产品数据对象
@@ -122,5 +123,16 @@ class ProductDao
     public function getProductInfoByPid(int $pid)
     {
         return Product::findOne(['pro_id' => $pid])->getResult();
+    }
+
+    /**
+     * 采购自动报价匹配记录
+     * @param array $record
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function saveOfferMatchProRecord(array $record)
+    {
+        return Query::table('sb_auto_offer_match_record')->insert($record)->getResult();
     }
 }

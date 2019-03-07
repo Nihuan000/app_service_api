@@ -61,16 +61,26 @@ class OrderLogic
         if($now_time > $end_time || $now_time < $start_time){
             return ;
         }
-        //用户当前余额
-        $user_balance = $this->orderData->getUserBalance($order_info['buyerId']);
-        $balance_json = json_encode($user_balance);
-        write_log(3,"用户{$order_info['orderNum']}钱包余额信息:{$balance_json}");
         //验证对公转账数据
         $transfer_info = $this->orderData->getPublicTransfer($order_info['orderNum']);
         if(empty($transfer_info)){
             write_log(3,"订单{$order_info['orderNum']}转账记录不存在");
             return ;
         }
+        //支付类型判断
+        if($order_info['payType'] != 6){
+            write_log(3,"订单{$order_info['orderNum']}支付类型不符合");
+            return ;
+        }
+        //确认收货时间判断
+        if($order_info['takeTime'] > $end_time || $order_info['takeTime'] < $start_time){
+            write_log(3,"订单{$order_info['orderNum']}确认收货时间{$order_info['takeTime']}不符合");
+            return ;
+        }
+        //用户当前余额
+        $user_balance = $this->orderData->getUserBalance($order_info['buyerId']);
+        $balance_json = json_encode($user_balance);
+        write_log(3,"用户{$order_info['buyerId']}钱包余额信息:{$balance_json}");
         //检测是否已返现
         $return_exists = $this->redis->sIsmember($return_cash_history,$order_info['orderNum']);
         if($return_exists){

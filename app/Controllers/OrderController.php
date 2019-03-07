@@ -138,7 +138,7 @@ class OrderController
             //判断订单状态
             /* @var OrderLogic $order_logic */
             $order_logic = App::getBean(OrderLogic::class);
-            $fields = ['status','order_num','pay_type','total_order_price','real_get','coupon_price','buyer_id'];
+            $fields = ['status','order_num','pay_type','total_order_price','real_get','coupon_price','buyer_id','take_time'];
             $checkOrder = $order_logic->get_order_info($order_num,$fields);
             if($checkOrder['status'] != 4){
                 $code = 0;

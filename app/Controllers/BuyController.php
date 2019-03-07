@@ -38,11 +38,13 @@ class BuyController{
      * @var UserData
      */
     protected $userData;
+
     /**
      * 实商匹配采购自动报价
      * @RequestMapping()
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function buy_auto_offer(Request $request): array
     {

@@ -262,4 +262,14 @@ class ProductData
     {
         return $this->productDao->getProductInfoByPid($pro_id);
     }
+
+    /**
+     * @param $match_record
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function saveMatchPro($match_record)
+    {
+        return $this->productDao->saveOfferMatchProRecord($match_record);
+    }
 }
