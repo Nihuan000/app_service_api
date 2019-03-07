@@ -263,7 +263,7 @@ class ElasticsearchLogic
         }
         if(!empty($tag_list)){
             foreach ($tag_list as $item) {
-                if(strstr($text,$item)){
+                if(!empty($item) && strstr($text,$item)){
                     $match_list[] = $item;
                 }
             }
