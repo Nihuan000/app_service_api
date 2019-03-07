@@ -57,6 +57,7 @@ class BuyController{
             $result = [];
             $msg = '请求参数错误';
         }else{
+            write_log(2,$buy_id . '=>' . $buy_remark . ' => ' . $tag_list . ' => ' . $buy_img_list);
             $buy_info = $this->buyData->getBuyInfo($buy_id);
             $agent_user = $this->userData->getAgentUser(5);
             if(env('PRODUCT_AUTO_OFFER') == 1 || env('PRODUCT_AUTO_OFFER') == 0 && in_array($buy_info['userId'],$agent_user)){

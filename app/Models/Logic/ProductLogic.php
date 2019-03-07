@@ -75,14 +75,14 @@ class ProductLogic
                 $all_match_product = array_unique($match_product_list);
                 //匹配结果通过搜图过滤颜色差异太大产品
                 if(!empty($img_list)){
-                    $record['buy_img'] = json_encode($img_list);
+                    $record['buy_img'] = implode(',',$img_list);
                     $product_ai = new ProductAI\API(env('MALONG_ACCESS_ID'),env('MALONG_SECRET_KEY'));
                     foreach ($img_list as $img) {
                         $response = $product_ai->searchImage('search',env('MALONG_SERVICE_ID'),get_img_url($img),[],[],50);
                         if($response != false && $response['is_err'] == 0){
                             foreach ($response['results'] as $result) {
                                 $pro_id = $result['metadata'];
-                                $score = round($result['score'],1);
+                                $score = sprintf('%.2f',$result['score']);
                                 if($score >= 0.9){
                                     $pro_img_list[] = [
                                         'pro_id' => $pro_id,
@@ -150,6 +150,7 @@ class ProductLogic
         }
 
         if(!empty($record)){
+            $record['add_time'] = time();
             $this->proData->saveMatchPro($record);
         }
     }
