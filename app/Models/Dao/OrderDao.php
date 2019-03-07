@@ -82,6 +82,20 @@ class OrderDao
         write_log(3,"用户{$order_info['buyerId']}钱包余额:" . $userBalance['balance']);
         //开启事务
         Db::beginTransaction();
+        //写入补贴记录
+        $recharge['user_id'] = $order_info['buyerId'];
+        $recharge['money'] = $return_amount;
+        $recharge['add_time'] = time();
+        $recharge['remark'] = '对公转账交易满10000元返现' . $return_amount . '元';
+        $recharge['order_num'] = $order_info['orderNum'];
+        $recharge['type'] = 1;
+        $recharge['status'] = 40;
+        $recharge['operator_audit_time'] = $recharge['finance_audit_time'] = time();
+        $recharge['operator_audit_manager'] = '';
+        $recharge['operator_audit_message'] = '自动返现至钱包';
+        $recharge['finance_audit_manager'] = '';
+        $recharge['finance_audit_message'] = '';
+        $rechargeRes = Query::table('sb_order_recharge')->insert($recharge)->getResult();
         //写入交易流水返现记录
         $record['re_type'] = 1;
         $record['order_uid'] = $order_info['buyerId'];
@@ -105,7 +119,7 @@ class OrderDao
         $wu['balance'] = $userBalance['balance'] + $return_amount;
         $wu['update_time'] = time();
         $walletRes = Query::table('sb_order_wallet')->where('user_id',$order_info['buyerId'])->update($wu)->getResult();
-        if($recordRes && $walletRecRes && $walletRes){
+        if($recordRes && $walletRecRes && $walletRes && $rechargeRes){
             write_log(3,"用户{$order_info['buyerId']}银行转账10000以上返现{$return_amount}元, 当前余额:" . $wu['balance']);
             Db::commit();
             return true;
