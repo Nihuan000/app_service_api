@@ -230,7 +230,9 @@ class IndexController
             $pro_arr = json_decode($pro_ids,true);
             if(!empty($pro_arr)){
                 /* @var ElasticsearchLogic $elastic_logic */
-                foreach ($pro_arr as $pro_id => $user_id) {
+                foreach ($pro_arr as $key => $tmp) {
+                    $pro_id = $tmp['pro_id'];
+                    $user_id = $tmp['user_id'];
                     if($this->redis->exists($pro_cache_key . $pro_id)){
                         //删除缓存数据
                         $tokenize_cache = $this->redis->get($pro_cache_key . $pro_id);
