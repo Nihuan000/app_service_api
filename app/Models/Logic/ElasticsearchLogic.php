@@ -250,7 +250,8 @@ class ElasticsearchLogic
         if($this->redis->exists($cache_keys)){
             $tag_cache = $this->redis->get($cache_keys);
             $tag_list = json_decode($tag_cache,true);
-        }else{
+        }
+        if(empty($tag_list)){
             $tag_list = [];
             $tag_data = $this->tagData->getTagListByCate(1);
             if(!empty($tag_data)){
@@ -260,9 +261,11 @@ class ElasticsearchLogic
             }
             $this->redis->set($cache_keys,json_encode($tag_list));
         }
-        foreach ($tag_list as $item) {
-            if(strstr($text,$item)){
-                $match_list[] = $item;
+        if(!empty($tag_list)){
+            foreach ($tag_list as $item) {
+                if(strstr($text,$item)){
+                    $match_list[] = $item;
+                }
             }
         }
         return $match_list;

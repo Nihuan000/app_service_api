@@ -70,7 +70,7 @@ class TagDao
      */
     public function getTagByCate($cate_id)
     {
-        return Tag::findAll(['cate_id' => $cate_id],[['fields' => ['name']]])->getResult();
+        return Tag::findAll(['cate_id' => $cate_id],['fields' => ['name']])->getResult();
     }
 
 }
