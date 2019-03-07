@@ -251,7 +251,7 @@ class IndexController
                     if(!empty($proInfo)){
                         $cache_list = [];
                         $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                        $tag_list_analyzer = $elastic_logic->tagAnalyzer($proInfo['name']);
+                        $tag_list_analyzer = $elastic_logic->tagAnalyzer($proInfo['name'] . ','. $proInfo['pro_name']);
                         if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
                             foreach ($tag_list_analyzer as $analyzer) {
                                 $token_key = $keys . md5($analyzer);
