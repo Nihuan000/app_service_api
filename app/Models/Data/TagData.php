@@ -64,4 +64,13 @@ class TagData
         }
         return $tag_list;
     }
+
+    /**
+     * @param $cate_id
+     * @return mixed
+     */
+    public function getTagListByCate($cate_id)
+    {
+        return $this->tagDao->getTagByCate($cate_id);
+    }
 }

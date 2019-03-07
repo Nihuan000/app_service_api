@@ -9,6 +9,7 @@
 namespace App\Models\Logic;
 
 use App\Models\Data\BuySearchData;
+use App\Models\Data\TagData;
 use App\Pool\Config\ElasticsearchPoolConfig;
 use Elasticsearch\ClientBuilder;
 use Swoft\Bean\Annotation\Inject;
@@ -45,6 +46,12 @@ class ElasticsearchLogic
      * @var Redis
      */
     public $redis;
+
+    /**
+     * @Inject()
+     * @var TagData
+     */
+    public $tagData;
 
     /**
      * 单连接池
@@ -229,6 +236,36 @@ class ElasticsearchLogic
         } catch (PoolException $e) {
             print_r($e->getMessage());
         }
+    }
+
+    /**
+     * 标签分词
+     * @param $text
+     * @return array
+     */
+    public function tagAnalyzer($text)
+    {
+        $match_list = [];
+        $cache_keys = 'product_name_tag_dict';
+        if($this->redis->exists($cache_keys)){
+            $tag_cache = $this->redis->get($cache_keys);
+            $tag_list = json_decode($tag_cache,true);
+        }else{
+            $tag_list = [];
+            $tag_data = $this->tagData->getTagListByCate(1);
+            if(!empty($tag_data)){
+                foreach ($tag_data as $item) {
+                    $tag_list[] = $item['name'];
+                }
+            }
+            $this->redis->set($cache_keys,json_encode($tag_list));
+        }
+        foreach ($tag_list as $item) {
+            if(strstr($text,$item)){
+                $match_list[] = $item;
+            }
+        }
+        return $match_list;
     }
 
     /**

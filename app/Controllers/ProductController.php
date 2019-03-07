@@ -55,12 +55,12 @@ class ProductController{
             if($tokenize_type == 1){
                 $cache_list = [];
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                $tag_list_analyzer = $elastic_logic->tokenAnalyzer($pro_name);
-                if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
-                    foreach ($tag_list_analyzer['tokens'] as $analyzer) {
-                        $token_key = $keys . md5($analyzer['token']);
+                $tag_list_analyzer = $elastic_logic->tagAnalyzer($pro_name);
+                if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
+                    foreach ($tag_list_analyzer as $analyzer) {
+                        $token_key = $keys . md5($analyzer);
                         $this->redis->sAdd($token_key, $pro_id . '#' . $user_id);
-                        $cache_list[] = $analyzer['token'];
+                        $cache_list[] = $analyzer;
                     }
                 }
                 if(!empty($cache_list)){

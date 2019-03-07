@@ -65,10 +65,10 @@ class BuyController{
                 $buy_img_list = json_decode($buy_img_list,true);
                 /* @var ElasticsearchLogic $elastic_logic */
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                $tag_list_analyzer = $elastic_logic->tokenAnalyzer($buy_remark);
-                if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
-                    foreach ($tag_list_analyzer['tokens'] as $analyzer) {
-                        $tag_list[] = $analyzer['token'];
+                $tag_list_analyzer = $elastic_logic->tagAnalyzer($buy_remark);
+                if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
+                    foreach ($tag_list_analyzer as $analyzer) {
+                        $tag_list[] = $analyzer;
                     }
                 }
                 $buy_tag_list = array_unique($tag_list);

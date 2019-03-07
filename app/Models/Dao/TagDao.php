@@ -63,4 +63,14 @@ class TagDao
         return Tag::findAll([['tag_id','IN',$tag_ids]])->getResult();
     }
 
+    /**
+     * 根据类获取标签列表
+     * @param $cate_id
+     * @return mixed
+     */
+    public function getTagByCate($cate_id)
+    {
+        return Tag::findAll(['cate_id' => $cate_id],[['fields' => ['name']]])->getResult();
+    }
+
 }
