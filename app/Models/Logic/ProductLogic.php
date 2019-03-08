@@ -91,11 +91,6 @@ class ProductLogic
                                     ];
                                     if(!isset($search_match[$pro_id])){
                                         $search_match[$pro_id] = $result['url'];
-                                        $search_img_product[] = [
-                                            'pro_id' => $pro_id,
-                                            'score' => $score,
-                                            'url' => $result['url']
-                                        ];
                                     }
                                 }
                             }
@@ -113,6 +108,12 @@ class ProductLogic
                         if(isset($match_pro_shop[$match])){
                             $match_shop = $match_pro_shop[$match];
                             $last_match_product[$match_shop][$match] = isset($match_list[$match_shop][$match]) ? array_sum($match_list[$match_shop][$match]) : 0;
+                        }
+                        if(isset($search_match[$match])){
+                            $search_img_product[] = [
+                                'pro_id' => $match,
+                                'url' => $search_match[$match]
+                            ];
                         }
                     }
 
