@@ -284,7 +284,7 @@ class IndexController
         //2.循环处理数据
         //3.更新   标签列表，标签集合，产品集合
         $data = $request->post('data');
-        $data = json_encode($data,true);
+        $data = json_decode($data,true);
         $keys = '@OfferProduct_';
         $pro_cache_key = '@OfferProName_';
         $cache_keys = 'product_name_tag_dict';
