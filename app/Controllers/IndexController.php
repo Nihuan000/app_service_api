@@ -271,4 +271,54 @@ class IndexController
         }
         return compact("code","result","msg");
     }
+
+    /**
+     * 更新自动报价产品缓存
+     * @author yang
+     * @param Request $request
+     * @return array
+     */
+    public function update_auto_offer_product(Request $request)
+    {
+        //1.接收数据
+        //2.循环处理数据
+        //3.更新   标签列表，标签集合，产品集合
+        $data = $request->post('data');
+        $data = json_encode($data,true);
+        $keys = '@OfferProduct_';
+        $pro_cache_key = '@OfferProName_';
+        $cache_keys = 'product_name_tag_dict';
+        if (!empty($data)){
+
+            //更新标签列表
+            $tag_cache = $this->redis->get($cache_keys);
+            $tag_list = json_decode($tag_cache,true);
+
+            foreach ($data as $key => $value) {
+                if (!in_array($value,$tag_list)){
+                    $tag_list[] = $value;
+                }
+
+                //添加标签下产品集合
+                $proInfo = $this->proData->getProductInfo($key);
+                if (!empty($proInfo)){
+                    $token_key = $keys . md5($value);
+                    $this->redis->sAdd($token_key, $key . '#' . $proInfo['userId']);
+                }
+
+                //添加产品集合
+                $this->redis->set($pro_cache_key . $key,"{".$value."}");
+            }
+
+            if (!empty($tag_list)) {
+                $this->redis->set($cache_keys,json_encode($tag_list));
+            }
+
+            $code = 1;
+            $result = [];
+            $msg = '更新成功';
+            return compact("code","result","msg");
+        }
+    }
+
 }
