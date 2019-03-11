@@ -188,7 +188,8 @@ class UserDao
     public function getUserLoginDays(int $user_id, int $last_time)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Db::query("select from_unixtime(addtime,'%Y-%m-%d') as addtime from {$table} where user_id = {$user_id} AND addtime >= {$last_time} group by from_unixtime(addtime,'%Y-%m-%d')")->getResult();
+        $current_time = strtotime(date('Y-m-d'));
+        return Db::query("select from_unixtime(addtime,'%Y-%m-%d') as addtime from {$table} where user_id = {$user_id} AND addtime >= {$last_time} AND addtime < {$current_time} group by from_unixtime(addtime,'%Y-%m-%d')")->getResult();
     }
 
     /**
@@ -200,7 +201,8 @@ class UserDao
      */
     public function getUserChatDuration(int $user_id, int $last_time)
     {
-        $list = Db::query("select avg(avg_chat_duration) as avg_chat_duration,sum(un_reply_count) as un_reply_count from sb_chat_user_dialog WHERE user_id = {$user_id} AND record_date >= {$last_time}")->getResult();
+        $current_time = strtotime(date('Y-m-d'));
+        $list = Db::query("select avg(avg_chat_duration) as avg_chat_duration,sum(un_reply_count) as un_reply_count from sb_chat_user_dialog WHERE user_id = {$user_id} AND record_date >= {$last_time} AND addtime < {$current_time}")->getResult();
         return $list;
     }
 
@@ -212,7 +214,8 @@ class UserDao
      */
     public function getUserVisitData(int $user_id, int $last_time)
     {
-        return Query::table('sb_user_visit')->where('visit_id',$user_id)->where('visit_time',$last_time,'>=')->groupBy('user_id')->get(['user_id'])->getResult();
+        $current_time = strtotime(date('Y-m-d'));
+        return Query::table('sb_user_visit')->where('visit_id',$user_id)->where('visit_time',$last_time,'>=')->where('visit_time',$current_time,'<')->groupBy('user_id')->get(['user_id'])->getResult();
     }
 
     /**
@@ -223,7 +226,8 @@ class UserDao
      */
     public function getUserChatStatisitcs(int $user_id, int $last_time)
     {
-        return Query::table('sb_chat_user_statistics')->where('from_id',$user_id)->orWhere('target_id',$user_id)->andWhere('record_date',$last_time,'>=')->get(['from_id','target_id'])->getResult();
+        $current_time = strtotime(date('Y-m-d'));
+        return Query::table('sb_chat_user_statistics')->where('from_id',$user_id)->orWhere('target_id',$user_id)->andWhere('record_date',$last_time,'>=')->where('record_date',$current_time,'<')->get(['from_id','target_id'])->getResult();
     }
 
     /**

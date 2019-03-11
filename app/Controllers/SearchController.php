@@ -365,7 +365,6 @@ class SearchController
                             $extra = $sys_msg;
                             $extra['id'] = $buy_id;
                             $extra['buy_id'] = $buy_id;
-                            $extra['offer_id'] = null;
                             $extra['type'] = 2;
                             $extra['image'] = !is_null($buyinfo['pic']) ? get_img_url($buyinfo['pic']): '';
                             $extra['name'] = $buyer['name'];
