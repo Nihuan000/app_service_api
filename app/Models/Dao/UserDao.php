@@ -165,7 +165,7 @@ class UserDao
      */
     public function getUserListByParams(array $params, array $fields, int $limit = 20)
     {
-        return User::findAll($params,['fields' => $fields, 'limit' => $limit])->getResult();
+        return User::findAll($params,['fields' => $fields, 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
     }
 
     /**
