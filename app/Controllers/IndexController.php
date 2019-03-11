@@ -280,9 +280,6 @@ class IndexController
      */
     public function update_auto_offer_product(Request $request)
     {
-        //1.接收数据
-        //2.循环处理数据
-        //3.更新   标签列表，标签集合，产品集合
         $data = $request->post('data');
         $data = json_decode($data,true);
         $keys = '@OfferProduct_';
@@ -297,7 +294,7 @@ class IndexController
             foreach ($data as $key => $value) {
                 //获取产品信息
                 $proInfo = $this->proData->getProductInfo($key);
-//                if (empty($proInfo)) { continue; }
+                if (empty($proInfo)) { continue; }
 
                 //增加标签
                 if (!in_array($value,$tag_list)){
