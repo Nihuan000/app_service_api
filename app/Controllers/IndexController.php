@@ -295,18 +295,22 @@ class IndexController
             $tag_list = json_decode($tag_cache,true);
 
             foreach ($data as $key => $value) {
+                //获取产品信息
+                $proInfo = $this->proData->getProductInfo($key);
+//                if (empty($proInfo)) { continue; }
+
+                //增加标签
                 if (!in_array($value,$tag_list)){
                     $tag_list[] = $value;
                 }
 
-                //添加标签下产品集合
-                $proInfo = $this->proData->getProductInfo($key);
-                if (!empty($proInfo)){
+                //更新标签下产品
+                if (empty($proInfo)){
                     $token_key = $keys . md5($value);
                     $this->redis->sAdd($token_key, $key . '#' . $proInfo['userId']);
                 }
 
-                //添加产品集合
+                //更新产品标签集合
                 $this->redis->set($pro_cache_key . $key,"{".$value."}");
             }
 
@@ -316,7 +320,7 @@ class IndexController
 
             $code = 1;
             $result = [];
-            $msg = '更新成功';
+            $msg = '更新'.count($data).'次，成功';
             return compact("code","result","msg");
         }
     }
