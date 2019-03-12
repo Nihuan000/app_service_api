@@ -113,7 +113,9 @@ class UserLogic
                     $unread_count = 0;
                     if(!empty($login_days)){
                         $unread_list = array_diff($day_list, $login_days);
-                        $unread_count = $this->userData->getUserSubscriptBuyCount($user_id,$unread_list);
+                        if(!empty($unread_list)){
+                            $unread_count = $this->userData->getUserSubscriptBuyCount($user_id,$unread_list);
+                        }
                     }
                     $data['unread_count'] = (int)$unread_count;
                     //消息回复情况

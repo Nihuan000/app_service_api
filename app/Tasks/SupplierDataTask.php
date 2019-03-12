@@ -84,6 +84,7 @@ class SupplierDataTask{
                         if(!empty($list)){
                             foreach ($list as $item) {
 
+                                $last_id = $item['sdsId'];
                             }
                         }
                     }

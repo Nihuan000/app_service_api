@@ -248,7 +248,7 @@ class UserDao
      */
     public function getSupplierData($params,$limit)
     {
-        return SupplierDataStatistic::findAll($params,['fields' => ['sds_id','user_id'],'limit' => $limit])->getResult();
+        return SupplierDataStatistic::findAll($params,['fields' => ['sds_id','user_id'],'limit' => $limit,'orderby' => ['sds_id' => 'asc']])->getResult();
     }
 
     /**
