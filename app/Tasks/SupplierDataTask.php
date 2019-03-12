@@ -59,6 +59,14 @@ class SupplierDataTask{
         return ['供应商数据统计'];
     }
 
+    /**
+     * 报表消息发送 task
+     *  9 o'clock every day
+     *
+     * @Scheduled(cron="0 09 00 * * 01")
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
     public function sendTask()
     {
         $send_switch = $this->userData->getSetting('supplier_data_send');
@@ -83,6 +91,10 @@ class SupplierDataTask{
                         $list = $this->userData->getSupplierData($condition,$this->limit);
                         if(!empty($list)){
                             foreach ($list as $item) {
+                                //TODO 只有实商能收到，判断是否是实商
+                                //TODO 消息体
+
+                                //TODO 发送
 
                                 $last_id = $item['sdsId'];
                             }
