@@ -11,6 +11,7 @@
 namespace App\Models\Data;
 
 use App\Models\Dao\UserDao;
+use App\Models\Dao\UserStrengthDao;
 use App\Models\Dao\BuyRelationTagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
@@ -29,6 +30,12 @@ class UserData
      * @var UserDao
      */
     private $userDao;
+
+    /**
+     * @Inject()
+     * @var UserStrengthDao
+     */
+    private $userStrengthDao;
 
     /**
      * @Inject()
@@ -370,5 +377,28 @@ class UserData
     public function getAgentUser(int $type)
     {
         return $this->userDao->getAgentInfo($type);
+    }
+
+    /**
+     * 是否是实商
+     * @author yang
+     * @param int $user_id
+     * @return bool
+     */
+    public function getIsUserStrength(int $user_id)
+    {
+        $time = time();
+        $where = [
+            'user_id' => $user_id,
+            ['start_time', '>', $time],
+            ['end_time', '<', $time],
+            'is_expire' => 1,
+        ];
+        $reslut = $this->userStrengthDao->getStrengInfoOne($where, ['id']);
+        if (isset($reslut['id'])){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
