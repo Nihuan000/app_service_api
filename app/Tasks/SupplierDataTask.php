@@ -83,7 +83,8 @@ class SupplierDataTask{
                 $pages = ceil($count/$this->limit);
                 if($pages > 0){
                     $last_id = 0;
-                    $log = [];
+                    $send_user_id = [];//发送成功记录
+                    $no_send_user_id = [];//无需发送记录
                     for ($i = 0; $i <= $pages; $i++){
                         $params = [
                             ['sds_id','>',$last_id]
@@ -98,39 +99,53 @@ class SupplierDataTask{
                             //TODO 只有实商能收到，判断是否是实商
                             $isUserStrength = $this->userData->getIsUserStrength($item['userId']);
 
-                            if (!$isUserStrength) continue;
+                            if ($isUserStrength) {
 
-                            //TODO 消息体
-                            $config = \Swoft::getBean('config');
-                            $is_send_offer = env('SEND_OFFER_NOTICE');
-                            $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
-                            $data = array();
-                            $extra = $sys_msg;
-                            $extra['isRich'] = 1;
-                            $extra['imgUrl'] = $send_cover;
-                            $extra['title'] =  $extra['msgTitle'] = "供应商报告";
-                            $extra['commendUser'] = array();
-                            $extra['data'] = [];
-                            $extra['showData'] = [];
-                            $extra['Url'] = 'https://m.isoubu.cn/page/module/supplierWeekReport.html?token=abcd';
-                            $extra["msgContent"] =  $extra["content"] = "点击查看您上周报告";
-                            $data['extra'] = $extra;
+                                //TODO 消息体
+                                $config = \Swoft::getBean('config');
+                                $is_send_offer = env('SEND_OFFER_NOTICE');
+                                $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
+                                $data = array();
+                                $extra = $sys_msg;
+                                $extra['isRich'] = 1;
+                                $extra['imgUrl'] = $send_cover;
+                                $extra['title'] =  $extra['msgTitle'] = "供应商报告";
+                                $extra['commendUser'] = array();
+                                $extra['data'] = [];
+                                $extra['showData'] = [];
+                                $extra['Url'] = 'https://m.isoubu.cn/page/module/supplierWeekReport.html?token=abcd';
+                                $extra["msgContent"] =  $extra["content"] = "点击查看您上周报告";
+                                $data['extra'] = $extra;
 
-                            //TODO 发送
-                            sendImSms('1',(string)$item['userId'],json_encode($data['extra']));
+                                //TODO 发送
+                                sendImSms('1',(string)$item['userId'],json_encode($data['extra']));
 
-                            $log[] = $item['userId'];
+                                $send_user_id[] = $item['userId'];
+                            }else{
+                                //不是实商不再发送
+                                $no_send_user_id[] = $item['userId'];
+                            }
+
                             $last_id = $item['sdsId'];
                         }
                     }
 
-                    /*发送记录*/
-                    $str = "未发送报告：{$count}份，已发送:".count($log)."份,已发送用户：";
+                    if (!empty($send_user_id)){
+                        //修改已发送状态
+                        $this->userData->updateSupplierData($send_user_id);
+                    }
 
-                    if (!empty($log)) $str.= implode(',',$log);
+                    if (!empty($no_send_user_id)){
+                        //发送不成功修改
+                        $this->userData->updateStatusSupplierData($no_send_user_id);
+                    }
+
+                    //发送记录
+                    $str = "总报告：{$count}份，已发送:".count($send_user_id)."份,已发送用户：";
+
+                    if (!empty($send_user_id)) $str.= implode(',',$send_user_id);
 
                     Log::info(json_encode($str));
-
                 }
             }
         }

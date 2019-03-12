@@ -241,6 +241,16 @@ class UserDao
     }
 
     /**
+     * 供应商数据更新
+     * @param $data
+     * @return mixed
+     */
+    public function updateSupplierData(array $data, array $where)
+    {
+        return SupplierDataStatistic::updateAll($data, ['id' => $where])->getResult();
+    }
+
+    /**
      * 符合条件的数据
      * @param $params
      * @param $limit
@@ -258,7 +268,7 @@ class UserDao
      */
     public function getSupplierCount($params)
     {
-        return SupplierDataStatistic::count(['sds_id'],$params)->getResult();
+        return SupplierDataStatistic::count('sds_id',$params)->getResult();
     }
 
     /**

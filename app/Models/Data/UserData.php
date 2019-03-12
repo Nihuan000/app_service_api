@@ -298,6 +298,31 @@ class UserData
     }
 
     /**
+     * 发送通知成功修改
+     * @param $data
+     * @return mixed
+     */
+    public function updateSupplierData($where)
+    {
+        $data = [
+            'send_time'=>time(),
+            'send_status'=>1
+            ];
+        return $this->userDao->updateSupplierData($data,$where);
+    }
+
+    /**
+     * 不需要发送通知修改
+     * @param $data
+     * @return mixed
+     */
+    public function updateStatusSupplierData($where)
+    {
+        $data = ['send_status'=>-1];
+        return $this->userDao->updateSupplierData($data,$where);
+    }
+
+    /**
      * @param $condition
      * @param int $limit
      * @return mixed
