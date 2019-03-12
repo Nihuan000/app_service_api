@@ -118,7 +118,7 @@ class SupplierDataTask{
                             $data['extra'] = $extra;
 
                             //TODO 发送
-                            sendImSms('1',(string)$item['userId'],json_encode($data['extra']));
+                            sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
 
                             $send_user_id[] = $item['userId'];
                         }else{
