@@ -247,7 +247,7 @@ class UserDao
      */
     public function updateSupplierData(array $data, array $where)
     {
-        return SupplierDataStatistic::updateAll($data, ['id' => $where])->getResult();
+        return SupplierDataStatistic::updateAll($data, ['sds_id' => $where])->getResult();
     }
 
     /**
