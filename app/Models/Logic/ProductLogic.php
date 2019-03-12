@@ -70,12 +70,12 @@ class ProductLogic
 
             $pro_img_list = [];
             $search_img_product = [];
+            $record['buy_img'] = !empty($img_list) ? implode(',',$img_list) : '';
             if(!empty($match_product_list)){
                 $search_match = [];
                 $all_match_product = array_unique($match_product_list);
                 //匹配结果通过搜图过滤颜色差异太大产品
                 if(!empty($img_list)){
-                    $record['buy_img'] = implode(',',$img_list);
                     $product_ai = new ProductAI\API(env('MALONG_ACCESS_ID'),env('MALONG_SECRET_KEY'));
                     foreach ($img_list as $img) {
                         $response = $product_ai->searchImage('search',env('MALONG_SERVICE_ID'),get_img_url($img),[],[],50);
