@@ -272,6 +272,32 @@ class ElasticsearchLogic
     }
 
     /**
+     * 自动报价产品标签获取
+     * @param $pro_id
+     * @return array|mixed
+     */
+    public function offerProAnalyzer($pro_id)
+    {
+        $tag_list = [];
+        $cache_keys = 'product_name_tag_dict';
+        if($this->redis->exists($cache_keys)){
+            $tag_cache = $this->redis->get($cache_keys);
+            $tag_list = json_decode($tag_cache,true);
+        }
+        if(empty($tag_list)){
+            $tag_list = [];
+            $tag_data = $this->tagData->getTagListByProId($pro_id);
+            if(!empty($tag_data)){
+                foreach ($tag_data as $item) {
+                    $tag_list[] = $item['tagName'];
+                }
+            }
+            $this->redis->set($cache_keys,json_encode($tag_list));
+        }
+        return $tag_list;
+    }
+
+    /**
      * 采购列表
      * author: nihuan
      * @param int $last_time 最后请求时间

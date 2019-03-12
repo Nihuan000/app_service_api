@@ -73,4 +73,13 @@ class TagData
     {
         return $this->tagDao->getTagByCate($cate_id);
     }
+
+    /**
+     * @param $pro_id
+     * @return mixed
+     */
+    public function getTagListByProId($pro_id)
+    {
+        return $this->tagDao->getAutoOfferProTag($pro_id);
+    }
 }
