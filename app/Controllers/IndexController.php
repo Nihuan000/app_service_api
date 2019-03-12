@@ -303,7 +303,7 @@ class IndexController
 
                 //更新标签下产品
                 $token_key = $keys . md5($value);
-                $this->redis->sAdd($token_key, $key . '#' . $proInfo['user_id']);
+                $this->redis->sAdd($token_key, $key . '#' . $proInfo['userId']);
 
                 //更新产品标签集合
                 $this->redis->set($pro_cache_key . $key,json_encode([$value]));
