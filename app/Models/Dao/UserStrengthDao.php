@@ -15,17 +15,26 @@ class UserStrengthDao
 {
 
     /**
+     * 批量获取
      * @author yang
      * @param array $parent_ids
      * @param array $fields
      * @return mixed
      */
-    public function getStrengInfo(array $user_id, array $fields)
+    public function getStrengInfoAll(array $params, array $fields)
     {
-        return UserStrength::findAll(
-            [
-                'tag_id' => $user_id
-            ],
-            ['fields' => $fields])->getResult();
+        return UserStrength::findAll($params, ['fields' => $fields])->getResult();
+    }
+
+    /**
+     * 单条数据
+     * @author yang
+     * @param array $user_id
+     * @param array $fields
+     * @return mixed
+     */
+    public function getStrengInfoOne(array $params, array $fields)
+    {
+        return UserStrength::findOne($params, ['fields' => $fields])->getResult();
     }
 }
