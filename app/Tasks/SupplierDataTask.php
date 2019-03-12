@@ -14,6 +14,7 @@ namespace App\Tasks;
 use App\Models\Data\UserData;
 use App\Models\Logic\UserLogic;
 use Swoft\App;
+use Swoft\Log\Log;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -74,7 +75,7 @@ class SupplierDataTask{
             $send_cover = $this->userData->getSetting('supplier_data_cover');//报告图片
             $last_time = strtotime(date('Y-m-d'));
             $condition = [
-                ['record_time','>=',$last_time],
+                ['record_time','<=',$last_time],
                 'send_status' => 0,
                 'send_time' => 0
             ];
