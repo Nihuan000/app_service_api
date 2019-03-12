@@ -10,6 +10,7 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\Tag;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Db\Query;
 
 /**
  * 采购数据对象
@@ -71,6 +72,16 @@ class TagDao
     public function getTagByCate($cate_id)
     {
         return Tag::findAll(['cate_id' => $cate_id],['fields' => ['name']])->getResult();
+    }
+
+    /**
+     * 自动报价产品标签匹配
+     * @param $pro_id
+     * @return mixed
+     */
+    public function getAutoOfferProTag($pro_id)
+    {
+        return Query::table('sb_auto_offer_product_tag')->where('pro_id',$pro_id)->get(['tag_id','tag_name'])->getResult();
     }
 
 }

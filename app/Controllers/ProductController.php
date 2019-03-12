@@ -55,7 +55,7 @@ class ProductController{
             if($tokenize_type == 1){
                 $cache_list = [];
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
-                $tag_list_analyzer = $elastic_logic->tagAnalyzer($pro_name);
+                $tag_list_analyzer = $elastic_logic->offerProAnalyzer($pro_id);
                 if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
                     foreach ($tag_list_analyzer as $analyzer) {
                         $token_key = $keys . md5($analyzer);
