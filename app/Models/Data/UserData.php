@@ -415,8 +415,8 @@ class UserData
         $time = time();
         $where = [
             'user_id' => $user_id,
-            ['start_time', '>', $time],
-            ['end_time', '<', $time],
+            ['start_time', '<', $time],
+            ['end_time', '>', $time],
             'is_expire' => 1,
         ];
         $reslut = $this->userStrengthDao->getStrengInfoOne($where, ['id']);
