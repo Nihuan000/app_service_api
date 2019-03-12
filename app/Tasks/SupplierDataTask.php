@@ -92,7 +92,7 @@ class SupplierDataTask{
                     $condition[] = $params;
                     $list = $this->userData->getSupplierData($condition,$this->limit);
 
-                    if(empty($list)) return [];
+                    if(empty($list)) continue;
 
                     foreach ($list as $item) {
 
