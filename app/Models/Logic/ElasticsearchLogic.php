@@ -282,7 +282,7 @@ class ElasticsearchLogic
         $tag_data = $this->tagData->getTagListByProId($pro_id);
         if(!empty($tag_data)){
             foreach ($tag_data as $item) {
-                $tag_list[] = $item['tagName'];
+                $tag_list[] = $item['tag_name'];
             }
         }
         return $tag_list;
