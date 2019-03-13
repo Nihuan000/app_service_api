@@ -94,6 +94,8 @@ class SupplierDataTask{
 
                     if(empty($list)) continue;
 
+                    $url = $this->userData->getSetting('supplier_data_url');
+
                     foreach ($list as $item) {
 
                         //TODO 只有实商能收到，判断是否是实商
@@ -113,7 +115,7 @@ class SupplierDataTask{
                             $extra['commendUser'] = array();
                             $extra['data'] = [];
                             $extra['showData'] = [];
-                            $extra['Url'] = 'https://m.isoubu.cn/page/module/supplierWeekReport.html?token=abcd';
+                            $extra['Url'] = $url.'?sds_id='.$item['sdsId'];
                             $extra["msgContent"] =  $extra["content"] = "点击查看您上周报告";
                             $data['extra'] = $extra;
 
