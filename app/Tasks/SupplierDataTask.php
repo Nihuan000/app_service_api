@@ -64,7 +64,7 @@ class SupplierDataTask{
      * 报表消息发送 task
      *  9 o'clock every day
      *
-     * @Scheduled(cron="1 * * * * *")
+     * @Scheduled(cron="0 0 08 * * 01")
      * @return array
      * @throws \Swoft\Db\Exception\DbException
      */
