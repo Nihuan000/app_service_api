@@ -118,6 +118,7 @@ function get_img_url($pic)
 
     $reStatus = json_decode($curl_result);
     if($reStatus->ErrorCode == 0) {
+        write_log(3,$paramsString);
         return true;
     }
     else {

@@ -213,6 +213,75 @@ class IndexController
     }
 
     /**
+     * @return array|string
+     */
+    public function supplier_msg_test()
+    {
+        $send_cover = $this->userData->getSetting('supplier_data_cover');//报告图片
+        $last_time = strtotime(date('Y-m-d'));
+        $condition = [
+            ['record_time','>=',$last_time],
+            'send_status' => 0,
+            'user_id' => 174585,
+            'send_time' => 0
+        ];
+        $count = $this->userData->getSupplierCount($condition);//未发送报告数
+        if($count > 0){
+            $last_id = 0;
+            $send_user_id = [];//发送成功记录
+            $no_send_user_id = [];//无需发送记录
+                $params = [
+                    ['sds_id','>',$last_id]
+                ];
+                $condition[] = $params;
+                $list = $this->userData->getSupplierData($condition,1);
+
+                if(empty($list))  return '';
+
+                $url = $this->userData->getSetting('supplier_data_url');
+
+                foreach ($list as $item) {
+
+                    //TODO 消息体
+                    $config = \Swoft::getBean('config');
+                    $sys_msg = $config->get('sysMsg');
+                    $data = array();
+                    $extra = $sys_msg;
+                    $extra['isRich'] = 1;
+                    $extra['imgUrl'] = $send_cover;
+                    $extra['title'] = $extra['msgTitle'] = "供应商报告";
+                    $extra['commendUser'] = array();
+                    $extra['data'] = [];
+                    $extra['showData'] = [];
+                    $extra['Url'] = $url . '?sds_id=' . $item['sdsId'];
+                    $extra["msgContent"] = $extra["content"] = "点击查看您上周报告";
+                    $data['extra'] = $extra;
+
+                    //TODO 发送
+                    sendInstantMessaging('1', (string)$item['userId'], json_encode($data['extra']));
+
+                    $send_user_id[] = $item['userId'];
+                }
+
+            if (!empty($send_user_id)){
+                //修改已发送状态
+                $this->userData->updateSupplierData($send_user_id);
+            }
+
+            if (!empty($no_send_user_id)){
+                //发送不成功修改
+                $this->userData->updateStatusSupplierData($no_send_user_id);
+            }
+
+            //发送记录
+            $str = "总报告：{$count}份，已发送:".count($send_user_id)."份,已发送用户：";
+
+            if (!empty($send_user_id)) $str.= implode(',',$send_user_id);
+            return [];
+        }
+    }
+
+    /**
      * 刷新自动报价产品缓存
      * @param Request $request
      * @return array
