@@ -205,7 +205,7 @@ class UserDao
     public function getUserChatDuration(int $user_id, int $last_time)
     {
         $current_time = strtotime(date('Y-m-d'));
-        $list = Db::query("select avg(avg_chat_duration) as avg_chat_duration,sum(un_reply_count) as un_reply_count from sb_chat_user_dialog WHERE user_id = {$user_id} AND record_date >= {$last_time} AND addtime < {$current_time}")->getResult();
+        $list = Db::query("select avg(avg_chat_duration) as avg_chat_duration,sum(un_reply_count) as un_reply_count from sb_chat_user_dialog WHERE user_id = {$user_id} AND record_date >= {$last_time} AND add_time < {$current_time}")->getResult();
         return $list;
     }
 

@@ -75,7 +75,7 @@ class SupplierDataTask{
             $send_cover = $this->userData->getSetting('supplier_data_cover');//报告图片
             $last_time = strtotime(date('Y-m-d'));
             $condition = [
-                ['record_time','<=',$last_time],
+                ['record_time','>=',$last_time],
                 'send_status' => 0,
                 'send_time' => 0
             ];
@@ -105,8 +105,7 @@ class SupplierDataTask{
 
                             //TODO 消息体
                             $config = \Swoft::getBean('config');
-                            $is_send_offer = env('SEND_OFFER_NOTICE');
-                            $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
+                            $sys_msg = $config->get('sysMsg');
                             $data = array();
                             $extra = $sys_msg;
                             $extra['isRich'] = 1;
