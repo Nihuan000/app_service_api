@@ -10,6 +10,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Logic\UserLogic;
 use App\Models\Data\UserData;
 use Swoft\App;
 use Swoft\Bean\Annotation\Inject;
@@ -38,38 +39,32 @@ class UserController{
      * @return array
      * @throws \Swoft\Db\Exception\MysqlException
      */
-    public function user_level(Request $request): array
+    public function user_growth(Request $request): array
     {
-        $user_id = $request->post('user_id');
-        $name = $request->post('name');//积分规则标识符
-        $operate_id = empty($request->post('operate_id')) ? 0 : $request->post('operate_id');//管理员id
+        $params = [];
+        $params['user_id'] = $request->post('user_id');
+        $params['name'] = $request->post('name');//积分规则标识符
+        $params['operate_id'] = empty($request->post('operate_id')) ? 0 : $request->post('operate_id');//管理员id
 
         $code = 0;
         $result = [];
         $msg = '参数缺失';
 
-        if (!empty($user_id) && !empty($name)){
-            $rule = $this->userData->getUserGrowthRule($name);
-            $user_info = $this->userData->getUserInfo($user_id);
+        if (!$params['user_id'] && !empty($params['name'])){
+
+            $rule = $this->userData->getUserGrowthRule($params['name']);
+            $user_info = $this->userData->getUserInfo($params['user_id']);
             $msg = '参数错误';
             if (isset($rule) && isset($user_info)){
-                $data = [
-                    'user_id' => $user_id,
-                    'growth_id' => $rule['id'],
-                    'growth' => $rule['value'],
-                    'name' => $name,
-                    'title' => $rule['title'],
-                    'add_time' => time(),
-                    'update_time' => time(),
-                    'remark' => $rule['remark'],
-                    'version' => 1,
-                    'status' => 1,
-                    'operate_id' => $operate_id,
-                ];
-                $this->userData->userGrowthRecordInsert($data);//增加记录
-                $this->userData->userGrowthUpdate((int)$rule['value'], $user_id);//更新成长值
-                $code = 1;
-                $msg = '成长值记录成功';
+                /* @var UserLogic $user_logic */
+                $user_logic = App::getBean(UserLogic::class);
+                $result = $user_logic->growth($params, $rule);
+                if ($result){
+                    $code = 1;
+                    $msg = '成长值更新成功';
+                }else{
+                    $msg = '成长值更新失败';
+                }
             }
         }
         return compact("code","result","msg");

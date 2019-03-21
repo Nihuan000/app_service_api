@@ -315,4 +315,39 @@ class UserLogic
         }
         return [];
     }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param array $params
+     * @param array $rule
+     * @return bool
+     */
+    public function growth($params, $rule)
+    {
+        $data = [
+            'user_id' => $params['user_id'],
+            'growth_id' => $rule['id'],
+            'growth' => $rule['value'],
+            'name' => $params['name'],
+            'title' => $rule['title'],
+            'add_time' => time(),
+            'update_time' => time(),
+            'remark' => $rule['remark'],
+            'version' => 1,
+            'status' => 1,
+            'operate_id' => $params['operate_id'],
+        ];
+        //开启事务
+        Db::beginTransaction();
+        $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+        $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $params['user_id']);//更新成长值
+        if($user_growth_record && $user_growth){
+            Db::commit();
+            return true;
+        }else{
+            Db::rollback();
+            return false;
+        }
+    }
 }
