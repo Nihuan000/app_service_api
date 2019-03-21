@@ -13,6 +13,9 @@ namespace App\Models\Dao;
 use App\Models\Entity\SupplierDataStatistic;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
+use App\Models\Entity\UserGrowthRecord;
+use App\Models\Entity\UserGrowthRule;
+use App\Models\Entity\UserGrowth;
 use Swoft\Db\Db;
 use Swoft\Db\Query;
 
@@ -343,5 +346,50 @@ class UserDao
     public function checkStrengthOrderRecord($order_num,$user_id)
     {
         return Query::table('sb_user_strength_order_list')->where('user_id',$user_id)->where('order_num',$order_num)->count('usol_id','scount')->getResult();
+    }
+
+    /**
+     * 成长值规则
+     * @author yang
+     * @param $name
+     * @return mixed
+     */
+    public function userGrowthRule($name)
+    {
+        return UserGrowthRule::findOne(['name' => $name, 'user_type' => 1, 'status' => 1], ['fields' => ['id', 'name', 'title', 'value', 'remark']])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $params
+     * @return mixed
+     */
+    public function UserGrowthRecordInsert($params)
+    {
+        return UserGrowthRecord::insert($params)->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $params
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowthUpdate($params,$user_id)
+    {
+        return UserGrowth::updateOne($params, ['user_id' => $user_id])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowth($user_id)
+    {
+        return UserGrowth::findOne(['user_id' => $user_id], ['fields' => ['growth', 'update_time']])->getResult();
     }
 }

@@ -426,4 +426,44 @@ class UserData
             return false;
         }
     }
+
+    /**
+     * 是否是实商
+     * @author yang
+     * @param string $name
+     * @return array
+     */
+    public function getUserGrowthRule(string $name)
+    {
+        return $this->userDao->userGrowthRule($name);
+    }
+
+    /**
+     * 添加成长值记录
+     * @author yang
+     * @param string $params
+     * @return bool
+     */
+    public function userGrowthRecordInsert(array $params)
+    {
+        return $this->userDao->UserGrowthRecordInsert($params);
+    }
+
+    /**
+     * 更新成长值
+     * @author yang
+     * @param int $params
+     * @param int $user_id
+     * @return bool
+     */
+    public function userGrowthUpdate(int $growth, int $user_id)
+    {
+        $growth_info = $this->userDao->UserGrowth($user_id);
+        $growth_num = $growth_info['growth'] + $growth;
+        $params = [
+            'growth' => $growth_num,
+            'update_time' => time(),
+        ];
+        return $this->userDao->UserGrowthUpdate($params, $user_id);
+    }
 }
