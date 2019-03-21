@@ -367,7 +367,7 @@ class UserDao
      */
     public function UserGrowthRecordInsert($params)
     {
-        return UserGrowthRecord::insert($params)->getResult();
+        return UserGrowthRecord::fill($params)->save()->getResult();
     }
 
     /**
