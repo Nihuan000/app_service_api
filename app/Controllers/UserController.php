@@ -50,7 +50,7 @@ class UserController{
         $result = [];
         $msg = '参数缺失';
 
-        if (!$params['user_id'] && !empty($params['name'])){
+        if (!empty($params['user_id']) && !empty($params['name'])){
 
             $rule = $this->userData->getUserGrowthRule($params['name']);
             $user_info = $this->userData->getUserInfo($params['user_id']);
