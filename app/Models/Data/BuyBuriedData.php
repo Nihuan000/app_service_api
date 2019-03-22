@@ -94,4 +94,24 @@ class BuyBuriedData
         ];
         return $this->buyBuriedDao->saveBuyBuried($data);
     }
+
+    /**
+     * 单独的采购可视状态记录
+     * @param $buy_id
+     * @param $status
+     * @param $operation_time
+     * @return mixed
+     */
+    public function buy_viewed_status($buy_id, $status,$operation_time)
+    {
+        $data = [
+            'buy_id' => (int)$buy_id,
+            'buy_status' => $status,
+            'find_status' => 1,
+            'operation_time' => $operation_time,
+            'offer_id' => 0,
+            'record_time' => time()
+        ];
+        return $this->buyBuriedDao->saveBuyBuried($data);
+    }
 }

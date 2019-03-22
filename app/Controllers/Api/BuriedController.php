@@ -45,4 +45,24 @@ class BuriedController
             'properties' => json_decode($properties,true)
         ]);
     }
+
+    /**
+     * 展示状态记录
+     * @param Request $request
+     */
+    public function display_buried(Request $request)
+    {
+        $buy_id = $request->post('buy_id');
+        $buy_status = $request->post('buy_status');
+        $operation_time = $request->post('operation_time');
+        if(!empty($buy_id) && !empty($buy_status)){
+            /* @var BuriedLogic $buried_logic */
+            $buried_logic = App::getBean(BuriedLogic::class);
+            $buried_logic->buy_buried([
+                'buy_id' => $buy_id,
+                'buy_status' => $buy_status,
+                'time' => $operation_time
+            ]);
+        }
+    }
 }
