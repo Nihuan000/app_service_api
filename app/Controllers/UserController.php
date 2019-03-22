@@ -98,7 +98,7 @@ class UserController{
         //2.循环查询用户的  认证状态，发布采购成功数，采纳报价次数,交易成功额度，给卖家的评分数，收到卖家好评数，收到卖家差评数   然后计算总分
         //3.将每个分类的分数生成一条记录
         //4.将总分写入，计算等级
-
+        set_time_limit(0);
 
         $authentication = $this->userData->getUserGrowthRule('authentication');
         $felease_buy = $this->userData->getUserGrowthRule('felease_buy');
