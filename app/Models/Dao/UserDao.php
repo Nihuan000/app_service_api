@@ -62,6 +62,17 @@ class UserDao
         return $list;
     }
 
+    /**
+     * 更新用户信息
+     * @author yang
+     * @param $params
+     * @param $user_id
+     * @return mixed
+     */
+    public function userUpdate($params,$user_id)
+    {
+        return User::updateOne($params, ['user_id' => $user_id])->getResult();
+    }
 
     /**
      * author: nihuan
@@ -392,5 +403,58 @@ class UserDao
     public function UserGrowth($user_id)
     {
         return UserGrowth::findOne(['user_id' => $user_id], ['fields' => ['growth', 'update_time']])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @return array
+     */
+    public function getUserList()
+    {
+        return UserDao::findAll(['role' => [1,5]], ['fields' => ['user_id','purchaser'], 'limit' => 500])->getResult();
+    }
+
+    /**
+     * 采购商成长值查等级
+     * @author yang
+     * @return array
+     */
+    public function getUserLevelRule($growth)
+    {
+        return Query::table('sb_user_level_rule')->where('min_growth',$growth,'<=')->where('max_growth',$growth,'>=')->where('user_type',3)->one()->getResult();
+    }
+
+    /**
+     * 获取评价数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')->where('uid',$user_id)->where('status',1)->whereNotIn('message','')->count('sco_id')->getResult();
+    }
+
+    /**
+     * 获取卖家好评数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewGoodCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')->innerJoin('sb_order_shop_review')->where('rating',5.0)->whereIn('audit_status','0,1')->where('uid',$user_id)->where('status',1)->count('sco_id')->getResult();
+    }
+
+    /**
+     * 获取卖家差评数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewBadCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')->innerJoin('sb_order_shop_review')->where('rating',1.0)->whereIn('audit_status','0,1')->where('uid',$user_id)->where('status',1)->count('sco_id')->getResult();
     }
 }

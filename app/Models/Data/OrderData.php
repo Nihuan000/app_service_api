@@ -79,4 +79,13 @@ class OrderData
     {
         return $this->orderDao->getUserWalletBalance($user_id);
     }
+
+    /**
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getOrderAllPrice($user_id)
+    {
+        return $this->orderDao->getOrderAllPrice($user_id);
+    }
 }

@@ -118,4 +118,29 @@ class BuyDao
         $buy_count = Query::table('sb_buy')->leftJoin('sb_buy_relation_tag',"sb_buy.buy_id = rt.buy_id",'rt')->whereIn('rt.tag_id',$tag_ids)->whereIn("from_unixtime(sb_buy.add_time,'%Y-%m-%d')",$day_list)->groupBy('sb_buy.buy_id')->get(['sb_buy.buy_id'])->getResult();
         return $buy_count;
     }
+
+    /**
+     * 发布成功采购数
+     * @param $user_id
+     * @return \Swoft\Core\ResultInterface
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getBuyCount($user_id)
+    {
+
+        return Buy::count('buy_id', ['user_id' => $user_id, 'is_audit'=>0, 'del_status'=>1])->getResult();
+    }
+
+    /**
+     * 采纳报价数
+     * @param $user_id
+     * @return \Swoft\Core\ResultInterface
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getOfferCount($user_id)
+    {
+        $sql = "select count('buy_id') as 'num' from 'sb_buy' as 'b' INNER JOIN 'sb_offer' as 'o' where 'b.user_id'= $user_id and 'b.is_audit'=0 and 'b.del_status'=1 and 'o.is_audit'=1 and 'o.is_matching'=1";
+        $result = Db::query($sql)->getResult();
+        return $result;
+    }
 }

@@ -130,4 +130,16 @@ class OrderDao
             return false;
         }
     }
+
+    /**
+     * 获取所有订单的金额总和
+     * @param $user_id
+     * @return float
+     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getOrderAllPrice($user_id)
+    {
+        return Order::sum('total_order_price', ['del_status'=>1, 'status'=>4])->getResult();
+    }
 }

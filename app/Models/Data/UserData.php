@@ -86,6 +86,18 @@ class UserData
     }
 
     /**
+     * @author yang
+     * @param $params
+     * @param $user_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function userUpdate(array $params, int $user_id)
+    {
+        return $this->userDao->userUpdate($params,$user_id);
+    }
+
+    /**
      * 配置获取
      * @param $keyword
      * @return array|bool|int|string|null
@@ -450,20 +462,78 @@ class UserData
     }
 
     /**
+     * 获取用户积分对应的等级
+     * @author yang
+     * @param string $growth
+     * @return array
+     */
+    public function getUserLevelRule(int $growth)
+    {
+        return $this->userDao->getUserLevelRule($growth);
+    }
+
+    /**
      * 更新成长值
      * @author yang
      * @param int $params
      * @param int $user_id
      * @return bool
      */
-    public function userGrowthUpdate(int $growth, int $user_id)
+    public function userGrowthUpdate(int $growth, int $user_id, int $is_add = 0)
     {
-        $growth_info = $this->userDao->UserGrowth($user_id);
-        $growth_num = $growth_info['growth'] + $growth;
         $params = [
-            'growth' => $growth_num,
+            'growth' => $growth,
             'update_time' => time(),
         ];
+        if ($is_add==0){
+            $growth_info = $this->userDao->UserGrowth($user_id);
+            $growth_num = $growth_info['growth'] + $growth;
+            $params = [
+                'growth' => $growth_num,
+                'update_time' => time(),
+            ];
+        }
+
         return $this->userDao->UserGrowthUpdate($params, $user_id);
+    }
+
+    /**
+     * 获取用户列表
+     * @author yang
+     * @return array
+     */
+    public function getUserList()
+    {
+        return $this->userDao->getUserList();
+    }
+
+    /**
+     * 获取用户评价数
+     * @author yang
+     * @return array
+     */
+    public function getReviewCount($user_id)
+    {
+        return $this->userDao->getReviewCount($user_id);
+    }
+
+    /**
+     * 获取卖家好评数
+     * @author yang
+     * @return array
+     */
+    public function getReviewGoodCount($user_id)
+    {
+        return $this->userDao->getReviewGoodCount($user_id);
+    }
+
+    /**
+     * 获取卖家差评数
+     * @author yang
+     * @return array
+     */
+    public function getReviewBadCount($user_id)
+    {
+        return $this->userDao->getReviewBadCount($user_id);
     }
 }
