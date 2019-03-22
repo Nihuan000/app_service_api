@@ -433,7 +433,7 @@ class UserDao
      */
     public function getReviewCount($user_id)
     {
-        return Query::table('sb_order_shop_score')->where('uid',$user_id)->where('status',1)->whereNotIn('message','')->count('sco_id')->getResult();
+        return Query::table('sb_order_shop_score')->where('uid',$user_id)->where('status',1)->where('message', '', '!=')->count('sco_id')->getResult();
     }
 
     /**
