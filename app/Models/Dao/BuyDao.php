@@ -139,7 +139,7 @@ class BuyDao
      */
     public function getOfferCount($user_id)
     {
-        $result = Db::table('sb_buy')->innerJoin('sb_offer','sb_buy.buy_id = sb_offer.buy_id')
+        $result = Query::table('sb_buy')->innerJoin('sb_offer','sb_buy.buy_id = sb_offer.buy_id')
             ->where('sb_buy.user_id',$user_id)
             ->where('sb_buy.is_audit',0)
             ->where('sb_buy.del_status',1)
