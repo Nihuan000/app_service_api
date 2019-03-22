@@ -216,16 +216,16 @@ class UserController{
             }
 
             //计算资料完善度
-            if (isset($main_product)){
+            if (!empty($main_product)){
                 $user_data_growth += 33;//主营产品
             }
 
             $purchaser_role = $this->userData->getUserPurchaserRole($user_id);//采购身份
-            if (isset($purchaser_role)){
+            if (!empty($purchaser_role)){
                 $user_data_growth += 34;
             }
             $purchaser_industry = $this->userData->getUserPurchaserIndustry($user_id);//主营行业
-            if (isset($purchaser_industry)){
+            if (!empty($purchaser_industry)){
                 $user_data_growth += 33;
             }
             $data['growth_id'] = $personal_data['id'];

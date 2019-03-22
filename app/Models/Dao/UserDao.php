@@ -481,7 +481,7 @@ class UserDao
     {
         return Query::table('sb_user_purchaser_role')
             ->where('user_id',$user_id)
-            ->where('is_delete',1)
+            ->where('is_delete',0)
             ->count('id')->getResult();
     }
 
@@ -495,7 +495,7 @@ class UserDao
     {
         return Query::table('sb_user_purchaser_industry')
             ->where('user_id',$user_id)
-            ->where('is_delete',1)
+            ->where('is_delete',0)
             ->count('id')->getResult();
     }
 }
