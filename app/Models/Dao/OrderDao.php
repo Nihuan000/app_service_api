@@ -140,6 +140,6 @@ class OrderDao
      */
     public function getOrderAllPrice($user_id)
     {
-        return Order::sum('total_order_price', ['del_status'=>1, 'status'=>4])->getResult();
+        return Query::table('sb_order')->where('del_status', 1)->where('status', 4)->sum('total_order_price')->getResult();
     }
 }
