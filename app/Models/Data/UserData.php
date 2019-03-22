@@ -462,6 +462,29 @@ class UserData
     }
 
     /**
+     * 查询成长值记录
+     * @author yang
+     * @param string $params
+     * @return bool
+     */
+    public function userGrowthRecordOne(int $user_id, string $name)
+    {
+        return $this->userDao->UserGrowthRecordOne($user_id, $name);
+    }
+
+    /**
+     * 更新成长值记录
+     * @author yang
+     * @param array $params
+     * @return bool
+     */
+    public function userGrowthRecordUpdate(array $params, int $user_id, string $name)
+    {
+        $params['update_time'] = time();
+        return $this->userDao->userGrowthRecordUpdate($params, $user_id, $name);
+    }
+
+    /**
      * 获取用户积分对应的等级
      * @author yang
      * @param string $growth
@@ -555,5 +578,30 @@ class UserData
     public function getUserPurchaserIndustry($user_id)
     {
         return $this->userDao->getUserPurchaserIndustry($user_id);
+    }
+
+    /**
+     * 获取个人资料完善度
+     * @author yang
+     * @return int
+     */
+    public function getUserDateInfo($user_id)
+    {
+        $user_data_growth = 0;
+        $user_info = $this->getUserInfo($user_id);
+        //计算资料完善度
+        if (!empty($user_info['main_product'])){
+            $user_data_growth += 33;//主营产品
+        }
+        $purchaser_role = $this->getUserPurchaserRole($user_id);//采购身份
+        if (!empty($purchaser_role)){
+            $user_data_growth += 34;
+        }
+        $purchaser_industry = $this->getUserPurchaserIndustry($user_id);//主营行业
+        if (!empty($purchaser_industry)){
+            $user_data_growth += 33;
+        }
+
+        return $user_data_growth;
     }
 }

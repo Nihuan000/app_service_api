@@ -13,6 +13,7 @@ namespace App\Models\Logic;
 use App\Models\Dao\OfferDao;
 use App\Models\Data\UserData;
 use App\Models\Data\TagData;
+use App\Models\Data\OrderData;
 use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserSubscriptionTagData;
 use Swoft\Bean\Annotation\Bean;
@@ -36,6 +37,12 @@ class UserLogic
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject()
+     * @var OrderData
+     */
+    private $orderData;
 
     /**
      * @Inject()
@@ -338,10 +345,50 @@ class UserLogic
             'status' => 1,
             'operate_id' => $params['operate_id'],
         ];
+
         //开启事务
         Db::beginTransaction();
-        $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
-        $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $params['user_id']);//更新成长值
+        if ($rule['name'] == 'transaction_limit'){
+            $user_growth_record_one = $this->userData->userGrowthRecordOne($params['user_id'], 'transaction_limit');
+            $total_order_price = $this->orderData->getOrderAllPrice($params['user_id']);//交易成功额度
+            $growth = intval($total_order_price/1000)*10;//新的交易成功成长值
+
+            if (isset($user_growth_record_one)){
+
+                $add_growth = $growth-$user_growth_record_one['growth'];//应该增加的成长值
+                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $params['user_id']);//更新成长值
+                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$growth], $params['user_id'], $rule['name']);//更新记录
+            }else{
+
+                $data['growth'] = $growth;
+                $user_growth = $this->userData->userGrowthUpdate($growth, $params['user_id']);//更新成长值
+                $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+            }
+
+        }else if ($rule['name'] == 'personal_data'){
+
+            $user_growth_record_one = $this->userData->userGrowthRecordOne($params['user_id'], 'personal_data');
+            //查询个人资料完善度
+            $user_data_growth = $this->userData->getUserDateInfo($params['user_id']);
+
+            if (isset($user_growth_record_one)){
+
+                $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
+                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $params['user_id']);//更新成长值
+                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $params['user_id'], $rule['name']);//更新记录
+            }else{
+
+                $data['growth'] = $user_data_growth;
+                $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $params['user_id']);//更新成长值
+                $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+            }
+
+        }else{
+
+            $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $params['user_id']);//更新成长值
+            $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+
+        }
         if($user_growth_record && $user_growth){
             Db::commit();
             return true;

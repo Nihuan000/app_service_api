@@ -383,6 +383,28 @@ class UserDao
     }
 
     /**
+     * 成长值记录查询
+     * @author yang
+     * @param $params
+     * @return mixed
+     */
+    public function UserGrowthRecordOne($user_id, $name)
+    {
+        return UserGrowthRecord::findOne(['user_id'=>$user_id, 'name'=>$name], ['fields' => ['growth']])->getResult();
+    }
+
+    /**
+     * 成长值记录更新
+     * @author yang
+     * @param $params
+     * @return mixed
+     */
+    public function userGrowthRecordUpdate($params, $user_id, $name)
+    {
+        return UserGrowthRecord::updateOne($params, ['user_id'=>$user_id, 'name'=>$name])->getResult();
+    }
+
+    /**
      * 成长值记录
      * @author yang
      * @param $params
