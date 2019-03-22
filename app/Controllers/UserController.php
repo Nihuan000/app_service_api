@@ -172,7 +172,7 @@ class UserController{
 
             //交易成功额度记录
             if (!empty($total_order_price)) {
-                $transaction_limit_growth = ceil($total_order_price / 1000);
+                $transaction_limit_growth = intval($total_order_price / 1000);
                 $data['growth_id'] = $transaction_limit['id'];
                 $data['growth'] = $transaction_limit_growth;
                 $data['name'] = $transaction_limit['name'];

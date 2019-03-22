@@ -445,7 +445,13 @@ class UserDao
      */
     public function getReviewGoodCount($user_id)
     {
-        return Query::table('sb_order_shop_score')->innerJoin('sb_order_shop_review')->where('rating',5.0)->whereIn('audit_status',[0,1])->where('uid',$user_id)->where('status',1)->count('sco_id')->getResult();
+        return Query::table('sb_order_shop_score')
+            ->innerJoin('sb_order_shop_review','sb_order_shop_score.sco_id = sb_order_shop_review.score_id')
+            ->where('rating',5.0)
+            ->whereIn('audit_status',[0,1])
+            ->where('uid',$user_id)
+            ->where('status',1)
+            ->count('sco_id')->getResult();
     }
 
     /**
@@ -456,6 +462,12 @@ class UserDao
      */
     public function getReviewBadCount($user_id)
     {
-        return Query::table('sb_order_shop_score')->innerJoin('sb_order_shop_review')->where('rating',1.0)->whereIn('audit_status',[0,1])->where('uid',$user_id)->where('status',1)->count('sco_id')->getResult();
+        return Query::table('sb_order_shop_score')
+            ->innerJoin('sb_order_shop_review','sb_order_shop_score.sco_id = sb_order_shop_review.score_id')
+            ->where('rating',1.0)
+            ->whereIn('audit_status',[0,1])
+            ->where('uid',$user_id)
+            ->where('status',1)
+            ->count('sco_id')->getResult();
     }
 }
