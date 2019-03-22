@@ -92,4 +92,17 @@ class BuriedLogic
         }
         return $buriedData;
     }
+
+    /**
+     * 可查看状态记录
+     * @param array $event
+     * @return mixed
+     */
+    public function buy_buried(array $event)
+    {
+        $buy_id = (int)$event['buy_id'];
+        $status = (int)$event['buy_status'];
+        $operation_time = $event['time'];
+        return $this->buyBuriedData->buy_viewed_status($buy_id,$status,$operation_time);
+    }
 }
