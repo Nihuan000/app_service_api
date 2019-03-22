@@ -15,6 +15,7 @@ use App\Models\Data\UserData;
 use App\Models\Data\BuyData;
 use App\Models\Data\OrderData;
 use Swoft\App;
+use Swoft\Log\Log;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -110,18 +111,19 @@ class UserController{
 
         foreach ($user_list as $key => $value) {
 
-            if (!isset($value['user_id'])) continue;
+            if (!isset($value['userId'])) continue;
 
+            $user_id  = $value['userId'];
             $purchaser = $value['purchaser'];//认证状态
-            $buy_count = $this->buyData->getBuyCount($value['user_id']);//发布采购成功数
-            $offer_count = $this->buyData->getOfferCount($value['user_id']);//采纳报价次数
-            $total_order_price = $this->orderData->getOrderAllPrice($value['user_id']);//交易成功额度
-            $review = $this->userData->getReviewCount($value['user_id']);//给卖家的评分数
-            $good_count = $this->userData->getReviewGoodCount($value['user_id']);//收到卖家好评数
-            $bad_count = $this->userData->getReviewBadCount($value['user_id']);//收到卖家差评数
+            $buy_count = $this->buyData->getBuyCount($user_id);//发布采购成功数
+            $offer_count = $this->buyData->getOfferCount($user_id);//采纳报价次数
+            $total_order_price = $this->orderData->getOrderAllPrice($user_id);//交易成功额度
+            $review = $this->userData->getReviewCount($user_id);//给卖家的评分数
+            $good_count = $this->userData->getReviewGoodCount($user_id);//收到卖家好评数
+            $bad_count = $this->userData->getReviewBadCount($user_id);//收到卖家差评数
 
             $data = [
-                'user_id' => $value['user_id'],
+                'user_id' => $user_id,
                 'add_time' => time(),
                 'update_time' => time(),
                 'version' => 1,
@@ -215,14 +217,14 @@ class UserController{
             //计算总分计算等级
             $all_growth = $authentication_growth + $felease_buy_growth + $adopt_offer_growth + $transaction_limit_growth + $active_eval_growth + $get_praise_growth + $get_bad_eval_growth;
 
-            $this->userData->userGrowthUpdate($all_growth, $value['user_id'], 1);//更新总分
+            $this->userData->userGrowthUpdate($all_growth, $user_id, 1);//更新总分
 
             //计算等级
             $level = $this->userData->getUserLevelRule($all_growth);
             //更新等级
-            $this->userData->userUpdate(['level'=>$level['level_sort']], $value['user_id']);
+            $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
 
-            $log .=' 用户：'.$value['user_id'].' 总分：'.$all_growth.' 等级：'.$level['level_sort'];
+            $log .=' 用户：'.$user_id.' 总分：'.$all_growth.' 等级：'.$level['level_sort'];
         }
 
         Log::info($log);
