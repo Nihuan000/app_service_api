@@ -502,9 +502,9 @@ class UserData
      * @author yang
      * @return array
      */
-    public function getUserList()
+    public function getUserList(int $user_id_end, int $limit)
     {
-        return $this->userDao->getUserList();
+        return $this->userDao->getUserList($user_id_end, $limit);
     }
 
     /**
