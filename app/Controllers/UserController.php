@@ -109,6 +109,9 @@ class UserController{
         $get_bad_eval = $this->userData->getUserGrowthRule('get_bad_eval');
 
         foreach ($user_list as $key => $value) {
+
+            if (!isset($value['user_id'])) continue;
+
             $purchaser = $value['purchaser'];//认证状态
             $buy_count = $this->buyData->getBuyCount($value['user_id']);//发布采购成功数
             $offer_count = $this->buyData->getOfferCount($value['user_id']);//采纳报价次数
