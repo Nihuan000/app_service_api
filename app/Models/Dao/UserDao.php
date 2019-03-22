@@ -13,6 +13,9 @@ namespace App\Models\Dao;
 use App\Models\Entity\SupplierDataStatistic;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
+use App\Models\Entity\UserGrowthRecord;
+use App\Models\Entity\UserGrowthRule;
+use App\Models\Entity\UserGrowth;
 use Swoft\Db\Db;
 use Swoft\Db\Query;
 
@@ -59,6 +62,17 @@ class UserDao
         return $list;
     }
 
+    /**
+     * 更新用户信息
+     * @author yang
+     * @param $params
+     * @param $user_id
+     * @return mixed
+     */
+    public function userUpdate($params,$user_id)
+    {
+        return User::updateOne($params, ['user_id' => $user_id])->getResult();
+    }
 
     /**
      * author: nihuan
@@ -343,5 +357,145 @@ class UserDao
     public function checkStrengthOrderRecord($order_num,$user_id)
     {
         return Query::table('sb_user_strength_order_list')->where('user_id',$user_id)->where('order_num',$order_num)->count('usol_id','scount')->getResult();
+    }
+
+    /**
+     * 成长值规则
+     * @author yang
+     * @param $name
+     * @return mixed
+     */
+    public function userGrowthRule($name)
+    {
+        return UserGrowthRule::findOne(['name' => $name, 'user_type' => 1, 'status' => 1], ['fields' => ['id', 'name', 'title', 'value', 'remark']])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $params
+     * @return mixed
+     */
+    public function UserGrowthRecordInsert($params)
+    {
+        $UserGrowthRecord   = new UserGrowthRecord();
+        return $UserGrowthRecord->fill($params)->save()->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $params
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowthUpdate($params,$user_id)
+    {
+        return UserGrowth::updateOne($params, ['user_id' => $user_id])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowth($user_id)
+    {
+        return UserGrowth::findOne(['user_id' => $user_id], ['fields' => ['growth', 'update_time']])->getResult();
+    }
+
+    /**
+     * 成长值记录
+     * @author yang
+     * @return array
+     */
+    public function getUserList($user_id_end, $limit)
+    {
+        return User::findAll([['role', 'in', [1,5]],['user_id', '>', $user_id_end]],['fields' => ['user_id','purchaser','main_product'], 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
+
+    }
+
+    /**
+     * 采购商成长值查等级
+     * @author yang
+     * @return array
+     */
+    public function getUserLevelRule($growth)
+    {
+        return Query::table('sb_user_level_rule')->where('min_growth',$growth,'<=')->where('max_growth',$growth,'>=')->where('user_type',3)->one()->getResult();
+    }
+
+    /**
+     * 获取评价数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')->where('uid',$user_id)->where('status',1)->where('message', '', '!=')->count('sco_id')->getResult();
+    }
+
+    /**
+     * 获取卖家好评数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewGoodCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')
+            ->innerJoin('sb_order_shop_review','sb_order_shop_score.sco_id = sb_order_shop_review.score_id')
+            ->where('rating',5.0)
+            ->whereIn('audit_status',[0,1])
+            ->where('uid',$user_id)
+            ->where('status',1)
+            ->count('sco_id')->getResult();
+    }
+
+    /**
+     * 获取卖家差评数
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getReviewBadCount($user_id)
+    {
+        return Query::table('sb_order_shop_score')
+            ->innerJoin('sb_order_shop_review','sb_order_shop_score.sco_id = sb_order_shop_review.score_id')
+            ->where('rating',1.0)
+            ->whereIn('audit_status',[0,1])
+            ->where('uid',$user_id)
+            ->where('status',1)
+            ->count('sco_id')->getResult();
+    }
+
+    /**
+     * 查询采购身份
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserPurchaserRole($user_id)
+    {
+        return Query::table('sb_user_purchaser_role')
+            ->where('user_id',$user_id)
+            ->where('is_delete',0)
+            ->count('id')->getResult();
+    }
+
+    /**
+     * 查询主营行业
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserPurchaserIndustry($user_id)
+    {
+        return Query::table('sb_user_purchaser_industry')
+            ->where('user_id',$user_id)
+            ->where('is_delete',0)
+            ->count('id')->getResult();
     }
 }

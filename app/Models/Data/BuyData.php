@@ -256,4 +256,40 @@ class BuyData
         return $search_tag;
     }
 
+    /**
+     * 获取发布采购成功数
+     * @author yang
+     * @param $user_id
+     * @throws \Swoft\Db\Exception\DbException
+     * @return int
+     */
+    public function getBuyCount($user_id)
+    {
+        $count = $this->buyDao->getBuyCount($user_id);
+        if (isset($count)){
+            return $count;
+        }else{
+            return 0;
+        }
+
+    }
+
+    /**
+     * 获取发布采购成功数
+     * @author yang
+     * @param $user_id
+     * @throws \Swoft\Db\Exception\DbException
+     * @return int
+     */
+    public function getOfferCount($user_id)
+    {
+        $count = $this->buyDao->getOfferCount($user_id);
+        if (isset($count)){
+            return $count;
+        }else{
+            return 0;
+        }
+
+    }
+
 }
