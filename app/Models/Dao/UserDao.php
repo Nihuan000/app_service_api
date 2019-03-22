@@ -412,7 +412,7 @@ class UserDao
      */
     public function getUserList()
     {
-        return User::findAll([['role', 'in', [1,5]]],['fields' => ['user_id','purchaser','main_product'], 'limit' => 500, 'orderby' => ['user_id' => 'asc']])->getResult();
+        return User::findAll([['role', 'in', [1,5]]],['fields' => ['user_id','purchaser','main_product'], 'limit' => 3000, 'orderby' => ['user_id' => 'asc']])->getResult();
 
     }
 
