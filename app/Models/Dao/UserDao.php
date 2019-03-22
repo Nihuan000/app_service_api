@@ -412,7 +412,7 @@ class UserDao
      */
     public function getUserList()
     {
-        return User::findAll([['role', 'in', [1,5]]],['fields' => ['user_id','purchaser'], 'limit' => 500, 'orderby' => ['user_id' => 'asc']])->getResult();
+        return User::findAll([['role', 'in', [1,5]]],['fields' => ['user_id','purchaser','main_product'], 'limit' => 500, 'orderby' => ['user_id' => 'asc']])->getResult();
 
     }
 
@@ -469,5 +469,33 @@ class UserDao
             ->where('uid',$user_id)
             ->where('status',1)
             ->count('sco_id')->getResult();
+    }
+
+    /**
+     * 查询采购身份
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserPurchaserRole($user_id)
+    {
+        return Query::table('sb_user_purchaser_role')
+            ->where('user_id',$user_id)
+            ->where('is_delete',1)
+            ->count('id')->getResult();
+    }
+
+    /**
+     * 查询主营行业
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserPurchaserIndustry($user_id)
+    {
+        return Query::table('sb_user_purchaser_industry')
+            ->where('user_id',$user_id)
+            ->where('is_delete',1)
+            ->count('id')->getResult();
     }
 }

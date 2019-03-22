@@ -108,12 +108,12 @@ class UserController{
         $active_eval = $this->userData->getUserGrowthRule('active_eval');
         $get_praise = $this->userData->getUserGrowthRule('get_praise');
         $get_bad_eval = $this->userData->getUserGrowthRule('get_bad_eval');
+        $personal_data = $this->userData->getUserGrowthRule('personal_data');
 
         foreach ($user_list as $key => $value) {
 
-            if (!isset($value['userId'])) continue;
-
             $user_id  = $value['userId'];
+            $main_product  = $value['mainProduct'];
             $purchaser = $value['purchaser'];//认证状态
             $buy_count = $this->buyData->getBuyCount($user_id);//发布采购成功数
             $offer_count = $this->buyData->getOfferCount($user_id);//采纳报价次数
@@ -136,6 +136,7 @@ class UserController{
             $active_eval_growth = 0;
             $get_praise_growth = 0;
             $get_bad_eval_growth = 0;
+            $user_data_growth = 0;
 
             //认证记录
             if ($purchaser == 1) {
@@ -214,8 +215,29 @@ class UserController{
                 $this->userData->userGrowthRecordInsert($data);
             }
 
+            //计算资料完善度
+            if (isset($main_product)){
+                $user_data_growth += 33;//主营产品
+            }
+
+            $purchaser_role = $this->userData->getUserPurchaserRole($user_id);//采购身份
+            if (isset($purchaser_role)){
+                $user_data_growth += 34;
+            }
+            $purchaser_industry = $this->userData->getUserPurchaserIndustry($user_id);//主营行业
+            if (isset($purchaser_industry)){
+                $user_data_growth += 33;
+            }
+            $data['growth_id'] = $personal_data['id'];
+            $data['growth'] = $user_data_growth;
+            $data['name'] = $personal_data['name'];
+            $data['title'] = $personal_data['title'];
+            $data['remark'] =  $personal_data['remark'];
+            $this->userData->userGrowthRecordInsert($data);
+
+
             //计算总分计算等级
-            $all_growth = $authentication_growth + $felease_buy_growth + $adopt_offer_growth + $transaction_limit_growth + $active_eval_growth + $get_praise_growth + $get_bad_eval_growth;
+            $all_growth = $authentication_growth + $felease_buy_growth + $adopt_offer_growth + $transaction_limit_growth + $active_eval_growth + $get_praise_growth + $get_bad_eval_growth + $user_data_growth;
 
             $this->userData->userGrowthUpdate($all_growth, $user_id, 1);//更新总分
 
@@ -223,6 +245,7 @@ class UserController{
             $level = $this->userData->getUserLevelRule($all_growth);
             //更新等级
             $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
+
 
             $log .=' 用户：'.$user_id.' 总分：'.$all_growth.' 等级：'.$level['level_sort'];
         }

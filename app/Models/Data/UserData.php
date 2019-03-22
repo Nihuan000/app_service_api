@@ -536,4 +536,24 @@ class UserData
     {
         return $this->userDao->getReviewBadCount($user_id);
     }
+
+    /**
+     * 获取采购身份
+     * @author yang
+     * @return int
+     */
+    public function getUserPurchaserRole($user_id)
+    {
+        return $this->userDao->getUserPurchaserRole($user_id);
+    }
+
+    /**
+     * 获取主营行业
+     * @author yang
+     * @return int
+     */
+    public function getUserPurchaserIndustry($user_id)
+    {
+        return $this->userDao->getUserPurchaserIndustry($user_id);
+    }
 }

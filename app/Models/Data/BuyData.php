@@ -285,7 +285,7 @@ class BuyData
     {
         $count = $this->buyDao->getOfferCount($user_id);
         if (isset($count)){
-            return $count['num'];
+            return $count;
         }else{
             return 0;
         }
