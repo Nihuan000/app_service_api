@@ -525,9 +525,9 @@ class UserData
      * @author yang
      * @return array
      */
-    public function getUserList(int $user_id_end, int $limit)
+    public function getUserList(int $post_user_id, int $limit)
     {
-        return $this->userDao->getUserList($user_id_end, $limit);
+        return $this->userDao->getUserList($post_user_id, $limit);
     }
 
     /**
