@@ -113,8 +113,6 @@ class UserController{
         $limit = 500;
         $user_list = $this->userData->getUserList($user_id_end, $limit);
 
-        while(!empty($user_list) && isset($user_list)) {
-
             foreach ($user_list as $key => $value) {
 
                 $user_id  = $value['userId'];
@@ -251,8 +249,7 @@ class UserController{
                 //更新等级
                 $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
                 $user_id_end = $user_id;
-            }
-            $user_list = $this->userData->getUserList($user_id_end, $limit);
+
         }
     }
 }
