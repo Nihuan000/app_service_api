@@ -249,5 +249,6 @@ class UserController{
             //更新等级
             $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
         }
+        return ['msg'=>'计算成功'];
     }
 }
