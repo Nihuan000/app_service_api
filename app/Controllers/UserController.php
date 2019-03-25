@@ -142,7 +142,7 @@ class UserController{
             $user_data_growth = 0;
 
             //认证记录
-            if ($purchaser == 1) {
+            if ($purchaser != 0) {
                 $authentication_growth = $authentication['value'];
                 $data['growth_id'] = $authentication['id'];
                 $data['growth'] = $authentication_growth;
