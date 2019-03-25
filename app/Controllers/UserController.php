@@ -117,7 +117,7 @@ class UserController{
 
                 $user_id  = $value['userId'];
                 $main_product  = $value['mainProduct'];
-                $purchaser = $value['purchaser'];//认证状态
+                $purchaser = $value['certificationType'];//认证状态
                 $buy_count = $this->buyData->getBuyCount($user_id);//发布采购成功数
                 $offer_count = $this->buyData->getOfferCount($user_id);//采纳报价次数
                 $total_order_price = $this->orderData->getOrderAllPrice($user_id);//交易成功额度

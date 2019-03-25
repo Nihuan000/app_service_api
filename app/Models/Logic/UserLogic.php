@@ -382,14 +382,26 @@ class UserLogic
                 $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $params['user_id']);//更新成长值
                 $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
             }
-
         }else{
 
             $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $params['user_id']);//更新成长值
             $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
-
         }
-        if($user_growth_record && $user_growth){
+
+        //更新等级
+        $growth_rule = $this->userData->userGrowth($params['user_id']);
+        $level = $this->userData->getUserLevelRule($growth_rule);
+        $user_level = $this->userData->getUserByUids($params['user_id'],['level']);
+        $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $params['user_id']);
+        if ($user_level['level'] < $level['level_sort']){
+            //降级
+            $this->redis->hset('lifting_level', 'user:'.$params['user_id'], -1);
+        }else if ($user_level['level'] > $level['level_sort']){
+            //升级
+            $this->redis->hset('lifting_level', 'user:'.$params['user_id'], 1);
+        }
+
+        if($user_growth_record && $user_growth && $user_level_update){
             Db::commit();
             return true;
         }else{

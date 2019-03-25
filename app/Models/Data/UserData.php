@@ -604,4 +604,20 @@ class UserData
 
         return $user_data_growth;
     }
+
+    /**
+     * 获取用户成长值
+     * @author yang
+     * @return int
+     */
+    public function userGrowth($user_id)
+    {
+        $result = $this->userDao->UserGrowth($user_id);
+        if (isset($result)){
+            return $result['growth'];
+        }else{
+            return 0;
+        }
+    }
+
 }
