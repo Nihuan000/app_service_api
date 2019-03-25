@@ -434,7 +434,7 @@ class UserDao
      */
     public function getUserList($user_id_end, $limit)
     {
-        return User::findAll([['role', 'in', [1,5]],['user_id', '>', $user_id_end]],['fields' => ['user_id','purchaser','main_product'], 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
+        return User::findAll([['role', 'in', [1,5]],['user_id'=> 169498]],['fields' => ['user_id','purchaser','main_product'], 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
 
     }
 
