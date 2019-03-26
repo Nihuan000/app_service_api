@@ -671,4 +671,13 @@ class UserData
         }
     }
 
+    /**
+     * @param array $params
+     * @param array $field
+     * @return mixed
+     */
+    public function getWillExpStrength(array $params,array $field)
+    {
+        return $this->userStrengthDao->getStrengInfoAll($params,$field);
+    }
 }

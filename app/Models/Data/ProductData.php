@@ -119,7 +119,7 @@ class ProductData
                 $last_time = (int)$last_time_arr[0];
                 if(!empty($last_time)){
                     $params['prev_time'] = $last_time;
-                    Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+                    Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
                 }
             }
         }
@@ -145,7 +145,7 @@ class ProductData
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;
-            Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+            Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
             $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
             $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
             $i++;
@@ -273,5 +273,23 @@ class ProductData
     public function saveMatchPro($match_record)
     {
         return $this->productDao->saveOfferMatchProRecord($match_record);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpireKeyPro()
+    {
+        return $this->productDao->getExpireSearchRecord();
+    }
+
+    /**
+     * @param array $params
+     * @param array $data
+     * @return mixed
+     */
+    public function updateExpirePro(array $params, array $data)
+    {
+        return $this->productDao->updateExpireSearchStatus($params,$data);
     }
 }

@@ -20,6 +20,7 @@ use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
+use Swoft\Redis\Redis;
 
 /**
  * Class UserControllerController
@@ -47,12 +48,26 @@ class UserController{
     protected $orderData;
 
     /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $redis;
+
+    /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    private $msgRedis;
+
+    private $queue_key = 'msg_queue_list';
+
+
+    /**
      * 采购商用户成长值操作
      * @author yang
      * @RequestMapping()
      * @param Request $request
      * @return array
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function user_growth(Request $request): array
     {
@@ -89,8 +104,9 @@ class UserController{
      * 采购商用户成长值操作
      * @author yang
      * @RequestMapping()
+     * @param Request $request
      * @return array
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function user_growth_redo(Request $request): array
     {
@@ -250,5 +266,76 @@ class UserController{
             $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
         }
         return ['msg'=>'计算成功'];
+    }
+
+    /**
+     * 实商到期提醒添加
+     * @param Request $request
+     * @return array
+     */
+    public function strength_expire_notice(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        if(empty($user_id)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $notice_history_key = 'over_strength_history'; //提示历史记录
+            $start_time = strtotime(date('Y-m-d'));
+            $end_time = strtotime(date('Y-m-d : 23:59:59'));
+            $params = [
+                'user_id' => $user_id,
+                'is_expire' => 1,
+                ['end_time',$start_time,'>'],
+                ['end_time',$end_time,'<='],
+                'pay_for_open' => 1
+            ];
+            $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
+            if(!empty($strength_list)){
+                $config = \Swoft::getBean('config');
+                $sys_msg = $config->get('sysMsg');
+                foreach ($strength_list as $strength) {
+                    //查看是否有开通记录
+                    $open_info = $this->userData->getUserStrengthInfo($user_id);
+                    if(empty($open_info)){
+                        $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
+                        if($history_record == 0){
+                            //发送系统消息
+                            ################## 消息基本信息开始 #######################
+                            $extra = $sys_msg;
+                            $extra['title'] = '实商已到期';
+                            $extra['msgContent'] = "您的实力商家权限已到期，\n点击重新开通";
+                            ################## 消息基本信息结束 #######################
+
+                            ################## 消息扩展字段开始 #######################
+                            $extraData['keyword'] = '#点击重新开通#';
+                            $extraData['type'] = 18;
+                            $extraData['url'] = $this->userData->getSetting('user_strength_url');
+                            ################## 消息扩展字段结束 #######################
+
+                            $extra['data'] = [$extraData];
+                            $extra['content'] = "您的实力商家权限已到期，#点击重新开通#";
+                            $notice['extra'] = $extra;
+                            $msg_body = [
+                                'fromId' => '1',
+                                'targetId' => $strength['userId'],
+                                'msgExtra' => $notice['extra'],
+                                'timedTask' => 0
+                            ];
+                            $this->msgRedis->rPush($this->queue_key,json_encode($msg_body));
+                            $this->redis->sAdd($notice_history_key, $strength['userId']);
+                            $user_ids[] = $strength['userId'];
+                        }
+                    }else{
+                        write_log(2,$user_id . '存在已开通记录，不再提醒');
+                    }
+                }
+                if(!empty($user_ids)){
+                    write_log(2,json_encode($user_ids));
+                }
+            }
+        }
+        return compact('code','msg','result');
     }
 }

@@ -135,4 +135,25 @@ class ProductDao
     {
         return Query::table('sb_auto_offer_match_record')->insert($record)->getResult();
     }
+
+    /**
+     * 已过期推广获取
+     * @return mixed
+     */
+    public function getExpireSearchRecord()
+    {
+        $now_time = time();
+        return Query::table('sb_operate_search_keyword')->where('parent_id',0,'>')->where('status',0)->where('expire_time',$now_time,'<')->where('expire_time',0,'>')->get(['id','value','parent_id'])->getResult();
+    }
+
+    /**
+     * 已过期状态修改
+     * @param $params
+     * @param $data
+     * @return mixed
+     */
+    public function updateExpireSearchStatus($params, $data)
+    {
+        return Query::table('sb_operate_search_keyword')->whereIn('id',$params['ids'])->where('status',$params['status'])->update($data)->getResult();
+    }
 }
