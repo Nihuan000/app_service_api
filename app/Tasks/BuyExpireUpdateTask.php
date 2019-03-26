@@ -8,6 +8,7 @@
  */
 
 namespace App\Tasks;
+use App\Models\Data\ProductData;
 use App\Models\Entity\Buy;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Task\Bean\Annotation\Scheduled;
@@ -20,6 +21,12 @@ use Swoft\Task\Bean\Annotation\Task;
  */
 class BuyExpireUpdateTask
 {
+
+    /**
+     * @Inject()
+     * @var ProductData
+     */
+    protected $productData;
     /**
      * 过期采购状态修改
      * @author Nihuan
@@ -49,5 +56,28 @@ class BuyExpireUpdateTask
         }
         sleep(1);
         return ['过期采购状态修改'];
+    }
+
+    /**
+     * 过期推广产品状态修改
+     * @return array
+     * @Scheduled(cron="30 * * * * *")
+     */
+    public function expireSearchKeyword()
+    {
+        $expire_ids = [];
+        $expire_record = $this->productData->getExpireKeyPro();
+        if(!empty($expire_record)){
+            foreach ($expire_record as $item) {
+                $expire_ids[] = $item['id'];
+            }
+            $params = [
+                'ids' => $expire_ids,
+                'status' => 0
+            ];
+
+            $this->productData->updateExpirePro($params,['status' => 1]);
+        }
+        return [$expire_ids];
     }
 }

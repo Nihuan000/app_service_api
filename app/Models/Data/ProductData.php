@@ -196,7 +196,6 @@ class ProductData
             $first_start_time = $cycle_now_end_time;
         }
         $user_list = $this->productDao->getProductUserByLastTime($last_cache_time,$last_time);
-        Log::info(json_encode($user_list));
         if(!empty($user_list)){
             $test_list = $this->userData->getTesters();
             foreach ($user_list as $key => $item) {
@@ -274,5 +273,23 @@ class ProductData
     public function saveMatchPro($match_record)
     {
         return $this->productDao->saveOfferMatchProRecord($match_record);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpireKeyPro()
+    {
+        return $this->productDao->getExpireSearchRecord();
+    }
+
+    /**
+     * @param array $params
+     * @param array $data
+     * @return mixed
+     */
+    public function updateExpirePro(array $params, array $data)
+    {
+        return $this->productDao->updateExpireSearchStatus($params,$data);
     }
 }
