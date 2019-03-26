@@ -251,12 +251,22 @@ class UserDao
      */
     public function saveSupplierData($data)
     {
-        return SupplierDataStatistic::batchInsert($data)->getResult();
+        $last_list = [];
+        $start_time = strtotime(date('Y-m-d'));
+        $end_time = strtotime(date('Y-m-d 23:59:59'));
+        foreach ($data as $item) {
+            $checkExists = SupplierDataStatistic::findOne(['user_id' => $item['user_id'], ['record_time',$start_time,'>'],['record_time',$end_time,'<']],['fields' => ['sds_id']])->getResult();
+            if(!$checkExists){
+                $last_list[] = $item;
+            }
+        }
+        return SupplierDataStatistic::batchInsert($last_list)->getResult();
     }
 
     /**
      * 供应商数据更新
-     * @param $data
+     * @param array $data
+     * @param array $where
      * @return mixed
      */
     public function updateSupplierData(array $data, array $where)

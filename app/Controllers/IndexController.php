@@ -287,7 +287,7 @@ class IndexController
             $result = [];
             $msg = '参数错误';
         }else{
-            $last_days = date('Y-m-d',strtotime("-50 day"));
+            $last_days = date('Y-m-d',strtotime("-7 day"));
             $last_day_time = strtotime($last_days);
             if($last_days > 0){
                 $params = [
