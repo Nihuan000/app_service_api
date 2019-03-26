@@ -14,6 +14,7 @@ use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
+use Swoft\Task\Task;
 
 /**
  * 产品数据类
@@ -106,6 +107,7 @@ class ProductData
      * @param array $params
      * @return array
      * @throws \Swoft\Db\Exception\DbException
+     * @throws \Swoft\Task\Exception\TaskException
      */
     public function getIndexWaterfalls(array $params)
     {
@@ -117,7 +119,7 @@ class ProductData
                 $last_time = (int)$last_time_arr[0];
                 if(!empty($last_time)){
                     $params['prev_time'] = $last_time;
-                    $this->general_waterfolls_data($waterfall_index,$params);
+                    Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
                 }
             }
         }
@@ -143,7 +145,7 @@ class ProductData
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;
-            $this->general_waterfolls_data($waterfall_index,$params);
+            Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
             $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
             $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
             $i++;
@@ -167,7 +169,7 @@ class ProductData
      * @param $params
      * @throws \Swoft\Db\Exception\DbException
      */
-    protected function general_waterfolls_data($waterfall_index,$params)
+    public function general_waterfolls_data($waterfall_index,$params)
     {
         if(isset($params['end_time']) && $params['end_time'] > 0 && isset($params['prev_time'])){
             $prev_time = $params['prev_time'];
