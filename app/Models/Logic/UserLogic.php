@@ -388,17 +388,22 @@ class UserLogic
             $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
         }
 
-        //更新等级
-        $growth_rule = $this->userData->userGrowth($params['user_id']);
-        $level = $this->userData->getUserLevelRule($growth_rule);
-        $user_level = $this->userData->getUserByUids($params['user_id'],['level']);
-        $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $params['user_id']);
-        if ($user_level['level'] < $level['level_sort']){
-            //降级
-            $this->redis->hset('lifting_level', 'user:'.$params['user_id'], -1);
-        }else if ($user_level['level'] > $level['level_sort']){
-            //升级
-            $this->redis->hset('lifting_level', 'user:'.$params['user_id'], 1);
+        $user_level_update = true;
+        $user_growth_switch = $this->userData->getSetting('user_growth_switch');
+        if ($user_growth_switch){
+            //更新等级
+            $growth_rule = $this->userData->userGrowth($params['user_id']);
+            $level = $this->userData->getUserLevelRule($growth_rule);
+            $user_level = $this->userData->getUserByUids($params['user_id'],['level']);
+            $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $params['user_id']);
+            if ($user_level['level'] < $level['level_sort']){
+                //降级
+                $this->redis->hset('lifting_level', 'user:'.$params['user_id'], -1);
+            }else if ($user_level['level'] > $level['level_sort']){
+                //升级
+                $this->redis->hset('lifting_level', 'user:'.$params['user_id'], 1);
+                Log::info('用户:'.$params['user_id'].' 升级为:'.$level['level_sort']);
+            }
         }
 
         if($user_growth_record && $user_growth && $user_level_update){
