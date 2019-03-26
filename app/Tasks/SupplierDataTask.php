@@ -16,6 +16,7 @@ use App\Models\Logic\UserLogic;
 use Swoft\App;
 use Swoft\Log\Log;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
 
@@ -34,6 +35,12 @@ class SupplierDataTask{
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $redis;
 
     /**
      * 报表数据统计 task
@@ -70,6 +77,8 @@ class SupplierDataTask{
      */
     public function sendTask()
     {
+        $historyIndex = '@SupplierQueueHistory_' . date('Y-m-d');
+        $expire_time = 0;
         $send_switch = $this->userData->getSetting('supplier_data_send');
         if($send_switch == 1){
             $send_cover = $this->userData->getSetting('supplier_data_cover');//报告图片
@@ -103,26 +112,37 @@ class SupplierDataTask{
 
                         if ($isUserStrength) {
 
-                            //TODO 消息体
-                            $config = \Swoft::getBean('config');
-                            $sys_msg = $config->get('sysMsg');
-                            $data = array();
-                            $extra = $sys_msg;
-                            $extra['isRich'] = 1;
-                            $extra['imgUrl'] = $send_cover;
-                            $extra['title'] =  $extra['msgTitle'] = "供应商报告";
-                            $extra['commendUser'] = array();
-                            $extra['data'] = [];
-                            $extra['showData'] = [];
-                            $extra['Url'] = $url.'?sds_id='.$item['sdsId'];
-                            $extra["msgContent"] =  $extra["content"] = "点击查看您上周报告";
-                            $data['extra'] = $extra;
+                            if($this->redis->exists($historyIndex)){
+                                $history = $this->redis->sIsMember($historyIndex, $item['userId']);
+                            }else{
+                                $history = false;
+                                $expire_time = 7 * 3600 * 24;
+                            }
+                            if($history == false){
+                                //TODO 消息体
+                                $config = \Swoft::getBean('config');
+                                $sys_msg = $config->get('sysMsg');
+                                $data = array();
+                                $extra = $sys_msg;
+                                $extra['isRich'] = 1;
+                                $extra['imgUrl'] = $send_cover;
+                                $extra['title'] =  $extra['msgTitle'] = "供应商报告";
+                                $extra['commendUser'] = array();
+                                $extra['data'] = [];
+                                $extra['showData'] = [];
+                                $extra['Url'] = $url.'?sds_id='.$item['sdsId'];
+                                $extra["msgContent"] =  $extra["content"] = "点击查看您上周报告";
+                                $data['extra'] = $extra;
 
-                            //TODO 发送
-                            sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
+                                //TODO 发送
+                                sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
+                                $this->redis->sAdd($historyIndex, $item['userId']);
+                                if($expire_time > 0){
+                                    $this->redis->expire($historyIndex ,$expire_time);
+                                }
+                            }
 
                             $send_user_id[] = $item['userId'];
-                            $this->userData->updateSupplierData($send_user_id);
                         }else{
                             //不是实商不再发送
                             $no_send_user_id[] = $item['userId'];
