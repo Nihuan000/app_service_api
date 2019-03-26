@@ -644,8 +644,6 @@ class UserData
 
     /**
      * 安卓资料完善率
-     * @Author yang
-     * @Date 19-03-25
      * @param $user_id
      * @param $main_product
      * @return int
