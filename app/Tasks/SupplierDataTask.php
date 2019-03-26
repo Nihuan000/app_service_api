@@ -122,6 +122,7 @@ class SupplierDataTask{
                             sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
 
                             $send_user_id[] = $item['userId'];
+                            $this->userData->updateSupplierData($send_user_id);
                         }else{
                             //不是实商不再发送
                             $no_send_user_id[] = $item['userId'];

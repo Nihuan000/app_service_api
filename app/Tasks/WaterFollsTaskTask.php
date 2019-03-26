@@ -10,6 +10,7 @@
 
 namespace App\Tasks;
 
+use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Log\Log;
@@ -36,6 +37,25 @@ class WaterFollsTaskTask{
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject()
+     * @var ProductData
+     */
+    private $ProductData;
+
+    /**
+     * Deliver async task
+     * @param array $params
+     * @param string $queue_name
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function waterFollsGeneral(array $params, string $queue_name)
+    {
+        Log::info('瀑布流新数据生成开始:' . json_encode($params));
+        $this->ProductData->general_waterfolls_data($queue_name,$params);
+        Log::info('瀑布流新数据生成结束:' . json_encode($params));
+    }
 
     /**
      * 每天5点清除一个月以前的数据
