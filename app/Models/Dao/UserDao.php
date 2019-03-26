@@ -385,7 +385,8 @@ class UserDao
     /**
      * 成长值记录查询
      * @author yang
-     * @param $params
+     * @param $user_id
+     * @param $name
      * @return mixed
      */
     public function UserGrowthRecordOne($user_id, $name)
@@ -397,6 +398,8 @@ class UserDao
      * 成长值记录更新
      * @author yang
      * @param $params
+     * @param $user_id
+     * @param $name
      * @return mixed
      */
     public function userGrowthRecordUpdate($params, $user_id, $name)
@@ -430,6 +433,8 @@ class UserDao
     /**
      * 成长值记录
      * @author yang
+     * @param $post_user_id
+     * @param $limit
      * @return array
      */
     public function getUserList($post_user_id, $limit)
@@ -464,6 +469,7 @@ class UserDao
      * @author yang
      * @param $user_id
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getReviewGoodCount($user_id)
     {
@@ -481,6 +487,7 @@ class UserDao
      * @author yang
      * @param $user_id
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getReviewBadCount($user_id)
     {

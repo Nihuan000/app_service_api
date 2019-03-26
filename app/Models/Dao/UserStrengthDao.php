@@ -17,7 +17,7 @@ class UserStrengthDao
     /**
      * 批量获取
      * @author yang
-     * @param array $parent_ids
+     * @param array $params
      * @param array $fields
      * @return mixed
      */
@@ -29,7 +29,7 @@ class UserStrengthDao
     /**
      * 单条数据
      * @author yang
-     * @param array $user_id
+     * @param array $params
      * @param array $fields
      * @return mixed
      */
