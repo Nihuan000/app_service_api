@@ -119,7 +119,7 @@ class ProductData
                 $last_time = (int)$last_time_arr[0];
                 if(!empty($last_time)){
                     $params['prev_time'] = $last_time;
-                    Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+                    Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
                 }
             }
         }
@@ -145,7 +145,7 @@ class ProductData
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;
-            Task::deliver('WaterFollsTask','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+            Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
             $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
             $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
             $i++;
@@ -196,6 +196,7 @@ class ProductData
             $first_start_time = $cycle_now_end_time;
         }
         $user_list = $this->productDao->getProductUserByLastTime($last_cache_time,$last_time);
+        Log::info(json_encode($user_list));
         if(!empty($user_list)){
             $test_list = $this->userData->getTesters();
             foreach ($user_list as $key => $item) {
