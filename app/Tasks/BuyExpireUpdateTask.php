@@ -108,6 +108,7 @@ class BuyExpireUpdateTask
     /**
      * 即将到期实商系统消息提醒
      * @return array
+     * @Scheduled(cron="0 30 15 * * *")
      */
     public function strengthExpNotice()
     {
@@ -128,15 +129,13 @@ class BuyExpireUpdateTask
                     //发送系统消息
                     ################## 消息基本信息开始 #######################
                     $extra = $sys_msg;
-                    $extra['title'] = '您的实力商家权限即将到期';
+                    $extra['title'] = '实商即将到期';
                     $extra['msgContent'] = "您的实力商家权限即将到期，\n点击续费";
-                    $extra['commendUser'] = [];
-                    $extra['showData'] = [];
                     ################## 消息基本信息结束 #######################
 
                     ################## 消息扩展字段开始 #######################
                     $extraData['keyword'] = '#点击续费#';
-                    $extraData['type'] = 1;
+                    $extraData['type'] = 18;
                     $extraData['url'] = $this->userData->getSetting('user_strength_url');
                     ################## 消息扩展字段结束 #######################
 
