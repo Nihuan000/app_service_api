@@ -418,7 +418,6 @@ class UserData
 
     /**
      * 是否是实商
-     * @author yang
      * @param int $user_id
      * @return bool
      */
@@ -453,7 +452,7 @@ class UserData
     /**
      * 添加成长值记录
      * @author yang
-     * @param string $params
+     * @param array $params
      * @return bool
      */
     public function userGrowthRecordInsert(array $params)
@@ -464,7 +463,8 @@ class UserData
     /**
      * 查询成长值记录
      * @author yang
-     * @param string $params
+     * @param int $user_id
+     * @param string $name
      * @return bool
      */
     public function userGrowthRecordOne(int $user_id, string $name)
@@ -476,6 +476,8 @@ class UserData
      * 更新成长值记录
      * @author yang
      * @param array $params
+     * @param int $user_id
+     * @param string $name
      * @return bool
      */
     public function userGrowthRecordUpdate(array $params, int $user_id, string $name)
@@ -498,8 +500,9 @@ class UserData
     /**
      * 更新成长值
      * @author yang
-     * @param int $params
+     * @param int $growth
      * @param int $user_id
+     * @param int $is_add
      * @return bool
      */
     public function userGrowthUpdate(int $growth, int $user_id, int $is_add = 0)
@@ -523,6 +526,8 @@ class UserData
     /**
      * 获取用户列表
      * @author yang
+     * @param int $post_user_id
+     * @param int $limit
      * @return array
      */
     public function getUserList(int $post_user_id, int $limit)
@@ -543,7 +548,9 @@ class UserData
     /**
      * 获取卖家好评数
      * @author yang
+     * @param $user_id
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getReviewGoodCount($user_id)
     {
@@ -553,7 +560,9 @@ class UserData
     /**
      * 获取卖家差评数
      * @author yang
+     * @param $user_id
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function getReviewBadCount($user_id)
     {
@@ -563,6 +572,7 @@ class UserData
     /**
      * 获取采购身份
      * @author yang
+     * @param $user_id
      * @return array
      */
     public function getUserPurchaserRole($user_id)
@@ -573,6 +583,7 @@ class UserData
     /**
      * 获取主营行业
      * @author yang
+     * @param $user_id
      * @return array
      */
     public function getUserPurchaserIndustry($user_id)
@@ -583,6 +594,8 @@ class UserData
     /**
      * 采购身份背景表
      * @author yang
+     * @param $user_id
+     * @param $role_type
      * @return array
      */
     public function getUserPurchaserRoleBackground($user_id,$role_type)
@@ -593,6 +606,8 @@ class UserData
     /**
      * 获取环境图
      * @author yang
+     * @param $user_id
+     * @param $type
      * @return array
      */
     public function getUserPurchaserRoleWorkImg($user_id,$type)
@@ -603,6 +618,7 @@ class UserData
     /**
      * 获取品牌网站
      * @author yang
+     * @param $user_id
      * @return int
      */
     public function getUserAttribute($user_id)
@@ -613,6 +629,7 @@ class UserData
     /**
      * 网店地址
      * @author yang
+     * @param $user_id
      * @return array
      */
     public function getUserPurchaserRoleWebsiteUrl($user_id)
@@ -629,6 +646,9 @@ class UserData
      * 安卓资料完善率
      * @Author yang
      * @Date 19-03-25
+     * @param $user_id
+     * @param $main_product
+     * @return int
      */
     public function androidUserDate($user_id,$main_product){
         $user_data_growth = 0;
@@ -659,6 +679,7 @@ class UserData
     /**
      * 获取用户成长值
      * @author yang
+     * @param $user_id
      * @return int
      */
     public function userGrowth($user_id)
