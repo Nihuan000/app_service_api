@@ -394,7 +394,7 @@ class UserLogic
             //更新等级
             $growth_rule = $this->userData->userGrowth($params['user_id']);
             $level = $this->userData->getUserLevelRule($growth_rule);
-            $user_level = $this->userData->getUserByUids($params['user_id'],['level']);
+            $user_level = $this->userData->getUserInfo($params['user_id']);
             $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $params['user_id']);
             if ($user_level['level'] < $level['level_sort']){
                 //降级
