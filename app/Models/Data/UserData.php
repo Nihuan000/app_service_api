@@ -573,7 +573,7 @@ class UserData
     /**
      * 获取主营行业
      * @author yang
-     * @return int
+     * @return array
      */
     public function getUserPurchaserIndustry($user_id)
     {
@@ -587,7 +587,7 @@ class UserData
      */
     public function getUserPurchaserRoleBackground($user_id,$role_type)
     {
-        return $this->userDao->getUserPurchaserRoleBackground($user_id);
+        return $this->userDao->getUserPurchaserRoleBackground($user_id,$role_type);
     }
 
     /**
@@ -644,7 +644,7 @@ class UserData
             $user_data_growth += 20;
         }
 
-        $content = $this->getUserCompany($user_id);
+        $content = $this->userDao->getUserCompany($user_id);
         if (!empty($content)) {
             if (!empty($content['style'])) {
                 $user_data_growth += 20;

@@ -375,14 +375,10 @@ class UserLogic
                 if ($params['system']==1){
                     //安卓
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
-                }else if($params['system']==2){
+                }else($params['system']==2){
                     //ios
                     $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
-                }else{
-                    //参数错误
-                    return false;
                 }
-
                 if (isset($user_growth_record_one)){
 
                     $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
@@ -394,6 +390,9 @@ class UserLogic
                     $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
                     $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
                 }
+            }else{
+                //参数错误
+                return false;
             }
 
         }else{
