@@ -65,6 +65,7 @@ class BuyExpireUpdateTask
      */
     public function expireSearchKeyword()
     {
+        $now_time =time();
         $expire_ids = [];
         $expire_record = $this->productData->getExpireKeyPro();
         if(!empty($expire_record)){
@@ -75,9 +76,9 @@ class BuyExpireUpdateTask
                 'ids' => $expire_ids,
                 'status' => 0
             ];
-
+            echo "[$now_time] 推广产品:" . json_encode($expire_ids) . '已过期' . PHP_EOL;
             $this->productData->updateExpirePro($params,['status' => 1]);
         }
-        return [$expire_ids];
+        return ['过期推广产品状态修改'];
     }
 }

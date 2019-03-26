@@ -143,7 +143,7 @@ class ProductDao
     public function getExpireSearchRecord()
     {
         $now_time = time();
-        return Query::table('sb_operate_search_keyword')->where('parent_id',0,'>')->where('status',0)->where('expire_time',$now_time,'>')->get(['id','value','parent_id'])->getResult();
+        return Query::table('sb_operate_search_keyword')->where('parent_id',0,'>')->where('status',0)->where('expire_time',$now_time,'<')->where('expire_time',0,'>')->get(['id','value','parent_id'])->getResult();
     }
 
     /**
