@@ -332,8 +332,9 @@ class UserLogic
      */
     public function growth($params, $rule)
     {
+        $user_id = $params['user_id'];
         $data = [
-            'user_id' => $params['user_id'],
+            'user_id' => $user_id,
             'growth_id' => $rule['id'],
             'growth' => $rule['value'],
             'name' => $params['name'],
@@ -346,45 +347,58 @@ class UserLogic
             'operate_id' => $params['operate_id'],
         ];
 
+        $user_info = $this->userData->getUserInfo($user_id);//用户信息
         //开启事务
         Db::beginTransaction();
         if ($rule['name'] == 'transaction_limit'){
-            $user_growth_record_one = $this->userData->userGrowthRecordOne($params['user_id'], 'transaction_limit');
-            $total_order_price = $this->orderData->getOrderAllPrice($params['user_id']);//交易成功额度
+            $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'transaction_limit');
+            $total_order_price = $this->orderData->getOrderAllPrice($user_id);//交易成功额度
             $growth = intval($total_order_price/1000)*10;//新的交易成功成长值
 
             if (isset($user_growth_record_one)){
 
                 $add_growth = $growth-$user_growth_record_one['growth'];//应该增加的成长值
-                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $params['user_id']);//更新成长值
-                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$growth], $params['user_id'], $rule['name']);//更新记录
+                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
+                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$growth], $user_id, $rule['name']);//更新记录
             }else{
 
                 $data['growth'] = $growth;
-                $user_growth = $this->userData->userGrowthUpdate($growth, $params['user_id']);//更新成长值
+                $user_growth = $this->userData->userGrowthUpdate($growth, $user_id);//更新成长值
                 $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
             }
 
         }else if ($rule['name'] == 'personal_data'){
 
-            $user_growth_record_one = $this->userData->userGrowthRecordOne($params['user_id'], 'personal_data');
-            //查询个人资料完善度
-            $user_data_growth = $this->userData->getUserDateInfo($params['user_id']);
+            //安卓ios区分计算不同的资料完善率
+            $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
+            if (!empty($params['system'])){
+                if ($params['system']==1){
+                    //安卓
+                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
+                }else if($params['system']==2){
+                    //ios
+                    $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
+                }else{
+                    //参数错误
+                    return false;
+                }
 
-            if (isset($user_growth_record_one)){
+                if (isset($user_growth_record_one)){
 
-                $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
-                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $params['user_id']);//更新成长值
-                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $params['user_id'], $rule['name']);//更新记录
-            }else{
+                    $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
+                    $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
+                    $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $user_id, $rule['name']);//更新记录
+                }else{
 
-                $data['growth'] = $user_data_growth;
-                $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $params['user_id']);//更新成长值
-                $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+                    $data['growth'] = $user_data_growth;
+                    $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
+                    $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+                }
             }
+
         }else{
 
-            $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $params['user_id']);//更新成长值
+            $user_growth = $this->userData->userGrowthUpdate((int)$rule['value'], $user_id);//更新成长值
             $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
         }
 
@@ -392,17 +406,16 @@ class UserLogic
         $user_growth_switch = $this->userData->getSetting('user_growth_switch');
         if ($user_growth_switch){
             //更新等级
-            $growth_rule = $this->userData->userGrowth($params['user_id']);
+            $growth_rule = $this->userData->userGrowth($user_id);
             $level = $this->userData->getUserLevelRule($growth_rule);
-            $user_level = $this->userData->getUserInfo($params['user_id']);
-            $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $params['user_id']);
-            if ($user_level['level'] < $level['level_sort']){
+            $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
+            if ($user_info['level'] < $level['level_sort']){
                 //降级
-                $this->redis->hset('lifting_level', 'user:'.$params['user_id'], -1);
-            }else if ($user_level['level'] > $level['level_sort']){
+                $this->redis->hset('lifting_level', 'user:'.$user_id, -1);
+            }else if ($user_info['level'] > $level['level_sort']){
                 //升级
-                $this->redis->hset('lifting_level', 'user:'.$params['user_id'], 1);
-                Log::info('用户:'.$params['user_id'].' 升级为:'.$level['level_sort']);
+                $this->redis->hset('lifting_level', 'user:'.$user_id, 1);
+                Log::info('用户:'.$user_id.' 升级为:'.$level['level_sort']);
             }
         }
 
@@ -414,4 +427,184 @@ class UserLogic
             return false;
         }
     }
+
+    /**
+     * ios资料完善率
+     * @Author yang
+     * @return float
+     * @Date 19-03-25
+     */
+    private function get_completion_rate($user_id,$main_product){
+        $base_count = 3;
+        $completion_count = 1;
+        $purchaser_role_type = $this->private_get_user_purchaser_role_type($user_id);//获取用户身份，和身份对应的背景
+        if(empty($purchaser_role_type)){
+            return 0;
+        }else{
+            $purchaser_industry = $this->private_get_user_purchaser_industry($user_id);//获取主营行业
+            $web_factory_url = $this->userData->getUserAttribute($user_id);//品牌网站
+            $work_img = $this->private_get_work_img($user_id);//获取环境图
+            $website_url = $this->userData->getUserPurchaserRoleWebsiteUrl($user_id);//网店地址
+            $title= $this->get_title($purchaser_role_type);
+            foreach ($title as $key =>$value){
+                if(!empty($value)){
+                    $base_count ++;
+                }
+            }
+            $purchaser_industry_info = $this->handle_special_industry($user_id);
+            if(!empty($purchaser_industry) || $purchaser_industry_info['is_special'] == true){
+                $completion_count ++;
+            }
+            if(!empty($main_product)){
+                $completion_count ++;
+            }
+            if(in_array($purchaser_role_type[0]['background'][0]['name'],['我是品牌企业'])){
+                $base_count ++;
+                if(!empty($web_factory_url)){
+                    $completion_count ++;
+                }
+            }
+
+            if(  $purchaser_role_type[0]['name'] !='个人自用'){
+                $base_count ++;
+                if(!empty($website_url) ){
+                    $completion_count ++;
+                }
+            }
+            if($base_count >4 && !empty($work_img["img_first_list"]) ){
+                $completion_count ++;
+            }
+            if($base_count >5 && !empty($work_img["img_second_list"]) ){
+                $completion_count ++;
+            }
+            return (float)round($completion_count / $base_count * 100 , 0 );
+        }
+    }
+
+    /**
+     * 获取采购身份
+     * @Author yang
+     * @Date 19-03-25
+     */
+    private function private_get_user_purchaser_role_type($user_id){
+        $content = $this->userData->getUserPurchaserRole($user_id);
+        if (!empty($content)) {
+            foreach ($content as $key => $val) {
+                $content[$key]['id'] = (int)$val['id'];
+                $content[$key]['parent_id'] = (int)$val['parent_id'];
+                $content[$key]['parent_name'] = is_null($val['parent_name']) ? '' : $val['parent_name'];
+                if($val['parent_name'] == "生产制造企业"){
+                    $background = $this->userData->getUserPurchaserRoleBackground($user_id,1);
+                }else if($val['parent_name'] == "加工制造企业"){
+                    $background = $this->userData->getUserPurchaserRoleBackground($user_id,2);
+                }else if($val['parent_name'] == "批发商"){
+                    $background = $this->userData->getUserPurchaserRoleBackground($user_id,3);
+                }else{
+                    $background = [];
+                }
+                $background = empty($background) ? [] :$background;
+                foreach ($background as $ke => $value){
+                    if($value['name'] == "我是品牌企业"){
+                        $background[$ke]['is_show_brand'] = 1;
+                    }else{
+                        $background[$ke]['is_show_brand'] = 0;
+                    }
+                    $background[$ke]['id'] = (int)$value['id'];
+                    $background[$ke]['role_id'] = (int)$value['role_id'];
+                }
+                $content[$key]['background'] = $background;
+            }
+            $result = $content;
+        } else {
+            $result = [];
+        }
+        return $result;
+    }
+
+
+    /**
+     * 获取主营行业
+     * @Author yang
+     * @Date 19-03-25
+     */
+    private function private_get_user_purchaser_industry($user_id){
+        $this->userData->getUserPurchaserIndustry($user_id);
+        if (!empty($content)) {
+            foreach ($content as $key => $val) {
+                $content[$key]['id'] = (int)$val['id'];
+                $content[$key]['parent_id'] = (int)$val['parent_id'];
+                $content[$key]['parent_name'] = is_null($val['parent_name']) ? '' : $val['parent_name'];
+            }
+            $result['main_industry'] = $content;
+        } else {
+            $result['main_industry'] = [];
+        }
+        return $result;
+    }
+
+    /**
+     * 获取环境图
+     * @Author yang
+     * @Date 19-03-25
+     */
+    private function private_get_work_img($user_id){
+        $img_first_list_img = $this->userData->getUserPurchaserRoleWorkImg($user_id,1);
+        $img_second_list_img = $this->userData->getUserPurchaserRoleWorkImg($user_id,2);
+        $img_first_list = [];
+        $img_second_list = [];
+        if (!empty($img_first_list_img)){
+            foreach ($img_first_list_img as $value){
+                $img_first_list[] = $value['img'];
+            }
+        }
+        if (!empty($img_second_list_img)){
+            foreach ($img_second_list_img as $value){
+                $img_second_list[] = $value['img'];
+            }
+        }
+        $img_list["img_first_list"] = empty($img_first_list) ? [] : $img_first_list;
+        $img_list["img_second_list"] = empty($img_second_list) ? [] : $img_second_list ;
+        return $img_list;
+    }
+
+    private function  get_title($purchaser_role_type){
+        if($purchaser_role_type[0]['parent_name'] == "生产制造企业"){
+            $data = ['我的服装厂',''];
+        }else if($purchaser_role_type[0]['parent_name'] == "批发商"){
+            $data = ['我的档口','我的仓库'];
+            if($purchaser_role_type[0]['background'][0]['name'] == "我有档口"){
+                $data = ['我的档口',''];
+            }
+        }else if($purchaser_role_type[0]['parent_name'] == "加工制造企业"){
+            $data = ['我的厂房机械',''];
+        }else if($purchaser_role_type[0]['parent_name'] == "代找布公司"){
+            $data = ['公司环境和名片',''];
+        }else {
+            $data = ['',''];
+        }
+        if($purchaser_role_type[0]['parent_name'] == "加工制造企业" && $purchaser_role_type[0]['background'][0]['name'] == "我是品牌企业"){
+            $data = ['我的厂房机械','办公环境'];
+        }
+        if($purchaser_role_type[0]['background'][0]['name'] == "我是品牌企业" && $purchaser_role_type[0]['parent_name'] != "加工制造企业" ){
+            $data = ['我的服装厂','办公环境'];
+        }
+        return $data;
+    }
+
+
+    private function handle_special_industry($user_id){
+        $purchaser_role_type = $this->private_get_user_purchaser_role_type($user_id);
+        if(empty($purchaser_role_type)){
+            return ['is_special'=>false , 'main_industry'=>[]];
+        }else{
+            if(in_array($purchaser_role_type[0]['parent_name'],['代找布公司','批发商','个人自用','加工制造企业'])){
+                $main_industry = [['id'=>0,'name'=>$purchaser_role_type[0]['name'],'parent_id'=>$purchaser_role_type[0]['parent_id'],'parent_name'=>$purchaser_role_type[0]['parent_name']]];
+                return ['is_special'=>true , 'main_industry'=>$main_industry];
+            }else{
+                return ['is_special'=>false , 'main_industry'=>[]];
+            }
+        }
+
+    }
+
 }

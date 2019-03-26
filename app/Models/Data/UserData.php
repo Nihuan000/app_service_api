@@ -563,7 +563,7 @@ class UserData
     /**
      * 获取采购身份
      * @author yang
-     * @return int
+     * @return array
      */
     public function getUserPurchaserRole($user_id)
     {
@@ -581,27 +581,78 @@ class UserData
     }
 
     /**
-     * 获取个人资料完善度
+     * 采购身份背景表
+     * @author yang
+     * @return array
+     */
+    public function getUserPurchaserRoleBackground($user_id,$role_type)
+    {
+        return $this->userDao->getUserPurchaserRoleBackground($user_id);
+    }
+
+    /**
+     * 获取环境图
+     * @author yang
+     * @return array
+     */
+    public function getUserPurchaserRoleWorkImg($user_id,$type)
+    {
+        return $this->userDao->getUserPurchaserRoleWorkImg($user_id,$type);
+    }
+
+    /**
+     * 获取品牌网站
      * @author yang
      * @return int
      */
-    public function getUserDateInfo($user_id)
+    public function getUserAttribute($user_id)
     {
+        return $this->userDao->getUserAttribute($user_id);
+    }
+
+    /**
+     * 网店地址
+     * @author yang
+     * @return array
+     */
+    public function getUserPurchaserRoleWebsiteUrl($user_id)
+    {
+        $result = $this->userDao->getUserPurchaserRoleWebsiteUrl($user_id);
+        if (empty($result)){
+            return [];
+        }else{
+            return $result;
+        }
+    }
+
+    /**
+     * 安卓资料完善率
+     * @Author yang
+     * @Date 19-03-25
+     */
+    public function androidUserDate($user_id,$main_product){
         $user_data_growth = 0;
-        $user_info = $this->getUserInfo($user_id);
-        //计算资料完善度
-        if (!empty($user_info['main_product'])){
-            $user_data_growth += 33;//主营产品
-        }
-        $purchaser_role = $this->getUserPurchaserRole($user_id);//采购身份
+        $purchaser_role = $this->userDao->getUserPurchaserRole($user_id);//采购身份
         if (!empty($purchaser_role)){
-            $user_data_growth += 34;
+            $user_data_growth += 20;
+            if (!empty($main_product)){
+                $user_data_growth += 20;//主营产品
+            }
         }
-        $purchaser_industry = $this->getUserPurchaserIndustry($user_id);//主营行业
+        $purchaser_industry = $this->getUserPurchaserIndustry($user_id);//主营行业;
         if (!empty($purchaser_industry)){
-            $user_data_growth += 33;
+            $user_data_growth += 20;
         }
 
+        $content = $this->getUserCompany($user_id);
+        if (!empty($content)) {
+            if (!empty($content['style'])) {
+                $user_data_growth += 20;
+            }
+            if (!empty($content['frequency'])) {
+                $user_data_growth += 20;
+            }
+        }
         return $user_data_growth;
     }
 

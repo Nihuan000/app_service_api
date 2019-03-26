@@ -497,27 +497,103 @@ class UserDao
      * 查询采购身份
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserPurchaserRole($user_id)
     {
-        return Query::table('sb_user_purchaser_role')
-            ->where('user_id',$user_id)
-            ->where('is_delete',0)
-            ->count('id')->getResult();
+        return Query::table('sb_user_purchaser_role','a')
+            ->leftJoin('sb_user_purchaser_role',"a.parent_id = b.id",'b')
+            ->where('a.user_id',$user_id)
+            ->where('a.is_delete',0)
+            ->get(['a.role_id as id', 'a.role_name as name', 'a.parent_id', 'b.role_name as parent_name'])
+            ->getResult();
     }
 
     /**
      * 查询主营行业
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserPurchaserIndustry($user_id)
     {
-        return Query::table('sb_user_purchaser_industry')
+        return Query::table('sb_user_purchaser_industry','a')
+            ->leftJoin('sb_user_purchaser_industry',"a.parent_id = b.id",'b')
+            ->where('a.user_id',$user_id)
+            ->where('a.is_delete',0)
+            ->get(['a.industry_id as id', 'a.industry_name as name', 'a.parent_id', 'b.industry_name as parent_name'])
+            ->getResult();
+    }
+
+    /**
+     * 查询公司信息
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserCompany($user_id)
+    {
+        return Query::table('sb_user_company')
+            ->where('user_id',$user_id)
+            ->one()->getResult();
+    }
+
+    /**
+     * 获取品牌网站
+     * @author yang
+     * @param $user_id
+     * @return int
+     */
+    public function getUserAttribute($user_id)
+    {
+        return Query::table('sb_user_attribute')
+            ->where('user_id',$user_id)
+            ->one()->getResult();
+    }
+
+    /**
+     * 获取环境图
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getUserPurchaserRoleWorkImg($user_id,$type)
+    {
+        return Query::table('sb_user_purchaser_role_work_img')
+            ->where('user_id',$user_id)
+            ->where('type',$type)
+            ->getResult();
+    }
+
+    /**
+     * 网店地址
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getUserPurchaserRoleWebsiteUrl($user_id)
+    {
+        return Query::table('sb_user_purchaser_role_website_url')
             ->where('user_id',$user_id)
             ->where('is_delete',0)
-            ->count('id')->getResult();
+            ->where('is_audit',1)
+            ->where('url_type',20,'!=')
+            ->getResult();
+    }
+
+    /**
+     * 采购身份背景表
+     * @author yang
+     * @param $user_id
+     * @return array
+     */
+    public function getUserPurchaserRoleBackground($user_id,$role_type)
+    {
+        return Query::table('sb_user_purchaser_role_background')
+            ->where('user_id',$user_id)
+            ->where('is_delete',0)
+            ->where('role_type',$role_type)
+            ->get(['id','role_background_name as name','role_type','role_id'])
+            ->getResult();
     }
 }
