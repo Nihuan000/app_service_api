@@ -9,8 +9,10 @@
 
 namespace App\Tasks;
 use App\Models\Data\ProductData;
+use App\Models\Data\UserData;
 use App\Models\Entity\Buy;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
 
@@ -27,6 +29,27 @@ class BuyExpireUpdateTask
      * @var ProductData
      */
     protected $productData;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    protected $userData;
+
+    /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    protected $redis;
+
+    private $queue_key = 'msg_queue_list';
+
+    /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    private $msgRedis;
+
     /**
      * 过期采购状态修改
      * @author Nihuan
@@ -80,5 +103,61 @@ class BuyExpireUpdateTask
             $this->productData->updateExpirePro($params,['status' => 1]);
         }
         return ['过期推广产品状态修改'];
+    }
+
+    /**
+     * 即将到期实商系统消息提醒
+     * @return array
+     */
+    public function strengthExpNotice()
+    {
+        $notice_history_key = 'notice_strength_history'; //提示历史记录
+        $last_time = strtotime(date('Y-m-d',strtotime('+7 day')));
+        $params = [
+            ['end_time',$last_time,'<='],
+            'is_expire' => 0,
+            'pay_for_open' => 1
+        ];
+        $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
+        if(!empty($strength_list)){
+            $config = \Swoft::getBean('config');
+            $sys_msg = $config->get('sysMsg');
+            foreach ($strength_list as $strength) {
+                $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
+                if($history_record == 0){
+                    //发送系统消息
+                    ################## 消息基本信息开始 #######################
+                    $extra = $sys_msg;
+                    $extra['title'] = '您的实力商家权限即将到期';
+                    $extra['msgContent'] = "您的实力商家权限即将到期，\n点击续费";
+                    $extra['commendUser'] = [];
+                    $extra['showData'] = [];
+                    ################## 消息基本信息结束 #######################
+
+                    ################## 消息扩展字段开始 #######################
+                    $extraData['keyword'] = '#点击续费#';
+                    $extraData['type'] = 1;
+                    $extraData['url'] = $this->userData->getSetting('user_strength_url');
+                    ################## 消息扩展字段结束 #######################
+
+                    $extra['data'] = [$extraData];
+                    $extra['content'] = "您的实力商家权限即将到期，#点击续费#";
+                    $notice['extra'] = $extra;
+                    $msg_body = [
+                        'fromId' => '1',
+                        'targetId' => $strength['userId'],
+                        'msgExtra' => $notice['extra'],
+                        'timedTask' => 0
+                    ];
+                    $this->msgRedis->rPush($this->queue_key,json_encode($msg_body));
+                    $this->redis->sAdd($notice_history_key, $strength['userId']);
+                    $user_ids[] = $strength['userId'];
+                }
+            }
+            if(!empty($user_ids)){
+                write_log(2,json_encode($user_ids));
+            }
+        }
+        return ['实商续费提醒已发送'];
     }
 }
