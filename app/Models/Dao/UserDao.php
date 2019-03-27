@@ -578,6 +578,7 @@ class UserDao
         return Query::table('sb_user_purchaser_role_work_img')
             ->where('user_id',$user_id)
             ->where('type',$type)
+            ->get()
             ->getResult();
     }
 
@@ -594,6 +595,7 @@ class UserDao
             ->where('is_delete',0)
             ->where('is_audit',1)
             ->where('url_type',20,'!=')
+            ->get()
             ->getResult();
     }
 
