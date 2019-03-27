@@ -379,7 +379,6 @@ class UserLogic
             //安卓ios区分计算不同的资料完善率
             $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
             if (!empty($params['system'])){
-                $user_data_growth = 0;
                 if ($params['system']==1){
                     //安卓
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
@@ -438,9 +437,9 @@ class UserLogic
     /**
      * ios资料完善率
      * @Author yang
-     * @return int
      * @param int $user_id
      * @param string $main_product
+     * @return int
      * @throws \Swoft\Db\Exception\DbException
      */
     public function get_completion_rate($user_id,$main_product){
