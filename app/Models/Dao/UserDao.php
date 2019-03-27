@@ -601,15 +601,16 @@ class UserDao
      * 采购身份背景表
      * @author yang
      * @param $user_id
+     * @param $role_type
      * @return array
      */
-    public function getUserPurchaserRoleBackground($user_id,$role_type)
+    public function getUserPurchaserRoleBackground(int $user_id,int $role_type)
     {
-        return Query::table('sb_user_purchaser_role_background')
+        return Query::table('sb_user_purchaser_role_background','upr')
             ->where('user_id',$user_id)
             ->where('is_delete',0)
             ->where('role_type',$role_type)
-            ->get(['id','role_background_name as name','role_type','role_id'])
+            ->get(['id','upr.role_background_name as name','role_type','role_id'])
             ->getResult();
     }
 }
