@@ -513,7 +513,13 @@ class UserData
         ];
         if ($is_add==0){
             $growth_info = $this->userDao->UserGrowth($user_id);
-            $growth_num = $growth_info['growth'] + $growth;
+            if (isset($growth_info)){
+                $growth_num = $growth_info['growth'] + $growth;
+            }else{
+                $this->userDao->UserGrowthAdd($user_id);
+                $growth_num = $growth;
+            }
+            
             $params = [
                 'growth' => $growth_num,
                 'update_time' => time(),

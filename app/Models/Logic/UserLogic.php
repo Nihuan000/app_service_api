@@ -355,6 +355,8 @@ class UserLogic
         ];
 
         $user_info = $this->userData->getUserInfo($user_id);//用户信息
+
+
         //开启事务
         Db::beginTransaction();
         if ($rule['name'] == 'transaction_limit'){

@@ -441,6 +441,25 @@ class UserDao
     }
 
     /**
+     * 成长值表新增用户
+     * @author yang
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowthAdd($user_id)
+    {
+        $data = [
+            'user_id'=>$user_id,
+            'growth'=>0,
+            'add_time'=>time(),
+            'update_time'=>time(),
+        ];
+        $user   = new UserGrowth();
+        $result = $user->fill($data)->save()->getResult();
+        return $result;
+    }
+
+    /**
      * 成长值记录
      * @author yang
      * @param int $post_user_id
