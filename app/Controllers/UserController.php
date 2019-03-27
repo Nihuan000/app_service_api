@@ -303,8 +303,8 @@ class UserController{
                     $extra['data'] = [$extraData];
                     $extra['content'] = "您的实力商家权限已到期，#点击重新开通#";
                     $notice['extra'] = $extra;
-                    sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                     $this->redis->sAdd($notice_history_key, (string)$user_id);
+                    sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                     $user_ids[] = $user_id;
                 }
             }else{

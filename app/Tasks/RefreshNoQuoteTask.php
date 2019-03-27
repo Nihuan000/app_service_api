@@ -229,17 +229,11 @@ class RefreshNoQuoteTask
                     $extra['data'] = [$extraData];
                     $extra['content'] = "还没有收到报价？小布建议您重新编辑完善您的采购信息，供应商报价会更积极！ #点击前往编辑#";
                     $notice['extra'] = $extra;
-                    $msg_body = [
-                        'fromId' => '1',
-                        'targetId' => $buy['user_id'],
-                        'msgExtra' => $notice['extra'],
-                        'timedTask' => 0
-                    ];
-                    $this->msgRedis->rPush($this->queue_key,json_encode($msg_body));
                     $this->redis->sAdd($this->notice_history_key . $date, $buy['buy_id']);
                     if($has_history == false){
                         $this->redis->expire($this->notice_history_key . $date,7*24*3600);
                     }
+                    sendInstantMessaging('1', (string)$buy['user_id'], json_encode($notice['extra']));
                     $buy_ids[] = $buy['buy_id'];
                 }
             }

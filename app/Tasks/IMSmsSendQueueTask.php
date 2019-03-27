@@ -32,7 +32,6 @@ class IMSmsSendQueueTask
     /**
      * 消息发送队列
      * @author Nihuan
-     * @Scheduled(cron="0 * 7-22 * * *")
      */
     public function sendTask()
     {
