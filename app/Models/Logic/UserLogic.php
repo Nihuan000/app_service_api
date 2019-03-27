@@ -375,7 +375,7 @@ class UserLogic
                 if ($params['system']==1){
                     //安卓
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
-                }else($params['system']==2){
+                }else{
                     //ios
                     $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
                 }
@@ -433,7 +433,7 @@ class UserLogic
      * @return float
      * @Date 19-03-25
      */
-    private function get_completion_rate($user_id,$main_product){
+    public function get_completion_rate($user_id,$main_product){
         $base_count = 3;
         $completion_count = 1;
         $purchaser_role_type = $this->private_get_user_purchaser_role_type($user_id);//获取用户身份，和身份对应的背景

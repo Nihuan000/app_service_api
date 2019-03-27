@@ -134,6 +134,7 @@ class UserController{
             $user_id  = $value['userId'];
             $main_product  = $value['mainProduct'];
             $purchaser = $value['certificationType'];//认证状态
+            $phone_type = $value['phoneType'];//认证状态
             $buy_count = $this->buyData->getBuyCount($user_id);//发布采购成功数
             $offer_count = $this->buyData->getOfferCount($user_id);//采纳报价次数
             $total_order_price = $this->orderData->getOrderAllPrice($user_id);//交易成功额度
@@ -234,18 +235,14 @@ class UserController{
                 $this->userData->userGrowthRecordInsert($data);
             }
 
-            //计算资料完善度
-            if (!empty($main_product)){
-                $user_data_growth += 33;//主营产品
-            }
-
-            $purchaser_role = $this->userData->getUserPurchaserRole($user_id);//采购身份
-            if (!empty($purchaser_role)){
-                $user_data_growth += 34;
-            }
-            $purchaser_industry = $this->userData->getUserPurchaserIndustry($user_id);//主营行业
-            if (!empty($purchaser_industry)){
-                $user_data_growth += 33;
+            if ($phone_type==1){
+                //安卓
+                $user_data_growth = $this->userData->androidUserDate($user_id,$main_product);
+            }else{
+                //ios
+                /* @var UserLogic $user_logic */
+                $user_logic = App::getBean(UserLogic::class);
+                $user_data_growth = $user_logic->get_completion_rate($user_id, $main_product);
             }
             $data['growth_id'] = $personal_data['id'];
             $data['growth'] = $user_data_growth;
@@ -253,7 +250,6 @@ class UserController{
             $data['title'] = $personal_data['title'];
             $data['remark'] =  $personal_data['remark'];
             $this->userData->userGrowthRecordInsert($data);
-
 
             //计算总分计算等级
             $all_growth = $authentication_growth + $felease_buy_growth + $adopt_offer_growth + $transaction_limit_growth + $active_eval_growth + $get_praise_growth + $get_bad_eval_growth + $user_data_growth;
