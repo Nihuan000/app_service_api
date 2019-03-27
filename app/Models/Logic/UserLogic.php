@@ -426,7 +426,7 @@ class UserLogic
             }
         }
 
-        if($user_growth_record && $user_growth && $user_level_update){
+        if($user_growth_record !== false && $user_growth !== false && $user_level_update !== false){
             Db::commit();
             return true;
         }else{

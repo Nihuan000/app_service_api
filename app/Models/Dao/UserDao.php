@@ -397,7 +397,7 @@ class UserDao
      * @author yang
      * @param $user_id
      * @param $name
-     * @return mixed
+     * @return array
      */
     public function UserGrowthRecordOne($user_id, $name)
     {
@@ -443,8 +443,8 @@ class UserDao
     /**
      * 成长值记录
      * @author yang
-     * @param $post_user_id
-     * @param $limit
+     * @param int $post_user_id
+     * @param int $limit
      * @return array
      */
     public function getUserList($post_user_id, $limit)
@@ -456,6 +456,7 @@ class UserDao
     /**
      * 采购商成长值查等级
      * @author yang
+     * @param int $growth
      * @return array
      */
     public function getUserLevelRule($growth)
@@ -466,8 +467,8 @@ class UserDao
     /**
      * 获取评价数
      * @author yang
-     * @param $user_id
-     * @return array
+     * @param  int $user_id
+     * @return int
      */
     public function getReviewCount($user_id)
     {
@@ -478,8 +479,7 @@ class UserDao
      * 获取卖家好评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewGoodCount($user_id)
     {
@@ -496,8 +496,7 @@ class UserDao
      * 获取卖家差评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewBadCount($user_id)
     {
@@ -546,7 +545,7 @@ class UserDao
      * 查询公司信息
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserCompany($user_id)
     {
@@ -559,7 +558,7 @@ class UserDao
      * 获取品牌网站
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserAttribute($user_id)
     {
