@@ -376,23 +376,28 @@ class UserLogic
 
         }else if ($rule['name'] == 'personal_data'){
 
+            Log::info('用户:'.$user_id.' 进入资料完善率计算');
+
             //安卓ios区分计算不同的资料完善率
             $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
             if (!empty($params['system'])){
+                Log::info('用户:'.$user_id.' 手机系统参数不为空');
                 if ($params['system']==1){
+                    Log::info('用户:'.$user_id.' 安卓');
                     //安卓
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
                 }else{
+                    Log::info('用户:'.$user_id.' ios');
                     //ios
                     $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
                 }
                 if (isset($user_growth_record_one)){
-
+                    Log::info('用户:'.$user_id.' 有记录更新');
                     $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
                     $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
                     $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $user_id, $rule['name']);//更新记录
                 }else{
-
+                    Log::info('用户:'.$user_id.' 无记录更新');
                     $data['growth'] = $user_data_growth;
                     $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
                     $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
@@ -411,14 +416,18 @@ class UserLogic
         $user_level_update = true;
         $user_growth_switch = $this->userData->getSetting('user_growth_switch');
         if ($user_growth_switch){
+            Log::info('用户:'.$user_id.' 更新等级');
             //更新等级
             $growth_rule = $this->userData->userGrowth($user_id);
             $level = $this->userData->getUserLevelRule($growth_rule);
             $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
+            Log::info('用户:'.$user_id.' 更新等级完毕');
             if ($user_info['level'] < $level['level_sort']){
+                Log::info('用户:'.$user_id.' 降级');
                 //降级
                 $this->redis->hset('lifting_level', 'user:'.$user_id, -1);
             }else if ($user_info['level'] > $level['level_sort']){
+                Log::info('用户:'.$user_id.' 升级');
                 //升级
                 $this->redis->hset('lifting_level', 'user:'.$user_id, 1);
                 Log::info('用户:'.$user_id.' 升级为:'.$level['level_sort']);
@@ -426,9 +435,11 @@ class UserLogic
         }
 
         if($user_growth_record !== false && $user_growth !== false && $user_level_update !== false){
+            Log::info('用户:'.$user_id.' 成功');
             Db::commit();
             return true;
         }else{
+            Log::info('用户:'.$user_id.' 失败');
             Db::rollback();
             return false;
         }
