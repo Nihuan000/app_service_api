@@ -115,7 +115,7 @@ class BuyExpireUpdateTask
         $notice_history_key = 'notice_strength_history'; //提示历史记录
         $last_time = strtotime(date('Y-m-d',strtotime('+7 day')));
         $params = [
-            ['end_time',$last_time,'<='],
+            ['end_time', '<=',$last_time],
             'is_expire' => 0,
             'pay_for_open' => 1
         ];

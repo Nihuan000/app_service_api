@@ -255,7 +255,7 @@ class UserDao
         $start_time = strtotime(date('Y-m-d'));
         $end_time = strtotime(date('Y-m-d 23:59:59'));
         foreach ($data as $item) {
-            $checkExists = SupplierDataStatistic::findOne(['user_id' => $item['user_id'], ['record_time',$start_time,'>'],['record_time',$end_time,'<']],['fields' => ['sds_id']])->getResult();
+            $checkExists = SupplierDataStatistic::findOne(['user_id' => $item['user_id'], ['record_time','>',$start_time],['record_time','<',$end_time]],['fields' => ['sds_id']])->getResult();
             if(!$checkExists){
                 $last_list[] = $item;
             }
