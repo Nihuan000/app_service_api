@@ -382,11 +382,11 @@ class UserLogic
                 if ($params['system']==1){
                     Log::info('用户:'.$user_id.' 安卓');
                     //安卓
-                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
+                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['mainProduct']);
                 }else{
                     Log::info('用户:'.$user_id.' ios');
                     //ios
-                    $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
+                    $user_data_growth = $this->get_completion_rate($user_id,$user_info['mainProduct']);
                 }
                 if (isset($user_growth_record_one)){
                     $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
