@@ -436,7 +436,7 @@ class UserLogic
 
     /**
      * ios资料完善率
-     * @Author yang
+     * @author yang
      * @param int $user_id
      * @param string $main_product
      * @return int
