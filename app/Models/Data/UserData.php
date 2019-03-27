@@ -87,8 +87,8 @@ class UserData
 
     /**
      * @author yang
-     * @param $params
-     * @param $user_id
+     * @param array $params
+     * @param int $user_id
      * @return mixed
      * @throws \Swoft\Db\Exception\DbException
      */
@@ -453,7 +453,7 @@ class UserData
      * 添加成长值记录
      * @author yang
      * @param array $params
-     * @return bool
+     * @return mixed
      */
     public function userGrowthRecordInsert(array $params)
     {
@@ -465,7 +465,7 @@ class UserData
      * @author yang
      * @param int $user_id
      * @param string $name
-     * @return bool
+     * @return array
      */
     public function userGrowthRecordOne(int $user_id, string $name)
     {
@@ -489,7 +489,7 @@ class UserData
     /**
      * 获取用户积分对应的等级
      * @author yang
-     * @param string $growth
+     * @param int $growth
      * @return array
      */
     public function getUserLevelRule(int $growth)
@@ -503,7 +503,7 @@ class UserData
      * @param int $growth
      * @param int $user_id
      * @param int $is_add
-     * @return bool
+     * @return mixed
      */
     public function userGrowthUpdate(int $growth, int $user_id, int $is_add = 0)
     {
@@ -513,7 +513,13 @@ class UserData
         ];
         if ($is_add==0){
             $growth_info = $this->userDao->UserGrowth($user_id);
-            $growth_num = $growth_info['growth'] + $growth;
+            if (isset($growth_info)){
+                $growth_num = $growth_info['growth'] + $growth;
+            }else{
+                $this->userDao->UserGrowthAdd($user_id);
+                $growth_num = $growth;
+            }
+            
             $params = [
                 'growth' => $growth_num,
                 'update_time' => time(),
@@ -538,7 +544,8 @@ class UserData
     /**
      * 获取用户评价数
      * @author yang
-     * @return array
+     * @param  int $user_id
+     * @return int
      */
     public function getReviewCount($user_id)
     {
@@ -549,8 +556,7 @@ class UserData
      * 获取卖家好评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewGoodCount($user_id)
     {
@@ -561,8 +567,7 @@ class UserData
      * 获取卖家差评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewBadCount($user_id)
     {
@@ -619,7 +624,7 @@ class UserData
      * 获取品牌网站
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserAttribute($user_id)
     {

@@ -397,7 +397,7 @@ class UserDao
      * @author yang
      * @param $user_id
      * @param $name
-     * @return mixed
+     * @return array
      */
     public function UserGrowthRecordOne($user_id, $name)
     {
@@ -441,21 +441,41 @@ class UserDao
     }
 
     /**
+     * 成长值表新增用户
+     * @author yang
+     * @param $user_id
+     * @return mixed
+     */
+    public function UserGrowthAdd($user_id)
+    {
+        $data = [
+            'user_id'=>$user_id,
+            'growth'=>0,
+            'add_time'=>time(),
+            'update_time'=>time(),
+        ];
+        $user   = new UserGrowth();
+        $result = $user->fill($data)->save()->getResult();
+        return $result;
+    }
+
+    /**
      * 成长值记录
      * @author yang
-     * @param $post_user_id
-     * @param $limit
+     * @param int $post_user_id
+     * @param int $limit
      * @return array
      */
     public function getUserList($post_user_id, $limit)
     {
-        return User::findAll([['role', 'in', [1,5]],['user_id'=> $post_user_id]],['fields' => ['user_id','main_product','certification_type'], 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
+        return User::findAll([['role', 'in', [1,5]],['user_id'=> $post_user_id]],['fields' => ['user_id','main_product','certification_type','phone_type'], 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
 
     }
 
     /**
      * 采购商成长值查等级
      * @author yang
+     * @param int $growth
      * @return array
      */
     public function getUserLevelRule($growth)
@@ -466,8 +486,8 @@ class UserDao
     /**
      * 获取评价数
      * @author yang
-     * @param $user_id
-     * @return array
+     * @param  int $user_id
+     * @return int
      */
     public function getReviewCount($user_id)
     {
@@ -478,8 +498,7 @@ class UserDao
      * 获取卖家好评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewGoodCount($user_id)
     {
@@ -496,8 +515,7 @@ class UserDao
      * 获取卖家差评数
      * @author yang
      * @param $user_id
-     * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int
      */
     public function getReviewBadCount($user_id)
     {
@@ -546,7 +564,7 @@ class UserDao
      * 查询公司信息
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserCompany($user_id)
     {
@@ -559,7 +577,7 @@ class UserDao
      * 获取品牌网站
      * @author yang
      * @param $user_id
-     * @return int
+     * @return array
      */
     public function getUserAttribute($user_id)
     {
@@ -579,6 +597,7 @@ class UserDao
         return Query::table('sb_user_purchaser_role_work_img')
             ->where('user_id',$user_id)
             ->where('type',$type)
+            ->get()
             ->getResult();
     }
 
@@ -595,6 +614,7 @@ class UserDao
             ->where('is_delete',0)
             ->where('is_audit',1)
             ->where('url_type',20,'!=')
+            ->get()
             ->getResult();
     }
 
@@ -602,15 +622,16 @@ class UserDao
      * 采购身份背景表
      * @author yang
      * @param $user_id
+     * @param $role_type
      * @return array
      */
-    public function getUserPurchaserRoleBackground($user_id,$role_type)
+    public function getUserPurchaserRoleBackground(int $user_id,int $role_type)
     {
-        return Query::table('sb_user_purchaser_role_background')
+        return Query::table('sb_user_purchaser_role_background','upr')
             ->where('user_id',$user_id)
             ->where('is_delete',0)
             ->where('role_type',$role_type)
-            ->get(['id','role_background_name as name','role_type','role_id'])
+            ->get(['id','upr.role_background_name as name','role_type','role_id'])
             ->getResult();
     }
 }

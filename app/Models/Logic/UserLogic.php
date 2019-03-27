@@ -355,6 +355,8 @@ class UserLogic
         ];
 
         $user_info = $this->userData->getUserInfo($user_id);//用户信息
+
+
         //开启事务
         Db::beginTransaction();
         if ($rule['name'] == 'transaction_limit'){
@@ -379,21 +381,21 @@ class UserLogic
             //安卓ios区分计算不同的资料完善率
             $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
             if (!empty($params['system'])){
-                $user_data_growth = 0;
                 if ($params['system']==1){
+                    Log::info('用户:'.$user_id.' 安卓');
                     //安卓
-                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
-                }elseif($params['system']==2){
+                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['mainProduct']);
+                }else{
+                    Log::info('用户:'.$user_id.' ios');
                     //ios
-                    $user_data_growth = $this->get_completion_rate($user_id,$user_info['main_product']);
+                    $user_data_growth = $this->get_completion_rate($user_id,$user_info['mainProduct']);
                 }
                 if (isset($user_growth_record_one)){
-
                     $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
+                    Log::info('用户:'.$user_id.' 有记录更新  当前成长值'.$user_growth_record_one['growth'].' 当前最新成长值'.$user_data_growth);
                     $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
                     $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $user_id, $rule['name']);//更新记录
                 }else{
-
                     $data['growth'] = $user_data_growth;
                     $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
                     $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
@@ -412,21 +414,22 @@ class UserLogic
         $user_level_update = true;
         $user_growth_switch = $this->userData->getSetting('user_growth_switch');
         if ($user_growth_switch){
+            Log::info('用户:'.$user_id.' 更新等级');
             //更新等级
             $growth_rule = $this->userData->userGrowth($user_id);
             $level = $this->userData->getUserLevelRule($growth_rule);
             $user_level_update = $this->userData->userUpdate(['level'=>$level['level_sort']], $user_id);
             if ($user_info['level'] < $level['level_sort']){
                 //降级
-                $this->redis->hset('lifting_level', 'user:'.$user_id, -1);
+                $this->redis->hset('lifting_level', 'user:'.$user_id, 'plus');
+                Log::info('用户:'.$user_id.' 升级为:'.$level['level_sort']);
             }else if ($user_info['level'] > $level['level_sort']){
                 //升级
-                $this->redis->hset('lifting_level', 'user:'.$user_id, 1);
-                Log::info('用户:'.$user_id.' 升级为:'.$level['level_sort']);
+                $this->redis->hset('lifting_level', 'user:'.$user_id, 'minus');
             }
         }
 
-        if($user_growth_record && $user_growth && $user_level_update){
+        if($user_growth_record !== false && $user_growth !== false && $user_level_update !== false){
             Db::commit();
             return true;
         }else{
@@ -437,11 +440,13 @@ class UserLogic
 
     /**
      * ios资料完善率
-     * @Author yang
-     * @return float
-     * @Date 19-03-25
+     * @author yang
+     * @param int $user_id
+     * @param string $main_product
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
      */
-    private function get_completion_rate($user_id,$main_product){
+    public function get_completion_rate($user_id,$main_product){
         $base_count = 3;
         $completion_count = 1;
         $purchaser_role_type = $this->private_get_user_purchaser_role_type($user_id);//获取用户身份，和身份对应的背景
