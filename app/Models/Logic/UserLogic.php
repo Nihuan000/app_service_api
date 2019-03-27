@@ -102,6 +102,7 @@ class UserLogic
         $user_count = $this->userData->getUserCountByParams($params);
         Log::info('user_count:' . $user_count);
         $pages = ceil($user_count/$limit);
+        $ready_ids = [];
         if($pages >= 0){
             $last_id = 0;
             for ($i = 0;$i < $pages; $i++){
@@ -112,6 +113,10 @@ class UserLogic
                 foreach ($list as $item) {
                     $user_id = $item['userId'];
                     $data['user_id'] = $user_id;
+                    //去重判断
+                    if(in_array($data['user_id'],$ready_ids)){
+                        continue;
+                    }
                     $data['days_type'] = $day_type;
                     //登录天数获取
                     $login_days = $this->userData->getUserLoginTimes($user_id, $last_day_time);
@@ -142,6 +147,7 @@ class UserLogic
                     $data['record_time'] = time();
                     Log::info('user_list:' . json_encode($data));
                     $supplierAll[] = $data;
+                    $ready_ids[] = $data['user_id'];
                     $last_id = $item['userId'];
                 }
                 $this->userData->saveSupplierData($supplierAll);
@@ -302,7 +308,7 @@ class UserLogic
     /**
      * 根据采购标签推荐供应商
      * @author yang
-     * @param Request $request
+     * @param $buy_id
      * @return array
      */
     public function buyTagRecommend($buy_id)
@@ -329,6 +335,7 @@ class UserLogic
      * @param array $params
      * @param array $rule
      * @return bool
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function growth($params, $rule)
     {
@@ -372,6 +379,7 @@ class UserLogic
             //安卓ios区分计算不同的资料完善率
             $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
             if (!empty($params['system'])){
+                $user_data_growth = 0;
                 if ($params['system']==1){
                     //安卓
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['main_product']);
