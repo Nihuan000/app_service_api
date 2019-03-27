@@ -143,7 +143,7 @@ class BuyExpireUpdateTask
                     $extra['data'] = [$extraData];
                     $extra['content'] = "您的实力商家权限即将到期，#点击续费#";
                     $notice['extra'] = $extra;
-                    sendInstantMessaging('1', (string)$strength['userId'], json_encode($notice['msgExtra']));
+                    sendInstantMessaging('1', (string)$strength['userId'], json_encode($notice['extra']));
                     $this->redis->sAdd($notice_history_key, (string)$strength['userId']);
                     $user_ids[] = $strength['userId'];
                 }
