@@ -438,8 +438,10 @@ class UserLogic
     /**
      * ios资料完善率
      * @Author yang
-     * @return float
-     * @Date 19-03-25
+     * @return int
+     * @param int $user_id
+     * @param string $main_product
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function get_completion_rate($user_id,$main_product){
         $base_count = 3;
