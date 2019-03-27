@@ -121,6 +121,7 @@ class BuyExpireUpdateTask
         ];
         $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
         if(!empty($strength_list)){
+            $user_ids = [];
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
             foreach ($strength_list as $strength) {
