@@ -343,7 +343,7 @@ class IndexController
         $condition = [
             ['record_time','>=',$last_time],
             'send_status' => 0,
-            'user_id' => 174585,
+            'user_id' => 0,
             'send_time' => 0
         ];
         $count = $this->userData->getSupplierCount($condition);//未发送报告数
