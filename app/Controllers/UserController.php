@@ -75,6 +75,7 @@ class UserController{
         $params['user_id'] = $request->post('user_id');
         $params['name'] = $request->post('name');//积分规则标识符
         $params['operate_id'] = empty($request->post('operate_id')) ? 0 : $request->post('operate_id');//管理员id
+        $params['system'] = empty($request->post('system')) ? 0 : $request->post('system');//手机类型区分
 
         $code = 0;
         $result = [];
