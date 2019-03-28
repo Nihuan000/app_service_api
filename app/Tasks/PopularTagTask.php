@@ -47,6 +47,12 @@ class PopularTagTask
     protected $tag_stastic_list;
 
     /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    protected $cacheRedis;
+
+    /**
      * 热门推送标签统计
      * @author Nihuan
      * @Scheduled(cron="0 0 5 1 * *")
@@ -89,6 +95,20 @@ class PopularTagTask
             }
         }
         return ['热门标签统计'];
+    }
+
+    /**
+     * 刷新实力好店列表
+     * @param string $url
+     * @param int $user_id
+     */
+    public function refreshPreferredShop(string $url, int $user_id)
+    {
+        $person_tag_key = 'person_tag_' . $user_id;
+        if(!$this->redis->exists($person_tag_key)){
+            $params = ['url' => $url, 'timeout' => 5];
+            CURL($params,'get');
+        }
     }
 
 

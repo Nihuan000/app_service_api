@@ -113,7 +113,7 @@ class SupplierDataTask{
                         if ($isUserStrength) {
 
                             if($this->redis->exists($historyIndex)){
-                                $history = $this->redis->sIsMember($historyIndex, $item['userId']);
+                                $history = $this->redis->sIsMember($historyIndex, (string)$item['userId']);
                             }else{
                                 $history = false;
                                 $expire_time = 7 * 3600 * 24;
@@ -135,11 +135,11 @@ class SupplierDataTask{
                                 $data['extra'] = $extra;
 
                                 //TODO 发送
-                                sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
                                 $this->redis->sAdd($historyIndex, $item['userId']);
                                 if($expire_time > 0){
                                     $this->redis->expire($historyIndex ,$expire_time);
                                 }
+                                sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
                             }
 
                             $send_user_id[] = $item['userId'];
