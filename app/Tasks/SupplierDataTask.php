@@ -135,13 +135,14 @@ class SupplierDataTask{
                                 $data['extra'] = $extra;
 
                                 //TODO 发送
-                                $this->redis->sAdd($historyIndex, $item['userId']);
+                                $this->redis->sAdd($historyIndex, (string)$item['userId']);
                                 if($expire_time > 0){
                                     $this->redis->expire($historyIndex ,$expire_time);
                                 }
                                 sendInstantMessaging('1',(string)$item['userId'],json_encode($data['extra']));
                             }
 
+                            $this->userData->updateSupplierData([$item['userId']]);
                             $send_user_id[] = $item['userId'];
                         }else{
                             //不是实商不再发送

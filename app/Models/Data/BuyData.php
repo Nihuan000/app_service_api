@@ -260,7 +260,6 @@ class BuyData
      * 获取发布采购成功数
      * @author yang
      * @param $user_id
-     * @throws \Swoft\Db\Exception\DbException
      * @return int
      */
     public function getBuyCount($user_id)

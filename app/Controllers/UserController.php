@@ -278,7 +278,7 @@ class UserController{
             $result = [];
             $msg = '参数错误';
         }else{
-            $notice_history_key = 'over_strength_history'; //提示历史记录
+            $notice_history_key = 'over_strength_history_' . date('Y'); //提示历史记录
             $user_ids = [];
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');

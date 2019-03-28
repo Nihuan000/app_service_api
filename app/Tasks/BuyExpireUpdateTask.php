@@ -108,11 +108,11 @@ class BuyExpireUpdateTask
     /**
      * 即将到期实商系统消息提醒
      * @return array
-     * @Scheduled(cron="0 30 15 * * *")
+     * @Scheduled(cron="0 0 11 * * *")
      */
     public function strengthExpNotice()
     {
-        $notice_history_key = 'notice_strength_history'; //提示历史记录
+        $notice_history_key = 'notice_strength_history_' . date('Y'); //提示历史记录
         $last_time = strtotime(date('Y-m-d',strtotime('+7 day')));
         $params = [
             ['end_time', '<=',$last_time],

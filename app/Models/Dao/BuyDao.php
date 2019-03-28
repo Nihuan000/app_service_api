@@ -123,7 +123,6 @@ class BuyDao
      * 发布成功采购数
      * @param $user_id
      * @return \Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\DbException
      */
     public function getBuyCount($user_id)
     {

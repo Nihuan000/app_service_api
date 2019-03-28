@@ -82,11 +82,12 @@ class RecommendMsgQueueTask
                         $this->searchRedis->lPop($index . $date);
                         //历史推送记录查询
                         if($this->searchRedis->exists($historyIndex . $date)){
-                            $history = $this->searchRedis->sIsMember($historyIndex . $date, $item);
+                            $history = $this->searchRedis->sIsMember($historyIndex . $date, (string)$item);
                         }else{
                             $history = false;
                         }
                         if($user_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
+                            $this->searchRedis->sAdd($historyIndex . $date, (string)$item);
                             $phone = $user_info['phone'];
                             $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
                             sendSms($phone, $sms_content, 2, 1);
@@ -144,8 +145,6 @@ class RecommendMsgQueueTask
                                 $notice['extra'] = $extra;
                                 sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                             }
-
-                            $this->searchRedis->sAdd($historyIndex . $date, $item);
                         }
                     }
                 }
