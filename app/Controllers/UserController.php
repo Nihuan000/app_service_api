@@ -269,6 +269,7 @@ class UserController{
      * 实商到期提醒添加
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function strength_expire_notice(Request $request)
     {
@@ -284,7 +285,12 @@ class UserController{
             $sys_msg = $config->get('sysMsg');
             //查看是否有开通记录
             $open_info = $this->userData->getIsUserStrength($user_id);
-            if(empty($open_info) && $this->userData->getSetting('strength_over_switch') == 1){
+            $receive_status = 0;
+            $test_list = $this->userData->getTesters();
+            if(in_array($user_id, $test_list) || $this->userData->getSetting('strength_over_switch') == 1){
+                $receive_status = 1;
+            }
+            if(empty($open_info) && $receive_status == 1){
                 $history_record = $this->redis->sIsMember($notice_history_key,(string)$user_id);
                 if($history_record == 0){
                     //发送系统消息

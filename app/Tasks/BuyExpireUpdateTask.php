@@ -109,6 +109,7 @@ class BuyExpireUpdateTask
      * 即将到期实商系统消息提醒
      * @return array
      * @Scheduled(cron="0 0 11 * * *")
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function strengthExpNotice()
     {
@@ -120,34 +121,42 @@ class BuyExpireUpdateTask
             'pay_for_open' => 1
         ];
         $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
-        if(!empty($strength_list) && $this->userData->getSetting('strength_over_switch') == 1){
+
+        $test_list = $this->userData->getTesters();
+        if(!empty($strength_list)){
             $user_ids = [];
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
             foreach ($strength_list as $strength) {
-                $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
-                if($history_record == 0){
-                    //发送系统消息
-                    ################## 消息基本信息开始 #######################
-                    $extra = $sys_msg;
-                    $extra['title'] = '实商即将到期';
-                    $extra['msgContent'] = "您的实力商家权限即将到期，\n点击续费";
-                    ################## 消息基本信息结束 #######################
+                $receive_status = 0;
+                if(in_array($strength['userId'], $test_list) || $this->userData->getSetting('strength_over_switch') == 1){
+                    $receive_status = 1;
+                }
+                if($receive_status == 1){
+                    $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
+                    if($history_record == 0){
+                        //发送系统消息
+                        ################## 消息基本信息开始 #######################
+                        $extra = $sys_msg;
+                        $extra['title'] = '实商即将到期';
+                        $extra['msgContent'] = "您的实力商家权限即将到期，\n点击续费";
+                        ################## 消息基本信息结束 #######################
 
-                    ################## 消息扩展字段开始 #######################
-                    $extraData['keyword'] = '#点击续费#';
-                    $extraData['type'] = 18;
-                    $extraData['url'] = $this->userData->getSetting('user_strength_url');
-                    ################## 消息扩展字段结束 #######################
+                        ################## 消息扩展字段开始 #######################
+                        $extraData['keyword'] = '#点击续费#';
+                        $extraData['type'] = 18;
+                        $extraData['url'] = $this->userData->getSetting('user_strength_url');
+                        ################## 消息扩展字段结束 #######################
 
-                    $extra['data'] = [$extraData];
-                    $extra['content'] = "您的实力商家权限即将到期，#点击续费#";
-                    $notice['extra'] = $extra;
-                    $this->redis->sAdd($notice_history_key, (string)$strength['userId']);
-                    sendInstantMessaging('1', (string)$strength['userId'], json_encode($notice['extra']));
-                    $user_ids[] = $strength['userId'];
-                }else{
-                    write_log(2,$strength['userId'] . '推送记录已存在');
+                        $extra['data'] = [$extraData];
+                        $extra['content'] = "您的实力商家权限即将到期，#点击续费#";
+                        $notice['extra'] = $extra;
+                        $this->redis->sAdd($notice_history_key, (string)$strength['userId']);
+                        sendInstantMessaging('1', (string)$strength['userId'], json_encode($notice['extra']));
+                        $user_ids[] = $strength['userId'];
+                    }else{
+                        write_log(2,$strength['userId'] . '推送记录已存在');
+                    }
                 }
             }
             if(!empty($user_ids)){
