@@ -398,34 +398,4 @@ class SearchController
         }
         return compact('code','result','msg');
     }
-
-
-    /**
-     * 异步刷新实力好店
-     * @param Request $request
-     * @return array
-     * @throws \Swoft\Task\Exception\TaskException
-     */
-    public function refresh_preferred_shop(Request $request)
-    {
-        $url = $request->post('url');
-        $user_id = $request->post('user_id');
-        if(empty($url) || empty($user_id)){
-            $code = -1;
-            $result = [];
-            $msg = '参数错误';
-        }else{
-            $params = [
-                'url' => $url,
-                'user_id' => (int)$user_id
-            ];
-            /* @var ProductData $proLogic */
-            $proLogic = App::getBean(ProductData::class);
-            $proLogic->preferredShop($params);
-            $code = 200;
-            $result = [];
-            $msg = '获取成功';
-        }
-        return compact('code','result','msg');
-    }
 }

@@ -98,21 +98,6 @@ class PopularTagTask
     }
 
     /**
-     * 刷新实力好店列表
-     * @param string $url
-     * @param int $user_id
-     */
-    public function refreshPreferredShop(string $url, int $user_id)
-    {
-        $person_tag_key = 'person_tag_' . $user_id;
-        if(!$this->redis->exists($person_tag_key)){
-            $params = ['url' => $url, 'timeout' => 5];
-            CURL($params,'get');
-        }
-    }
-
-
-    /**
      * 标签列表统计
      * @author Nihuan
      * @param $tag_object
