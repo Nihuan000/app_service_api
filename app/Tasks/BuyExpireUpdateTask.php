@@ -120,7 +120,7 @@ class BuyExpireUpdateTask
             'pay_for_open' => 1
         ];
         $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
-        if(!empty($strength_list)){
+        if(!empty($strength_list) && $this->userData->getSetting('strength_over_switch') == 1){
             $user_ids = [];
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
