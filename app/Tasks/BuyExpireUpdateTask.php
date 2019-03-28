@@ -146,6 +146,8 @@ class BuyExpireUpdateTask
                     $this->redis->sAdd($notice_history_key, (string)$strength['userId']);
                     sendInstantMessaging('1', (string)$strength['userId'], json_encode($notice['extra']));
                     $user_ids[] = $strength['userId'];
+                }else{
+                    write_log(2,$strength['userId'] . '推送记录已存在');
                 }
             }
             if(!empty($user_ids)){

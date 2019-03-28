@@ -306,6 +306,8 @@ class UserController{
                     $this->redis->sAdd($notice_history_key, (string)$user_id);
                     sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
                     $user_ids[] = $user_id;
+                }else{
+                    write_log(2,$user_id . '实商到期推送记录已存在');
                 }
             }else{
                 write_log(2,$user_id . '存在已开通记录，不再提醒');
