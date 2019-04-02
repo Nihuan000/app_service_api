@@ -47,6 +47,12 @@ class PopularTagTask
     protected $tag_stastic_list;
 
     /**
+     * @Inject("demoRedis")
+     * @var Redis
+     */
+    protected $cacheRedis;
+
+    /**
      * 热门推送标签统计
      * @author Nihuan
      * @Scheduled(cron="0 0 5 1 * *")
@@ -90,7 +96,6 @@ class PopularTagTask
         }
         return ['热门标签统计'];
     }
-
 
     /**
      * 标签列表统计
