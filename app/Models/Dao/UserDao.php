@@ -401,7 +401,7 @@ class UserDao
      */
     public function UserGrowthRecordOne($user_id, $name)
     {
-        return UserGrowthRecord::findOne(['user_id'=>$user_id, 'name'=>$name], ['fields' => ['growth']])->getResult();
+        return UserGrowthRecord::findOne(['user_id'=>$user_id, 'name'=>$name, 'status'=>1], ['fields' => ['growth']])->getResult();
     }
 
     /**
@@ -426,7 +426,7 @@ class UserDao
      */
     public function UserGrowthUpdate($params,$user_id)
     {
-        return UserGrowth::updateOne($params, ['user_id' => $user_id])->getResult();
+        return UserGrowth::updateOne($params, ['user_id' => $user_id, 'status'=>1])->getResult();
     }
 
     /**
