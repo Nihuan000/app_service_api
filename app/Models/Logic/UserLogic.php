@@ -233,7 +233,7 @@ class UserLogic
                     $current_item = array_splice($item,0,1);
                     if(!empty($current_item)){
                         $shop = explode('#',$current_item[0]);
-                        if(isset($match_record_list[$shop[0]])){
+                        if(isset($match_record_list[$shop[0]]) || $shop[0] == $params['user_id']){
                             continue;
                         }
                         $match_record_list[$shop[0]] = $shop[1];
