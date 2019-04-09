@@ -355,7 +355,9 @@ class UserLogic
         ];
 
         $user_info = $this->userData->getUserInfo($user_id);//用户信息
-
+        if (in_array($user_info['role'],[2,3,4])) {
+            return false;
+        }
 
         //开启事务
         Db::beginTransaction();
