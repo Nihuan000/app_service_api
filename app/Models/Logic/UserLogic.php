@@ -491,7 +491,7 @@ class UserLogic
             if($base_count >5 && !empty($work_img["img_second_list"]) ){
                 $completion_count ++;
             }
-            return (float)round($completion_count / $base_count * 100 , 0 );
+            return (int)intval($completion_count / $base_count * 100 , 0 );
         }
     }
 
