@@ -49,24 +49,6 @@ class BuyData
     private $tagData;
 
     /**
-     * 二级品类列表
-     * @var array
-     */
-    protected $pro_cate = [ '绒布', '梭织提花', '灯芯绒', '麻棉弹力', '羽绒服','棉服','羽绒服、棉服'];
-
-    /**
-     * 搜索指定列表
-     * @var array
-     */
-    protected $search_key = ['印花','时装','格纹','牛仔','粗纺','网布','衬衫','雪纺','风衣裤', '西装','工装布','羽绒服','防晒服','功能性面料','T恤','卫衣','牛仔','衬衫','连衣裙','男装','女装','童装','家纺','家居服','箱包鞋材','工程布','墙布','装饰布','运动','户外','登山布','羽绒服'];
-
-    /**
-     * 顶级类列表
-     * @var array
-     */
-    protected $top_tag = ['呢料毛纺','针织','蕾丝绣品'];
-
-    /**
      * 时间维度
      * @var array
      */
@@ -205,11 +187,9 @@ class BuyData
                 $cache_buy_tag = [];
                 $now_time = time();
                 foreach ($buy_tags as $tag) {
-                    $tag_name = [];
+                    $tag_name = '';
                     $parent_keyword = str_replace('面料','',$tag['parentName']);
-                    if(in_array($parent_keyword,$this->pro_cate)){
-                        $tag_name = $parent_keyword;
-                    }
+                    $tag_name = $parent_keyword;
                     if(!empty($tag_name) && !isset($cache_buy_tag[$tag['buyId']])){
                         $tag_score = 100;
                         $tag_mictime = $now_time - $buy_score_list[$tag['buyId']];
@@ -241,15 +221,13 @@ class BuyData
             foreach ($keyword_list as $item) {
                 if(!empty($item['keyword'])){
                     $keyword = str_replace('面料','',$item['keyword']);
-                    if(in_array($keyword,$this->search_key) || in_array($keyword,$this->pro_cate) || in_array($keyword,$this->top_tag)){
-                        $tag_score = 30;
-                        $tag_mictime = $now_time - $item['search_time'];
-                        $value_add = similar_acquisition($tag_mictime,$this->timeRank);
-                        if(!empty($value_add)){
-                            $tag_score *= $value_add;
-                        }
-                        $search_tag[$keyword][] = $tag_score;
+                    $tag_score = 30;
+                    $tag_mictime = $now_time - $item['search_time'];
+                    $value_add = similar_acquisition($tag_mictime,$this->timeRank);
+                    if(!empty($value_add)){
+                        $tag_score *= $value_add;
                     }
+                    $search_tag[$keyword][] = $tag_score;
                 }
             }
         }
