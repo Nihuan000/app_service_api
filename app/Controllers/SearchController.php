@@ -302,7 +302,7 @@ class SearchController
             $params = [
                 'buyId' => (int)$buy_id,
                 'title' => $title,
-                'content' => $content,
+                'context' => $content,
                 'pic' => $pic
             ];
             Log::info(json_encode($params));

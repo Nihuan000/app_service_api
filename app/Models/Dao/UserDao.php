@@ -177,7 +177,7 @@ class UserDao
      * @param int $limit
      * @return mixed
      */
-    public function getUserListByParams(array $params, array $fields, int $limit = 20)
+    public function getUserListByParams(array $params, array $fields, $limit = 20)
     {
         return User::findAll($params,['fields' => $fields, 'limit' => $limit, 'orderby' => ['user_id' => 'asc']])->getResult();
     }
@@ -251,16 +251,7 @@ class UserDao
      */
     public function saveSupplierData($data)
     {
-        $last_list = [];
-        $start_time = strtotime(date('Y-m-d'));
-        $end_time = strtotime(date('Y-m-d 23:59:59'));
-        foreach ($data as $item) {
-            $checkExists = SupplierDataStatistic::findOne(['user_id' => $item['user_id'], ['record_time','>',$start_time],['record_time','<',$end_time]],['fields' => ['sds_id']])->getResult();
-            if(!$checkExists){
-                $last_list[] = $item;
-            }
-        }
-        return SupplierDataStatistic::batchInsert($last_list)->getResult();
+        return SupplierDataStatistic::batchInsert($data)->getResult();
     }
 
     /**

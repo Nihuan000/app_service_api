@@ -139,16 +139,16 @@ class TagLogic
             }
         }
         //产品品类
-        $product_list = $this->productData->getUserVisitProduct($user_id);
-        if(!empty($product_list)){
-            foreach ($product_list as $pk => $pv) {
-                if(isset($custom_tag_list[$pk])){
-                    $custom_tag_list[$pk] += array_sum($pv);
-                }else{
-                    $custom_tag_list[$pk] = array_sum($pv);
-                }
-            }
-        }
+//        $product_list = $this->productData->getUserVisitProduct($user_id);
+//        if(!empty($product_list)){
+//            foreach ($product_list as $pk => $pv) {
+//                if(isset($custom_tag_list[$pk])){
+//                    $custom_tag_list[$pk] += array_sum($pv);
+//                }else{
+//                    $custom_tag_list[$pk] = array_sum($pv);
+//                }
+//            }
+//        }
         if(!empty($custom_tag_list)){
             $this->redis->delete($tag_index . $user_id);
             foreach ($custom_tag_list as $ck => $cv) {

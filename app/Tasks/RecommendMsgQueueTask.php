@@ -64,6 +64,7 @@ class RecommendMsgQueueTask
             $invitate_offer = $config->get('offerSms.invitate_offer');
             $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
             $pages = ceil($len/$this->limit);
+            $pages = 1;
             for ($i=1;$i<=$pages;$i++){
                 $list = $this->searchRedis->lrange($index . $date,0, $this->limit);
                 if(!empty($list)){

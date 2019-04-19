@@ -61,7 +61,7 @@ class OrderCartBuriedData
                 'user_id' => $property['UserId'],
                 'pro_id' => $property['ProId'],
                 'order_type' => $property['OrderType'],
-                'amount' => $property['Amount'],
+                'amount' => is_null($property['Amount']) ? 0 : $property['Amount'],
                 'status' => $cart_status,
                 'operation_time' => $operation_time
             ];

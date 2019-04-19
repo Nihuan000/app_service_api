@@ -57,22 +57,22 @@ class PushQueueTask{
             $params = [
                 'buyId' => (int)$buy_info['buyId'],
                 'title' => (string)$buy_info['title'],
-                'content' => (string)$buy_info['content'],
+                'context' => (string)$buy_info['context'],
                 'pic' => (string)$buy_info['pic']
             ];
             //判断当前记录是否已推送
             $historyRes = $this->redis->sIsMember($historyIndex . $date, $params['buyId']);
             if($historyRes == true){
-                Log::info("记录已存在: {$params['buyId']} - {$params['content']}");
+                Log::info("记录已存在: {$params['buyId']} - {$params['context']}");
             }else{
                 $pushRes = $this->esLogic->checkDataExists($params);
                 if($pushRes == 1){
-                    Log::info("消息已推送: {$params['buyId']} - {$params['content']}");
+                    Log::info("消息已推送: {$params['buyId']} - {$params['context']}");
                     $this->redis->sAdd($historyIndex . $date, $params['buyId']);
                 }elseif($pushRes == 2){
-                    Log::info("索引记录不存在，等待下次推送: {$params['buyId']} - {$params['content']}");
+                    Log::info("索引记录不存在，等待下次推送: {$params['buyId']} - {$params['context']}");
                 }else{
-                    Log::info("其他状态: {$params['buyId']} - {$params['content']}");
+                    Log::info("其他状态: {$params['buyId']} - {$params['context']}");
                 }
             }
         }

@@ -52,7 +52,6 @@ class RecommondPushTask
 
      * @author Nihuan
      * @throws \Swoft\Db\Exception\DbException
-     * @Scheduled(cron="0 0 7 * * *")
      */
     public function rePushTask()
     {
