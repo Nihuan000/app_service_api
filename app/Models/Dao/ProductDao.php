@@ -80,7 +80,7 @@ class ProductDao
      */
     public function getLastProductInfo()
     {
-        return Product::findOne(['del_status' => 1],['orderby' => ['add_time' => 'desc']])->getResult();
+        return Product::findOne(['del_status' => 1],['orderby' => ['add_time' => 'desc'],'fields' => ['pro_id','add_time','user_id']])->getResult();
     }
 
     /**
