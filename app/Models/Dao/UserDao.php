@@ -119,8 +119,8 @@ class UserDao
      */
     public function getUserStrengthList(array $params = [], array $field = [])
     {
-        $queryModel = Query::table('sb_user_strength','t');
-        $queryModel->leftJoin('sb_user',"u.user_id = t.user_id",'u');
+        $queryModel = Query::table('sb_user_strength','u');
+        $queryModel->leftJoin('sb_user_strength',"u.user_id = t.user_id",'t');
         $queryModel->openWhere();
         $queryModel->where('t.is_expire',0);
         $queryModel->where('t.pay_for_open',1);
@@ -129,13 +129,13 @@ class UserDao
         $queryModel->groupBy('u.user_id');
         if(!empty($params)){
             if(isset($params['user_ids'])){
-                $queryModel->whereIn('t.user_id',$params['user_ids']);
+                $queryModel->whereIn('u.user_id',$params['user_ids']);
             }
         }
         if(!empty($field)){
             return $queryModel->get($field)->getResult();
         }else{
-            return $queryModel->get(['t.user_id'])->getResult();
+            return $queryModel->get(['u.user_id'])->getResult();
         }
     }
 
