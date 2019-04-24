@@ -214,6 +214,7 @@ class SearchController
             $result = [];
             $msg = '参数错误';
         }else{
+            Log::info($user_id);
             $params = [
                 'user_id' => $user_id,
                 'tag_id' => $tag_id
@@ -243,13 +244,14 @@ class SearchController
     public function recommend_shop_by_buy(Request $request)
     {
         $user_id = $request->post('user_id');
-        $tag_list = $request->post('tag_list',[]);
+        $buy_tag_list = $request->post('tag_list',[]);
         $remark = $request->post('remark','');
-        if($user_id == false || (empty($tag_list) && empty($remark))){
+        if($user_id == false || (empty($buy_tag_list) && empty($remark))){
             $code = 0;
             $result = [];
             $msg = '参数错误';
         }else{
+            $tag_list = [];
             if(!empty($remark)){
                 /* @var ElasticsearchLogic $elastic_logic */
                 $elastic_logic = App::getBean(ElasticsearchLogic::class);
@@ -259,6 +261,8 @@ class SearchController
                         $tag_list[] = $analyzer['token'];
                     }
                 }
+            }else{
+                $tag_list = json_decode($buy_tag_list,true);
             }
             Log::info(json_encode($tag_list));
             $params = [
@@ -330,7 +334,8 @@ class SearchController
         $code = -1;
         $msg = '参数错误';
         $result = [];
-        if(!empty($buy_id))
+        $is_push =0;
+        if(!empty($buy_id) && $is_push == 1)
         {
             /* @var BuyData $buydate */
             $buydate = App::getBean(BuyData::class);

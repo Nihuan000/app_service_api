@@ -216,6 +216,7 @@ class UserLogic
         if(!empty($tag_list)){
             foreach ($tag_list as $tag) {
                 $cache_key = 'recommend_shop_key_' . md5($tag);
+                Log::info($tag . ' => ' . $cache_key);
                 if($this->redis->exists($cache_key)){
                     $tag_user = $this->redis->SRANDMEMBER($cache_key,3);
                     if(count($tag_user) > 0){
