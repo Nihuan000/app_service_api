@@ -355,10 +355,6 @@ class SearchController
                     $log = 'buy_id:' . $buy_id . '| user_id:' . $buyinfo['userId'] . '| offer_ids:' . implode(',',$user_ids) . ', sendMessageing:';
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
-                        $sellerInfo = $this->userData->getUserInfo($value);
-                        if(in_array($sellerInfo['role'],[1,5])){
-                            continue;
-                        }
                         //历史推送记录查询
                         if($this->redis->exists($inviteIndex . $date)){
                             $history = $this->redis->sIsMember($inviteIndex . $date, $buy_id . '#' . $value);

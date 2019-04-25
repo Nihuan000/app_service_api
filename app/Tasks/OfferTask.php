@@ -14,6 +14,8 @@ use App\Models\Data\BuyData;
 use App\Models\Data\OfferData;
 use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
+use App\Models\Logic\ElasticsearchLogic;
+use App\Models\Logic\ProductLogic;
 use Swoft\App;
  use Swoft\Bean\Annotation\Inject;
 use Swoft\Log\Log;
@@ -59,6 +61,39 @@ class OfferTask{
     private $offerData;
 
     private $limit = 500;
+
+    /**
+     * Deliver async task
+     * @param $buy_id
+     * @param $buy_remark
+     * @param $tag_list
+     * @param $buy_img_list
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    public function Product_Auto_offer($buy_id, $buy_remark,$tag_list,$buy_img_list)
+    {
+        Log::info('自动报价任务开启:' . $buy_id . '=>' . $tag_list);
+        $buy_info = $this->buyData->getBuyInfo($buy_id);
+        $agent_user = $this->userData->getAgentUser(5);
+        if(env('PRODUCT_AUTO_OFFER') == 1 || env('PRODUCT_AUTO_OFFER') == 0 && in_array($buy_info['userId'],$agent_user)){
+            $tag_list = json_decode($tag_list,true);
+            $buy_img_list = json_decode($buy_img_list,true);
+            /* @var ElasticsearchLogic $elastic_logic */
+            $elastic_logic = App::getBean(ElasticsearchLogic::class);
+            $tag_list_analyzer = $elastic_logic->tagAnalyzer($buy_remark);
+            if(isset($tag_list_analyzer) && !empty($tag_list_analyzer)){
+                foreach ($tag_list_analyzer as $analyzer) {
+                    $tag_list[] = $analyzer;
+                }
+            }
+            $buy_tag_list = array_unique($tag_list);
+            //匹配产品数据
+            /* @var ProductLogic $product_logic */
+            $product_logic = App::getBean(ProductLogic::class);
+            $product_logic->match_product_tokenize($buy_id, $buy_tag_list, $buy_img_list);
+        }
+        Log::info('自动报价任务结束:' . $buy_id);
+    }
 
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
