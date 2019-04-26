@@ -71,7 +71,7 @@ class ProductDao
      */
     public function getProductUserByLastTime($add_time,$end_time)
     {
-        return Product::findAll([['add_time','>=', $add_time],['add_time','<', $end_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'ASC'],'fields' => ['user_id','add_time','pro_id']])->getResult();
+        return Product::findAll([['add_time','>', $add_time],['add_time','<=', $end_time],'del_status' => 1],['groupBy' => 'user_id','orderBy' => ['add_time' => 'ASC'],'fields' => ['user_id','add_time','pro_id']])->getResult();
     }
 
     /**
