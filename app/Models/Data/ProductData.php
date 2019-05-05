@@ -212,25 +212,10 @@ class ProductData
                     krsort($current_level);
                     $current_user_start_time = current($current_level);
                     $current_user_end_time = $cycle_time_list[$current_user_start_time];
+
                     $current_list = $this->redis->zRangeByScore($waterfall_index,$current_user_start_time,$current_user_end_time);
-                    //周期内产品数判断
-                    if(!empty($current_list)){
-                        $user_has_queue_count[$item['userId']] = [];
-                        foreach ($current_list as $pk => $pv) {
-                            $pro_arr = explode('#',$pv);
-                            if($pro_arr[0] == $item['userId']){
-                                $user_has_queue_count[$item['userId']][] = 1;
-                            }
-                        }
-                        $user_queue_count = array_sum($user_has_queue_count[$item['userId']]);
-                        if($user_queue_count < $params['display_count']){
-                            $limit_count = $params['display_count'] - $user_queue_count;
-                        }
-                    }else{
-                        $limit_count = $params['display_count'];
-                    }
+
                     //周期内产品补充
-                    if(isset($limit_count) && $limit_count > 0){
                         Log::info($item['userId']);
                         $proParams = [
                             ['add_time','>=',$current_user_start_time],
@@ -241,12 +226,31 @@ class ProductData
                         //符合条件产品数修改
                         $prOption = [
                             'fields' => ['user_id','pro_id','add_time'],
-                            'limit' => $limit_count
+                            'limit' => $params['display_count']
                         ];
                         $pro_info = $this->productDao->getUserProductListByParams($proParams,$prOption);
+                        $wait_del_count[$item['userId']] = 0;
                         if(!empty($pro_info)){
                             foreach ($pro_info as $pro) {
-                                $this->redis->zAdd($waterfall_index,$pro['addTime'],$pro['userId'] . '#' .$pro['proId']);
+                                $cache_value = $pro['userId'] . '#' .$pro['proId'];
+                                if($this->redis->zScore($waterfall_index,$cache_value) > 0){
+                                    continue;
+                                }else{
+                                    $wait_del_count[$item['userId']] += 1;
+                                    $this->redis->zAdd($waterfall_index,$pro['addTime'],$pro['userId'] . '#' .$pro['proId']);
+                                }
+                            }
+                        }
+
+
+                    //周期内历史产品数判断并删除
+                    if(!empty($current_list)){
+                        $user_has_queue_count[$item['userId']] = 0;
+                        foreach ($current_list as $pk => $pv) {
+                            $pro_arr = explode('#',$pv);
+                            if($pro_arr[0] == $item['userId'] && $wait_del_count[$item['userId']] > 0){
+                                $this->redis->zRem($waterfall_index,$pv);
+                                $wait_del_count[$item['userId']] --;
                             }
                         }
                     }
