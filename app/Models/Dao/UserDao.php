@@ -122,10 +122,12 @@ class UserDao
         $queryModel = Query::table('sb_user_strength','u');
         $queryModel->leftJoin('sb_user_strength',"u.user_id = t.user_id",'t');
         $queryModel->openWhere();
+        $queryModel->openWhere();
         $queryModel->where('t.is_expire',0);
         $queryModel->where('t.pay_for_open',1);
         $queryModel->closeWhere();
         $queryModel->orWhere('u.safe_price',3000,'>');
+        $queryModel->openWhere();
         $queryModel->groupBy('u.user_id');
         if(!empty($params)){
             if(isset($params['user_ids'])){
