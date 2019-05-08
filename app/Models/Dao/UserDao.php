@@ -131,6 +131,10 @@ class UserDao
             if(isset($params['user_ids'])){
                 $queryModel->whereIn('u.user_id',$params['user_ids']);
             }
+
+            if(isset($params['last_time'])){
+                $queryModel->where('u.last_time',$params['last_time'],'>');
+            }
         }
         if(!empty($field)){
             return $queryModel->get($field)->getResult();

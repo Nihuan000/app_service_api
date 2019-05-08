@@ -253,8 +253,14 @@ class UserLogic
         }
         if(!empty($match_record_list)){
             $user_ids = array_keys($match_record_list);
+            $strengthParams['user_ids'] = $user_ids;
+            $dormancy = $this->userData->getSetting('dormancy_switch');
+            $dormancy_days = $this->userData->getSetting('dormancy_days');
+            if($dormancy == 1 && $dormancy_days > 0){
+                $strengthParams['last_time'] = time() - $dormancy_days * 24 * 3600;
+            }
             $fields = ['u.user_id','u.name','u.portrait','u.level','u.role','u.certification_type','u.safe_price','t.level as deposit_level'];
-            $shop_info = $this->userData->getStrengthList(['user_ids' => $user_ids],$fields);
+            $shop_info = $this->userData->getStrengthList($strengthParams,$fields);
             if(!empty($shop_info)){
                 foreach ($shop_info as $key => $user) {
                     $shop_info[$key]['match_tag_desc'] = $match_record_list[$user['user_id']] . '优质供应商';
