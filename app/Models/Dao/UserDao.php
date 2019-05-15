@@ -119,17 +119,23 @@ class UserDao
      */
     public function getUserStrengthList(array $params = [], array $field = [])
     {
-        $queryModel = Query::table('sb_user_strength','u');
+        $queryModel = Query::table('sb_user','u');
         $queryModel->leftJoin('sb_user_strength',"u.user_id = t.user_id",'t');
+        $queryModel->openWhere();
         $queryModel->openWhere();
         $queryModel->where('t.is_expire',0);
         $queryModel->where('t.pay_for_open',1);
         $queryModel->closeWhere();
         $queryModel->orWhere('u.safe_price',3000,'>');
+        $queryModel->closeWhere();
         $queryModel->groupBy('u.user_id');
         if(!empty($params)){
             if(isset($params['user_ids'])){
                 $queryModel->whereIn('u.user_id',$params['user_ids']);
+            }
+
+            if(isset($params['last_time'])){
+                $queryModel->where('u.last_time',$params['last_time'],'>');
             }
         }
         if(!empty($field)){
