@@ -146,7 +146,7 @@ class ProductData
             $params['limit'] = $flx_count;
             Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
             $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
-            $flx_count = $params['psize'] - count($last_waterfall_count) / 2;
+            $flx_count = $params['psize'] - count($last_waterfall_count);
             $i++;
         }
         $waterfall_list = $last_waterfall_count;
