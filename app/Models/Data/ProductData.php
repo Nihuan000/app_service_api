@@ -226,6 +226,7 @@ class ProductData
                         //符合条件产品数修改
                         $prOption = [
                             'fields' => ['user_id','pro_id','add_time'],
+							'orderby' => ['add_time' => 'DESC'],
                             'limit' => $params['display_count']
                         ];
                         $pro_info = $this->productDao->getUserProductListByParams($proParams,$prOption);
