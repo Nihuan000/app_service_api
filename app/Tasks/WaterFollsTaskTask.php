@@ -59,6 +59,7 @@ class WaterFollsTaskTask{
             $queue_name = $this->redis->hGet($cache_key,'index');
             $this->ProductData->general_waterfolls_data($queue_name,json_decode($indexParams,true));
             Log::info('瀑布流新数据生成结束:' . $indexParams);
+            $this->redis->delete($cache_key);
         }
     }
 
