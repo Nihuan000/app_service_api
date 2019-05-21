@@ -85,7 +85,7 @@ class BuyDao
      */
     public function getUserSearchLog($user_id, $last_time)
     {
-        return Db::query("select search_time,keyword from sb_product_search_log where user_id = {$user_id} and page_num = 1 and keyword <>'' and search_time >= {$last_time}")->getResult();
+        return Db::query("select search_time,keyword from sb_product_search_log where user_id = {$user_id} and page_num = 1 and keyword <>'' AND is_new != 4 and search_time >= {$last_time}")->getResult();
     }
 
     /**

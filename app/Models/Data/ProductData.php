@@ -12,6 +12,9 @@ use App\Models\Dao\ProductDao;
 use function Couchbase\defaultDecoder;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Core\ResultInterface;
+use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Task;
@@ -67,7 +70,7 @@ class ProductData
     /**
      * @param $user_id
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserVisitProduct($user_id)
     {
@@ -106,11 +109,11 @@ class ProductData
      * 首页瀑布流数据缓存获取
      * @param array $params
      * @return array
-     * @throws \Swoft\Task\Exception\TaskException
      */
     public function getIndexWaterfalls(array $params)
     {
         $waterfall_index = 'index_water_falls_list_' . $params['cycle'] . '_' . $params['display_count'];
+        $cache_key = 'water_fall_index';
         if($this->redis->exists($waterfall_index)){
             if($params['page'] == 1){
                 $last_info = $this->redis->zRevRange($waterfall_index,0,0,true);
@@ -118,7 +121,13 @@ class ProductData
                 $last_time = (int)$last_time_arr[0];
                 if(!empty($last_time)){
                     $params['prev_time'] = $last_time;
-                    Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+                    if(!$this->redis->exists($cache_key)){
+                        $cache_data = [
+                            'index' => $waterfall_index,
+                            'params' => json_encode($params)
+                        ];
+                        $this->redis->hMSet('water_fall_index',$cache_data);
+                    }
                 }
             }
         }
@@ -144,7 +153,13 @@ class ProductData
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
             $params['end_time'] = strtotime($prev_date);
             $params['limit'] = $flx_count;
-            Task::deliver('WaterFolls','waterFollsGeneral',[$params, $waterfall_index], Task::TYPE_ASYNC);
+            if(!$this->redis->exists($cache_key)){
+                $cache_data = [
+                    'index' => $waterfall_index,
+                    'params' => $params
+                ];
+                $this->redis->hMSet('water_fall_index',$cache_data);
+            }
             $last_waterfall_count = $this->redis->zRevRange($waterfall_index,$limit,$offset,true);
             $flx_count = $params['psize'] - count($last_waterfall_count);
             $i++;
@@ -166,7 +181,7 @@ class ProductData
      * 生成瀑布流数据
      * @param $waterfall_index
      * @param $params
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function general_waterfolls_data($waterfall_index,$params)
     {
@@ -262,7 +277,7 @@ class ProductData
     }
     /**
      * @param $pro_id
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getProductInfo($pro_id)
     {
@@ -272,7 +287,7 @@ class ProductData
     /**
      * @param $match_record
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function saveMatchPro($match_record)
     {
