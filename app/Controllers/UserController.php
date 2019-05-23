@@ -77,7 +77,7 @@ class UserController{
         $params['operate_id'] = empty($request->post('operate_id')) ? 0 : $request->post('operate_id');//管理员id
         $params['system'] = empty($request->post('system')) ? 0 : $request->post('system');//手机类型区分
         $params['version'] = empty($request->post('system_version')) ? 0 : $request->post('version');//手机版本
-
+        Log::info('参数:'.$params['user_id'].'&'.$params['system'].'&'.$params['version'].'&'.$params['name']);
         $code = 0;
         $result = [];
         $msg = '参数缺失';
