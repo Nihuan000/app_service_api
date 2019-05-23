@@ -392,7 +392,7 @@ class UserLogic
             if ($params['system']==1){
                 Log::info('用户:'.$user_id.' 安卓,系统版本:'.$params['version']);
                 //安卓version_compare($current,$target,$type);
-                if (version_compare($params['version'],'8.4.0','>')){
+                if (version_compare($params['version'],'8.4.0','>=')){
                     $user_data_growth = $this->get_completion_rate($user_id,$user_info['mainProduct']);
                 }else{
                     $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['mainProduct']);
