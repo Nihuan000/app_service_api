@@ -389,29 +389,28 @@ class UserLogic
 
             //安卓ios区分计算不同的资料完善率
             $user_growth_record_one = $this->userData->userGrowthRecordOne($user_id, 'personal_data');
-            if (!empty($params['system'])){
-                if ($params['system']==1){
-                    Log::info('用户:'.$user_id.' 安卓');
-                    //安卓
-                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['mainProduct']);
-                }else{
-                    Log::info('用户:'.$user_id.' ios');
-                    //ios
+            if ($params['system']==1){
+                Log::info('用户:'.$user_id.' 安卓,系统版本:'.$params['version']);
+                //安卓version_compare($current,$target,$type);
+                if (version_compare($params['version'],'8.4.0','>')){
                     $user_data_growth = $this->get_completion_rate($user_id,$user_info['mainProduct']);
-                }
-                if (isset($user_growth_record_one)){
-                    $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
-                    Log::info('用户:'.$user_id.' 有记录更新  当前成长值'.$user_growth_record_one['growth'].' 当前最新成长值'.$user_data_growth);
-                    $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
-                    $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $user_id, $rule['name']);//更新记录
                 }else{
-                    $data['growth'] = $user_data_growth;
-                    $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
-                    $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
+                    $user_data_growth = $this->userData->androidUserDate($user_id,$user_info['mainProduct']);
                 }
             }else{
-                //参数错误
-                return false;
+                Log::info('用户:'.$user_id.' ios');
+                //ios
+                $user_data_growth = $this->get_completion_rate($user_id,$user_info['mainProduct']);
+            }
+            if (isset($user_growth_record_one)){
+                $add_growth = $user_data_growth-$user_growth_record_one['growth'];//应该增加的成长值
+                Log::info('用户:'.$user_id.' 有记录更新  当前成长值'.$user_growth_record_one['growth'].' 当前最新成长值'.$user_data_growth);
+                $user_growth_record = $this->userData->userGrowthUpdate($add_growth, $user_id);//更新成长值
+                $user_growth = $this->userData->userGrowthRecordUpdate(['growth'=>$user_data_growth], $user_id, $rule['name']);//更新记录
+            }else{
+                $data['growth'] = $user_data_growth;
+                $user_growth = $this->userData->userGrowthUpdate($user_data_growth, $user_id);//更新成长值
+                $user_growth_record = $this->userData->userGrowthRecordInsert($data);//增加记录
             }
 
         }else{
