@@ -76,6 +76,7 @@ class UserController{
         $params['name'] = $request->post('name');//积分规则标识符
         $params['operate_id'] = empty($request->post('operate_id')) ? 0 : $request->post('operate_id');//管理员id
         $params['system'] = empty($request->post('system')) ? 0 : $request->post('system');//手机类型区分
+        $params['version'] = empty($request->post('version')) ? 0 : $request->post('version');//手机版本
 
         $code = 0;
         $result = [];
@@ -87,6 +88,9 @@ class UserController{
             $user_info = $this->userData->getUserInfo($params['user_id']);
             $msg = '参数错误';
             if (isset($rule) && isset($user_info)){
+                if ($rule['name'] == 'personal_data'){
+                    if (empty($params['system']) || empty($params['version'])) return compact("code","result","msg");
+                }
                 /* @var UserLogic $user_logic */
                 $user_logic = App::getBean(UserLogic::class);
                 $result = $user_logic->growth($params, $rule);
