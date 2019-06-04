@@ -15,6 +15,9 @@ use App\Models\Dao\UserStrengthDao;
 use App\Models\Dao\BuyRelationTagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Core\ResultInterface;
+use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Redis\Redis;
 
 /**
@@ -76,7 +79,7 @@ class UserData
     /**
      * author: nihuan
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getTesters()
     {
@@ -90,7 +93,7 @@ class UserData
      * @param array $params
      * @param int $user_id
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function userUpdate(array $params, int $user_id)
     {
@@ -142,7 +145,7 @@ class UserData
      * @param $user_id
      * @param $tag_id
      * @return int
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function isUserTagInActivity($user_id, $tag_id)
     {
@@ -175,7 +178,7 @@ class UserData
      * @param array $params
      * @param array $field
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getStrengthList(array $params = [], array $field = [])
     {
@@ -220,7 +223,7 @@ class UserData
      * @param int $user_id
      * @param int $last_day_time
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserLoginTimes(int $user_id, int $last_day_time)
     {
@@ -236,7 +239,7 @@ class UserData
      * @param int $user_id
      * @param array $days
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserSubscriptBuyCount(int $user_id, array $days)
     {
@@ -248,7 +251,7 @@ class UserData
      * @param int $user_id
      * @param int $last_day_time
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserChatData(int $user_id, int $last_day_time)
     {
@@ -311,7 +314,7 @@ class UserData
 
     /**
      * 发送通知成功修改
-     * @param $data
+     * @param $where
      * @return mixed
      */
     public function updateSupplierData($where)
@@ -325,7 +328,7 @@ class UserData
 
     /**
      * 不需要发送通知修改
-     * @param $data
+     * @param $where
      * @return mixed
      */
     public function updateStatusSupplierData($where)
@@ -376,7 +379,7 @@ class UserData
      * @param int $user_id
      * @param int $id
      * @param array $params
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function userStrengthPlus(int $user_id, int $id, array $params)
     {
@@ -390,7 +393,7 @@ class UserData
      * @param $take_time
      * @param $strength_amount
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function saveStrengthOrder(int $user_id, string $order_num, $total_amount, $take_time, $strength_amount)
     {
@@ -400,7 +403,7 @@ class UserData
     /**
      * @param int $user_id
      * @param string $order_num
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function checkStrengthOrderRecord(int $user_id, string $order_num)
     {
@@ -554,9 +557,10 @@ class UserData
 
     /**
      * 获取卖家好评数
-     * @author yang
      * @param $user_id
      * @return int
+     * @throws DbException
+     * @author yang
      */
     public function getReviewGoodCount($user_id)
     {
@@ -565,9 +569,10 @@ class UserData
 
     /**
      * 获取卖家差评数
-     * @author yang
      * @param $user_id
      * @return int
+     * @throws DbException
+     * @author yang
      */
     public function getReviewBadCount($user_id)
     {
@@ -576,9 +581,10 @@ class UserData
 
     /**
      * 获取采购身份
-     * @author yang
      * @param $user_id
      * @return array
+     * @throws DbException
+     * @author yang
      */
     public function getUserPurchaserRole($user_id)
     {
@@ -587,9 +593,10 @@ class UserData
 
     /**
      * 获取主营行业
-     * @author yang
      * @param $user_id
      * @return array
+     * @throws DbException
+     * @author yang
      */
     public function getUserPurchaserIndustry($user_id)
     {
@@ -652,6 +659,7 @@ class UserData
      * @param $user_id
      * @param $main_product
      * @return int
+     * @throws DbException
      */
     public function androidUserDate($user_id,$main_product){
         $user_data_growth = 0;
@@ -703,5 +711,16 @@ class UserData
     public function getWillExpStrength(array $params,array $field)
     {
         return $this->userStrengthDao->getStrengInfoAll($params,$field);
+    }
+
+    /**
+     * 用户列表获取
+     * @param array $params
+     * @param int $size
+     * @return mixed
+     */
+    public function getListByParams(array $params, int $size = 20)
+    {
+        return $this->userDao->getUserListByParams($params,['user_id','phone'],$size);
     }
 }

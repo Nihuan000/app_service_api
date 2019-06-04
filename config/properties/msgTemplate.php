@@ -45,4 +45,9 @@ return [
         //邀请报价
         'invitate_offer' => '【搜布】收到邀请。买家>NAME<发布了面料采购，邀请您为他报价。立即前往 ',
     ],
+
+    //激活短信
+    'activateSms' => [
+        'supplier_recall' => '',
+    ],
 ];

@@ -16,7 +16,9 @@ use App\Models\Entity\User;
 use App\Models\Entity\UserGrowthRecord;
 use App\Models\Entity\UserGrowthRule;
 use App\Models\Entity\UserGrowth;
+use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
+use Swoft\Db\Exception\DbException;
 use Swoft\Db\Query;
 
 /**
@@ -54,7 +56,7 @@ class UserDao
     /**
      * @param int $user_id
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserTagByUid(int $user_id)
     {
@@ -79,7 +81,7 @@ class UserDao
      * @param int $is_delete
      * @param int $type
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getTestersInfo(int $is_delete, int $type)
     {
@@ -115,7 +117,7 @@ class UserDao
      * @param array $params
      * @param array $field
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserStrengthList(array $params = [], array $field = [])
     {
@@ -203,8 +205,8 @@ class UserDao
      * 返回用户登录天数
      * @param int $user_id
      * @param int $last_time
-     * @return \Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\DbException
+     * @return ResultInterface
+     * @throws DbException
      */
     public function getUserLoginDays(int $user_id, int $last_time)
     {
@@ -218,7 +220,7 @@ class UserDao
      * @param int $user_id
      * @param int $last_time
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserChatDuration(int $user_id, int $last_time)
     {
@@ -327,7 +329,7 @@ class UserDao
      * @param $user_id
      * @param $strength_id
      * @param $params
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function userStrengthPlus($user_id, $strength_id,$params)
     {
@@ -360,7 +362,7 @@ class UserDao
      * 实商交易记录
      * @param $order_num
      * @param $user_id
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function checkStrengthOrderRecord($order_num,$user_id)
     {
@@ -494,9 +496,10 @@ class UserDao
 
     /**
      * 获取卖家好评数
-     * @author yang
      * @param $user_id
      * @return int
+     * @throws DbException
+     * @author yang
      */
     public function getReviewGoodCount($user_id)
     {
@@ -511,9 +514,10 @@ class UserDao
 
     /**
      * 获取卖家差评数
-     * @author yang
      * @param $user_id
      * @return int
+     * @throws DbException
+     * @author yang
      */
     public function getReviewBadCount($user_id)
     {
@@ -528,9 +532,10 @@ class UserDao
 
     /**
      * 查询采购身份
-     * @author yang
      * @param $user_id
      * @return array
+     * @throws DbException
+     * @author yang
      */
     public function getUserPurchaserRole($user_id)
     {
@@ -544,9 +549,10 @@ class UserDao
 
     /**
      * 查询主营行业
-     * @author yang
      * @param $user_id
      * @return array
+     * @throws DbException
+     * @author yang
      */
     public function getUserPurchaserIndustry($user_id)
     {
