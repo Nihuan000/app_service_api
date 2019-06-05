@@ -60,8 +60,8 @@ class OtherLogic
         $last_time = strtotime(date('Y-m-d',strtotime("-{$days} day")));
         $prev_time = strtotime(date('Y-m-d 23:59:59',strtotime("-{$days} day")));
         $params = [
-            ['last_time', '<=',$last_time],
-            ['last_time', '>=',$prev_time],
+            ['last_time', '>=',$last_time],
+            ['last_time', '<=',$prev_time],
             'role' => [2,3,4],
             'status' => 1
         ];
@@ -73,8 +73,8 @@ class OtherLogic
             for ($i=0; $i<$pages;$i++)
             {
                 $params = [
-                    ['last_time', '<=',$last_time],
-                    ['last_time', '>=',$prev_time],
+                    ['last_time', '>=',$last_time],
+                    ['last_time', '<=',$prev_time],
                     'role' => [2,3,4],
                     'status' => 1,
                     ['user_id','>',$last_id]
@@ -98,8 +98,8 @@ class OtherLogic
         $last_time = strtotime(date('Y-m-d',strtotime("-1 day")));
         $prev_time = strtotime(date('Y-m-d'));
         $params = [
-            ['send_time', '<',$last_time],
-            ['send_time', '>=',$prev_time],
+            ['send_time', '>=',$last_time],
+            ['send_time', '<',$prev_time],
             'send_status' => 1,
             'msg_type' => 8,
         ];
