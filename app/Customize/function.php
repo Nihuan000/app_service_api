@@ -25,14 +25,15 @@ function get_img_url($pic)
 
 /**
  * 行业短信
- * @author Nihuan
  * @param string $phone
  * @param string $content
  * @param int $msg_type 1:验证码 2:消息
  * @param int $send_route 1:行业短信 2:营销短信
+ * @param int $is_batch
  * @return bool
+ * @author Nihuan
  */
- function sendSms(string $phone, string $content, int $msg_type=1, int $send_route = 1)
+ function sendSms(string $phone, string $content, int $msg_type=1, int $send_route = 1, int $is_batch = 0)
 {
     $config = \Swoft::getBean('config');
     $filter_phone = $config['filter_phone'];
@@ -40,7 +41,7 @@ function get_img_url($pic)
     $marketing_config = $config['MarketingSms'];
     $sms_switch = $config['SMS_SWITCH'];
     $is_service = false;
-    if(in_array($phone,$filter_phone) && $msg_type == 2){
+    if(in_array($phone,$filter_phone) && $msg_type == 2 && $is_batch == 0){
         $is_service = true;
     }
 
@@ -53,6 +54,7 @@ function get_img_url($pic)
     }
 
     if($is_service == false && $sms_switch == 1){
+        write_log(3,$phone);
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
         $postFields = json_encode($sendSms);
         $ch = curl_init ();
@@ -68,6 +70,7 @@ function get_img_url($pic)
         curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0);
         $ret = curl_exec ( $ch );
+        write_log(3,json_encode($ret));
         if (false == $ret) {
             $result =  false;
         } else {
