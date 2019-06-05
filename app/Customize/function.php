@@ -39,7 +39,7 @@ function get_img_url($pic)
     $filter_phone = $config['filter_phone'];
     $industry_config = $config['IndustrySms'];
     $marketing_config = $config['MarketingSms'];
-    $sms_switch = $config['SMS_SWITCH'];
+    $sms_switch = env('SMS_SWITCH');
     $is_service = false;
     if(in_array($phone,$filter_phone) && $msg_type == 2 && $is_batch == 0){
         $is_service = true;
@@ -91,13 +91,14 @@ function get_img_url($pic)
 
 /**
  * 腾讯云通讯消息发送器
- * @author Nihuan
  * @param $fromId
  * @param $uid
  * @param $content
+ * @param int $is_batch
  * @return bool
+ * @author Nihuan
  */
- function sendInstantMessaging($fromId,$uid,$content)
+ function sendInstantMessaging($fromId,$uid,$content,$is_batch = 0)
 {
     $content_arr = json_decode($content,true);
     $offline_template = custom_offline($fromId,$content_arr);
@@ -108,14 +109,19 @@ function get_img_url($pic)
         'MsgRandom' => rand(1, 65535),
         'MsgTimeStamp' => time(),
         'From_Account'=> (string)$fromId,
-        'To_Account' => (string)$uid,
+        'To_Account' => $is_batch == 0 ? (string)$uid : (array)$uid,
         'MsgBody' => [['MsgType'=>'TIMCustomElem','MsgContent'=> ['Data' => $content , 'Desc' => is_null($content_arr['msgContent']) ? '' : $content_arr['msgContent']]]],
         'OfflinePushInfo' => ['PushFlag' => 0, 'Ext' => is_null($offline_template) ? '' : $offline_template , 'ApnsInfo'=> $offline_apns ,'AndroidInfo'=> $android_info ]
     ];
     $paramsString = json_encode($params,JSON_UNESCAPED_UNICODE);
     $parameter = IMService();
 
-    $curl_params = ['url'=>'https://console.tim.qq.com/v4/openim/sendmsg?' . $parameter, 'timeout'=>15];
+    if($is_batch == 1){
+        $url = 'https://console.tim.qq.com/v4/openim/batchsendmsg?';
+    }else{
+        $url = 'https://console.tim.qq.com/v4/openim/sendmsg?';
+    }
+    $curl_params = ['url'=> $url . $parameter, 'timeout'=>15];
     $curl_params['post_params'] = $paramsString;
     $curl_result = CURL($curl_params, 'post');
 
@@ -495,4 +501,24 @@ function similar_acquisition($judgment,$match_list,$get_type = 1)
         $current_match_value = $match_list[$current_score];
     }
     return $current_match_value;
+}
+
+/**
+ * 短连接生成
+ * @param $day
+ * @return mixed|string
+ */
+function get_shot_url($day){
+    $jump_url = "https://api.isoubu.com/trade/location/index.html";
+    $business = date("Y_m_d_H")."_activate_msg_".$day;
+    $url = "http://d.isoubu.com/sbadmin/index.php/Admin/Operation/update_redirect?url={$jump_url}&business={$business}&type=2";
+    $json = file_get_contents($url);
+    $list = json_decode( $json,true );
+    if($list['status'] == 1){
+        $shot_url = str_replace("http://","",$list['url']);
+        return $shot_url;
+    }else{
+        write_log(3,$json);
+        return "";
+    }
 }
