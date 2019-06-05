@@ -43,7 +43,7 @@ return [
 
     'offerSms' => [
         //邀请报价
-        'invitate_offer' => '【搜布】收到邀请。买家>NAME<发布了面料采购，邀请您为他报价。立即前往 ',
+        'invitate_offer' => '【搜布】收到邀请。买家>NAME<发布了面料采购，邀请您为他报价。立即前往 http://t.cn/Ai9QMlv1',
     ],
 
     //激活短信

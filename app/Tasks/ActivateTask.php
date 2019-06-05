@@ -60,9 +60,11 @@ class ActivateTask{
             foreach ($user_list as $page) {
                 $record = [];
                 $phone_list = [];
+                $user_list = [];
                 foreach ($page as $item) {
                     if(!$this->redis->sIsmember($sendCache,$item['userId'])) {
                         $phone_list[] = $item['phone'];
+                        $user_list[] = (string)$item['userId'];
                         $rec = [
                             'user_id' => $item['userId'],
                             'phone' => $item['phone'],
@@ -79,9 +81,29 @@ class ActivateTask{
                         }
                     }
                 }
-                if(!empty($phone_list)){
+                if(!empty($phone_list) && !empty($user_list)){
                     $phone_string = implode(',',$phone_list);
+                    //短信
                     $send_result = sendSms($phone_string,$supplier_recall,2,2,1);
+                    //系统消息
+                    $config = \Swoft::getBean('config');
+                    $sys_msg = $config->get('sysMsg');
+                    //发送系统消息
+                    ################## 消息基本信息开始 #######################
+                    $extra = $sys_msg;
+                    $extra['title'] = '有人浏览了您的搜布店铺';
+                    $extra['msgContent'] = "刚刚有人浏览了您的搜布店铺，赶快更新下产品吧！ 更新产品";
+                    ################## 消息基本信息结束 #######################
+
+                    ################## 消息扩展字段开始 #######################
+                    $extraData['keyword'] = '#更新产品#';
+                    $extraData['type'] = 12;
+                    ################## 消息扩展字段结束 #######################
+
+                    $extra['data'] = [$extraData];
+                    $extra['content'] = "刚刚有人浏览了您的搜布店铺，赶快更新下产品吧！ #更新产品#";
+                    $notice['extra'] = $extra;
+                    sendInstantMessaging('1', $user_list, json_encode($notice['extra']));
                     if($send_result && !empty($record)){
                         $this->OtherLogic->activate_sms_records($record);
                     }
