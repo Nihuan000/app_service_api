@@ -49,7 +49,14 @@ class ActivateTask{
         $days = 7;
         $sendCache = 'activate_sms_list:' . date('Y_m_d');
         $config = \Swoft::getBean('config');
-        $supplier_recall = $config->get('activateSms.supplier_recall');
+        $supplier_recall_msg = $config->get('activateSms.supplier_recall');
+        if(env('SMS_SWITCH') == 1){
+            $short_url = get_shot_url($days,11);
+            $supplier_recall = $supplier_recall_msg . $short_url;
+        }else{
+            $supplier_recall = $supplier_recall_msg;
+        }
+        $supplier_recall .= ' 退订回T';
         $expire_time = 7 * 24 * 3600;
         $user_list = $this->OtherLogic->inactive_user_list($this->limit,$days);
         $has_cache = 1;

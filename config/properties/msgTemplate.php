@@ -48,6 +48,6 @@ return [
 
     //激活短信
     'activateSms' => [
-        'supplier_recall' => '【搜布】刚刚有人浏览了您的店铺，赶快打开搜布更新下产品吧！http://t.cn/AiK0sKMu 退订回T',
+        'supplier_recall' => '【搜布】刚刚有人浏览了您的店铺，赶快打开搜布更新下产品吧！ ',
     ],
 ];
