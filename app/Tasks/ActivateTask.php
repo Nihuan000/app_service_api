@@ -51,7 +51,7 @@ class ActivateTask{
         $config = \Swoft::getBean('config');
         $supplier_recall_msg = $config->get('activateSms.supplier_recall');
         if(env('SMS_SWITCH') == 1){
-            $short_url = get_shot_url($days,11);
+            $short_url = get_shot_url($days);
             $supplier_recall = $supplier_recall_msg . $short_url;
         }else{
             $supplier_recall = $supplier_recall_msg;

@@ -471,7 +471,7 @@ class IndexController
     {
         $is_soubu = $request->post('is_soubu');
         $days = $request->post('days');
-        $type = $request->post('type');
+        $type = $request->post('type',2);
         if($is_soubu == false || empty($days) || empty($type)){
             $code = 0;
             $result = [];
@@ -479,7 +479,7 @@ class IndexController
         }else{
             $config = \Swoft::getBean('config');
             $supplier_recall_msg = $config->get('activateSms.supplier_recall');
-            $short_url = get_shot_url($days,$type);
+            $short_url = get_shot_url($days);
             $supplier_recall = $supplier_recall_msg . $short_url;
             $supplier_recall .= ' 退订回T';
             $code = 1;
