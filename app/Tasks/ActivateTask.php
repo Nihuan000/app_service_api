@@ -41,7 +41,7 @@ class ActivateTask{
      * A cronTab task
      * 3-5 seconds per minute 每天10:00:30执行
      *
-     * @Scheduled(cron="30 25 14 * * *")
+     * @Scheduled(cron="30 0 10 * * *")
      */
     public function executionTask()
     {
