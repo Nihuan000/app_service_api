@@ -41,7 +41,7 @@ class ActivateTask{
      * A cronTab task
      * 3-5 seconds per minute 每天10:00:30执行
      *
-     * @Scheduled(cron="30 0 10 * * *")
+     * @Scheduled(cron="30 25 14 * * *")
      */
     public function executionTask()
     {
@@ -81,7 +81,7 @@ class ActivateTask{
                 }
                 if(!empty($phone_list)){
                     $phone_string = implode(',',$phone_list);
-                    $send_result = sendSms($phone_string,$supplier_recall,2,1,1);
+                    $send_result = sendSms($phone_string,$supplier_recall,2,2,1);
                     if($send_result && !empty($record)){
                         $this->OtherLogic->activate_sms_records($record);
                     }
