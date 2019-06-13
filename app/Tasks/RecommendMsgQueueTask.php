@@ -89,9 +89,9 @@ class RecommendMsgQueueTask
                         }
                         if($user_id != $buyer['user_id'] && $receive_status == 1 && in_array($user_info['role'],[2,3,4]) && $history == false){
                             $this->searchRedis->sAdd($historyIndex . $date, (string)$item);
-                            $phone = $user_info['phone'];
-                            $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
-                            sendSms($phone, $sms_content, 2, 1);
+//                            $phone = $user_info['phone'];
+//                            $sms_content = str_replace('>NAME<',trim($buyer['name']),$invitate_offer);
+//                            sendSms($phone, $sms_content, 2, 1);
 
                             //发送系统消息
                             if($is_send_offer == 1){

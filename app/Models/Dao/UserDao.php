@@ -19,6 +19,7 @@ use App\Models\Entity\UserGrowth;
 use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 
 /**
@@ -343,7 +344,7 @@ class UserDao
      * @param $take_time
      * @param $prev_amount
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function strengthOrderRecord($user_id, $order_num, $total_amount, $take_time, $prev_amount)
     {
@@ -637,5 +638,16 @@ class UserDao
             ->where('role_type',$role_type)
             ->get(['id','upr.role_background_name as name','role_type','role_id'])
             ->getResult();
+    }
+
+    /**
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setUserStrengthRecord(array $data)
+    {
+        $data['add_time'] = time();
+        return Query::table('sb_user_strength_change_record')->insert($data)->getResult();
     }
 }

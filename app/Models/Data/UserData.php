@@ -723,4 +723,14 @@ class UserData
     {
         return $this->userDao->getUserListByParams($params,['user_id','phone'],$size);
     }
+
+    /**
+     * @param $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function set_strength_update_record($data)
+    {
+        return $this->userDao->setUserStrengthRecord($data);
+    }
 }

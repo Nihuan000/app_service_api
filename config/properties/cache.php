@@ -32,4 +32,8 @@ return [
         'db'     => 7,
         'prefix' => '',
     ],
+    'appRedis' => [
+        'db' => 0,
+        'prefix' => ''
+    ],
 ];
