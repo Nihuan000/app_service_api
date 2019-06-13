@@ -361,7 +361,7 @@ class UserController{
             if($pushRes == -1){
                 $msg = 'REPEAT';
             }
-            if($pushRes){
+            if($pushRes > 0){
                 $msg = 'SUCCESS';
             }
             $code = 1;
