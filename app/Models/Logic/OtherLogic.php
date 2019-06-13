@@ -107,7 +107,10 @@ class OtherLogic
         $user_list = $this->otherData->getUserRecords($params,['user_id']);
         $send_total = count($user_list);
         if(!empty($user_list)){
-            $userIds = array_column($user_list,'userId');
+            $userIds = [];
+            foreach ($user_list as $item) {
+                $userIds[] = $item['userId'];
+            }
             $login_user = $this->userData->getUserByUids($userIds,['user_id','last_time']);
             if(!empty($login_user)){
                 foreach ($login_user as $item) {
