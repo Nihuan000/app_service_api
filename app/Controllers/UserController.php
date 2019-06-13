@@ -343,7 +343,7 @@ class UserController{
         $end_time = $request->post('end_time');
         $change_type = $request->post('change_type');
         $opt_user = $request->post('opt_user_id');
-        if(empty($user_id) || empty($end_time) || !in_array($change_type,[1,2])){
+        if(empty($user_id) || empty($end_time) || !in_array($change_type,[1,2,3,4,5,6,7])){
             $code = 0;
             $result = [];
             $msg = '非法请求';
