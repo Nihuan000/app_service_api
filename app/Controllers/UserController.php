@@ -348,10 +348,13 @@ class UserController{
             $result = [];
             $msg = '非法请求';
         }else{
+            $code = 0;
+            $result = [];
+            $msg = '操作失败';
             $record = [
                 'user_id' => $user_id,
-                'old_time' => (int)$old_time,
-                'end_time' => (int)$end_time,
+                'old_end_time' => (int)$old_time,
+                'new_end_time' => (int)$end_time,
                 'change_type' => $change_type,
                 'opt_user_id' => (int)$opt_user
             ];
