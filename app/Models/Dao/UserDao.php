@@ -641,6 +641,7 @@ class UserDao
     }
 
     /**
+     * 实商变更记录
      * @param array $data
      * @return mixed
      * @throws MysqlException
@@ -649,5 +650,22 @@ class UserDao
     {
         $data['add_time'] = time();
         return Query::table('sb_user_strength_change_record')->insert($data)->getResult();
+    }
+
+    /**
+     * 实商变更重复记录判断
+     * @param $user_id
+     * @param $old_time
+     * @param $end_time
+     * @return mixed
+     */
+    public function getUserStrengthRecord($user_id,$old_time,$end_time)
+    {
+        return Query::table('sb_user_strength_change_record')
+            ->where('user_id',$user_id)
+            ->where('old_end_time',$old_time)
+            ->where('new_end_time',$end_time)
+            ->count()
+            ->getResult();
     }
 }

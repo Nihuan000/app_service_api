@@ -733,4 +733,15 @@ class UserData
     {
         return $this->userDao->setUserStrengthRecord($data);
     }
+
+    /**
+     * @param $user_id
+     * @param $old_time
+     * @param $end_time
+     * @return mixed
+     */
+    public function get_strength_update_record($user_id,$old_time,$end_time)
+    {
+        return $this->userDao->getUserStrengthRecord($user_id,$old_time,$end_time);
+    }
 }

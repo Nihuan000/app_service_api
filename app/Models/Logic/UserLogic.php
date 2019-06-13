@@ -636,13 +636,17 @@ class UserLogic
      */
     public function strength_history(array $data)
     {
-        /**
-         * 如果操作人为空，而且记录类型不是客服修改，操作人为用户本人
-         */
-        if($data['opt_user_id'] == 0 && !in_array($data['change_type'],[3,5])){
-            $data['opt_user_id'] = $data['user_id'];
+        $record = $this->userData->get_strength_update_record($data['user_id'],$data['old_end_time'],$data['new_end_time']);
+        if($record == 0){
+            /**
+             * 如果操作人为空，而且记录类型不是客服修改，操作人为用户本人
+             */
+            if($data['opt_user_id'] == 0 && !in_array($data['change_type'],[3,5])){
+                $data['opt_user_id'] = $data['user_id'];
+            }
+            return $this->userData->set_strength_update_record($data);
         }
-        return $this->userData->set_strength_update_record($data);
+        return -1;
     }
 
 }

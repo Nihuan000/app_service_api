@@ -348,9 +348,6 @@ class UserController{
             $result = [];
             $msg = '非法请求';
         }else{
-            $code = 0;
-            $result = [];
-            $msg = '操作失败';
             $record = [
                 'user_id' => $user_id,
                 'old_end_time' => (int)$old_time,
@@ -361,11 +358,14 @@ class UserController{
             /* @var UserLogic $user_logic */
             $user_logic = App::getBean(UserLogic::class);
             $pushRes = $user_logic->strength_history($record);
+            if($pushRes == -1){
+                $msg = 'REPEAT';
+            }
             if($pushRes){
-                $code = 1;
-                $result = [];
                 $msg = 'SUCCESS';
             }
+            $code = 1;
+            $result = [];
         }
         return compact('code','msg','result');
     }
