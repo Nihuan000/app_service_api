@@ -636,6 +636,14 @@ class UserLogic
      */
     public function strength_history(array $data)
     {
+        if($data['old_end_time'] == 0 && $data['change_type'] == 1){
+            //获取实商历史记录
+            $has_expire = $this->userData->get_last_strength($data['user_id']);
+            if(!empty($has_expire)){
+                $data['old_end_time'] = $has_expire['end_time'];
+                $data['change_type'] = $has_expire['pay_for_open'] == 1 ? 7 : 6;
+            }
+        }
         $record = $this->userData->get_strength_update_record($data['user_id'],$data['old_end_time'],$data['new_end_time']);
         if($record == 0){
             /**

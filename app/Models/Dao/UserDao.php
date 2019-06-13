@@ -668,4 +668,19 @@ class UserDao
             ->count()
             ->getResult();
     }
+
+    /**
+     * 开通实商历史记录
+     * @param $user_id
+     * @return mixed
+     */
+    public function getLastUserStrength($user_id)
+    {
+        return Query::table('sb_user_strength')
+            ->where('user_id',$user_id)
+            ->where('is_expire',1)
+            ->orderBy('id','DESC')
+            ->one(['end_time','pay_for_open'])
+            ->getResult();
+    }
 }
