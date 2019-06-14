@@ -19,6 +19,7 @@ use App\Models\Entity\UserGrowth;
 use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 
 /**
@@ -343,7 +344,7 @@ class UserDao
      * @param $take_time
      * @param $prev_amount
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function strengthOrderRecord($user_id, $order_num, $total_amount, $take_time, $prev_amount)
     {
@@ -636,6 +637,50 @@ class UserDao
             ->where('is_delete',0)
             ->where('role_type',$role_type)
             ->get(['id','upr.role_background_name as name','role_type','role_id'])
+            ->getResult();
+    }
+
+    /**
+     * 实商变更记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setUserStrengthRecord(array $data)
+    {
+        $data['add_time'] = time();
+        return Query::table('sb_user_strength_change_record')->insert($data)->getResult();
+    }
+
+    /**
+     * 实商变更重复记录判断
+     * @param $user_id
+     * @param $old_time
+     * @param $end_time
+     * @return mixed
+     */
+    public function getUserStrengthRecord($user_id,$old_time,$end_time)
+    {
+        return Query::table('sb_user_strength_change_record')
+            ->where('user_id',$user_id)
+            ->where('old_end_time',$old_time)
+            ->where('new_end_time',$end_time)
+            ->count()
+            ->getResult();
+    }
+
+    /**
+     * 开通实商历史记录
+     * @param $user_id
+     * @return mixed
+     */
+    public function getLastUserStrength($user_id)
+    {
+        return Query::table('sb_user_strength')
+            ->where('user_id',$user_id)
+            ->where('is_expire',1)
+            ->orderBy('id','DESC')
+            ->one(['end_time','pay_for_open'])
             ->getResult();
     }
 }

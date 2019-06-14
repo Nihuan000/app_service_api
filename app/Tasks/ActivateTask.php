@@ -118,6 +118,7 @@ class ActivateTask{
             }
         }
         Log::info('短信召回任务结束');
+        return ['短信召回任务'];
     }
 
     /**
@@ -142,5 +143,6 @@ class ActivateTask{
             $this->redis->sAdd($statistics_key,$cache_value);
         }
         Log::info('短信召回统计结束');
+        return ['短信召回统计'];
     }
 }

@@ -15,6 +15,7 @@ use App\Models\Data\UserData;
 use App\Models\Data\BuyData;
 use App\Models\Data\OrderData;
 use Swoft\App;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
@@ -326,6 +327,46 @@ class UserController{
             if(!empty($user_ids)){
                 write_log(2,json_encode($user_ids));
             }
+        }
+        return compact('code','msg','result');
+    }
+
+    /**
+     * 用户实商变更记录
+     * @param Request $request
+     * @return array
+     * @throws MysqlException
+     */
+    public function user_strength_record(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        $old_time = $request->post('old_time');
+        $end_time = $request->post('end_time');
+        $change_type = $request->post('change_type');
+        $opt_user = $request->post('opt_user_id');
+        if(empty($user_id) || empty($end_time) || !in_array($change_type,[1,2,3,4,5,6,7])){
+            $code = 0;
+            $result = [];
+            $msg = '非法请求';
+        }else{
+            $record = [
+                'user_id' => $user_id,
+                'old_end_time' => (int)$old_time,
+                'new_end_time' => (int)$end_time,
+                'change_type' => $change_type,
+                'opt_user_id' => (int)$opt_user
+            ];
+            /* @var UserLogic $user_logic */
+            $user_logic = App::getBean(UserLogic::class);
+            $pushRes = $user_logic->strength_history($record);
+            if($pushRes == -1){
+                $msg = 'REPEAT';
+            }
+            if($pushRes > 0){
+                $msg = 'SUCCESS';
+            }
+            $code = 1;
+            $result = [];
         }
         return compact('code','msg','result');
     }

@@ -43,11 +43,6 @@ class OtherData
      */
     public function getUserRecords(array $params,array $field)
     {
-        $user_ids = [];
-        $sendRes = $this->otherDao->ActivateSmsRecord($params,$field);
-        if(!empty($sendRes)){
-            $user_ids = array_column($sendRes,'userId');
-        }
-        return $user_ids;
+        return $this->otherDao->ActivateSmsRecord($params,$field);
     }
 }

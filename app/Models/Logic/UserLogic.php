@@ -18,6 +18,7 @@ use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserSubscriptionTagData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Bean\Annotation\Inject;
@@ -280,7 +281,7 @@ class UserLogic
      * @param $total_amount
      * @param $pay_time
      * @return bool|\Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      * @throws \Swoft\Db\Exception\DbException
      */
     public function strengthUserOrderTotal($user_id,$order_num,$total_amount,$pay_time)
@@ -625,6 +626,35 @@ class UserLogic
             }
         }
 
+    }
+
+    /**
+     * 记录实商变更
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function strength_history(array $data)
+    {
+        if($data['old_end_time'] == 0 && $data['change_type'] == 1){
+            //获取实商历史记录
+            $has_expire = $this->userData->get_last_strength($data['user_id']);
+            if(!empty($has_expire)){
+                $data['old_end_time'] = $has_expire['end_time'];
+                $data['change_type'] = $has_expire['pay_for_open'] == 1 ? 7 : 6;
+            }
+        }
+        $record = $this->userData->get_strength_update_record($data['user_id'],$data['old_end_time'],$data['new_end_time']);
+        if($record == 0){
+            /**
+             * 如果操作人为空，而且记录类型不是客服修改，操作人为用户本人
+             */
+            if($data['opt_user_id'] == 0 && !in_array($data['change_type'],[3,5])){
+                $data['opt_user_id'] = $data['user_id'];
+            }
+            return $this->userData->set_strength_update_record($data);
+        }
+        return -1;
     }
 
 }

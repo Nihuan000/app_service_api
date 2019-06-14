@@ -723,4 +723,35 @@ class UserData
     {
         return $this->userDao->getUserListByParams($params,['user_id','phone'],$size);
     }
+
+    /**
+     * @param $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function set_strength_update_record($data)
+    {
+        return $this->userDao->setUserStrengthRecord($data);
+    }
+
+    /**
+     * @param $user_id
+     * @param $old_time
+     * @param $end_time
+     * @return mixed
+     */
+    public function get_strength_update_record($user_id,$old_time,$end_time)
+    {
+        return $this->userDao->getUserStrengthRecord($user_id,$old_time,$end_time);
+    }
+
+    /**
+     * 获取最后一次的实商过期记录
+     * @param $user_id
+     * @return mixed
+     */
+    public function get_last_strength($user_id)
+    {
+        return $this->userDao->getLastUserStrength($user_id);
+    }
 }
