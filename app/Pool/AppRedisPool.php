@@ -16,7 +16,7 @@ use Swoft\Bean\Annotation\Pool;
 use Swoft\Redis\Pool\RedisPool;
 
 /**
- * DemoRedisPool
+ * AppRedisPool
  *
  * @Pool("appRedis")
  */

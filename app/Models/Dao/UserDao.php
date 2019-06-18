@@ -683,4 +683,14 @@ class UserDao
             ->one(['end_time','pay_for_open'])
             ->getResult();
     }
+
+    /**
+     * 用户是否内部账号
+     * @param $user_id
+     * @return mixed
+     */
+    public function isAgentUser($user_id)
+    {
+        return Query::table('sb_agent_user')->where('uid',$user_id)->where('is_delete',0)->one(['uid'])->getResult();
+    }
 }
