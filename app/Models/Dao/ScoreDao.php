@@ -7,18 +7,15 @@ use App\Models\Entity\UserScore;
 use App\Models\Entity\UserScoreGetRecord;
 use App\Models\Entity\UserScoreLevelRule;
 use App\Models\Entity\UserScoreLevelUpdateRecord;
-use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
-use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 use Swoft\Redis\Redis;
 
 /**
  * 采购数据对象
- * @Bean()
  * @uses ScoreDao
  * @author Nihuan
  */
