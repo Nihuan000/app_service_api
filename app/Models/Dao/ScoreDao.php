@@ -7,6 +7,7 @@ use App\Models\Entity\UserScore;
 use App\Models\Entity\UserScoreGetRecord;
 use App\Models\Entity\UserScoreLevelRule;
 use App\Models\Entity\UserScoreLevelUpdateRecord;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
@@ -16,6 +17,7 @@ use Swoft\Redis\Redis;
 
 /**
  * 采购数据对象
+ * @Bean()
  * @uses ScoreDao
  * @author Nihuan
  */
@@ -32,12 +34,6 @@ class ScoreDao
      * @var UserData
      */
     private $userData;
-
-    /**
-     * @Inject("appRedis")
-     * @var Redis
-     */
-    private $appRedis;
 
     /**
      * 当前可用积分规则获取
@@ -157,6 +153,7 @@ class ScoreDao
         $userScoreRes = false;
         $total_score = 0;
         $current_score = $this->getUserScore($data['user_id']);
+        $level_id = $current_score['levelId'];
         if(!empty($current_score)){
             if($is_safe_price == 1){
                 $score['base_score_value'] = $data['score_value'];
@@ -271,15 +268,13 @@ class ScoreDao
                 sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
 
                 ###### 发送等级变动通知结束 ######
-
-                //存储新的等级排序
-                $this->appRedis->set('user_' . $data['user_id'] . '_up_level',$levelData['level_id']);
+                $level_id = $levelData['level_id'];
             }
         }
 
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
             Db::commit();
-            return true;
+            return $level_id;
         }else{
             Db::rollback();
             return false;

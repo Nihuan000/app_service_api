@@ -175,6 +175,8 @@ class ScoreLogic
                 if($illegal_record == 1){
                     $scoreRes = $this->scoreData->saveUserScoreTask($score_get_record_data,$record_id,$isUserStrength,$isSafePrice);
                     if($scoreRes){
+                        //存储新的等级排序
+                        $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
                         $code = 1;
                     }
                 }else{
