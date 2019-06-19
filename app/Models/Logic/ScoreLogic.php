@@ -179,11 +179,11 @@ class ScoreLogic
                //判断操作是否合法并写入积分记录
                 if($illegal_record == 1){
                     $scoreRes = $this->scoreData->saveUserScoreTask($score_get_record_data,$record_id,$isUserStrength,$isSafePrice);
-                    if($scoreRes){
+                    if($scoreRes > 0){
                         //存储新的等级排序
                         $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
-                        $code = 1;
                     }
+                    $code = 1;
                 }elseif($code == 0){
                     $code = -3;
                     Log::info('不符合积分规则:' . $rule_key . '=>' . json_encode($attr,JSON_UNESCAPED_UNICODE));

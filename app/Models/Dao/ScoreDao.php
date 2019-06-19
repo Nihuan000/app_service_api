@@ -156,7 +156,7 @@ class ScoreDao
         $total_score = 0;
         $old_score = 0;
         $current_score = $this->getUserScore($data['user_id']);
-        $level_id = $current_score['levelId'];
+        $level_id = 0;
         if(!empty($current_score)){
             if($is_safe_price == 1){
                 $score['base_score_value'] = $data['score_value'];
