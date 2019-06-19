@@ -175,7 +175,7 @@ class ScoreDao
             'is_pay' => 0,
             ['min_score','<=',$total_score]
         ];
-        $new_level = UserScoreLevelRule::findOne($condition,['orderby' => 'min_score desc', 'fields' => ['id','level_name','sort']])->getResult();
+        $new_level = UserScoreLevelRule::findOne($condition,['orderby' => ['min_score' => 'desc'], 'fields' => ['id','level_name','sort']])->getResult();
 
         $gold_level_sort = 4;//金牌
         if($current_score['levelId'] != $new_level['sort']){
