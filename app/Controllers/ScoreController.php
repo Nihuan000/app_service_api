@@ -15,13 +15,10 @@ use Swoft\App;
 use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
-use Swoft\Http\Server\Bean\Annotation\RequestMapping;
-use Swoft\Http\Server\Bean\Annotation\RequestMethod;
-use Swoft\Redis\Redis;
 
 /**
  * Class ScoreController
- * @Controller(prefix="/Score")
+ * @Controller(prefix="/score")
  * @package App\Controllers
  */
 class ScoreController{
