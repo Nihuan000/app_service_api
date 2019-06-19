@@ -69,9 +69,19 @@ class ScoreData
         if(empty($product)){
             $is_passed = 0;
         }else{
-            $add_month = date('Y-m',$product['addTime']);
-            if($product['delStatus'] == 1){
-                $scoreTotal = $this->scoreDao->getProScoreSum($user_id,$add_month,$rule_id);
+            $params = [
+                'get_rule_id' => $rule_id,
+                'product_id' => $pro_id,
+                'user_id' => $user_id
+            ];
+            $proScoreRec = $this->scoreDao->getScoreCountByParams($params);
+            if($proScoreRec > 0){
+                $is_passed = 0;
+            }else{
+                $add_month = date('Y-m',$product['addTime']);
+                if($product['delStatus'] == 1){
+                    $scoreTotal = $this->scoreDao->getProScoreSum($user_id,$add_month,$rule_id);
+                }
             }
         }
         return ['is_passed' => $is_passed,'score_total' => $scoreTotal];

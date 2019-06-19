@@ -53,8 +53,10 @@ class ScoreDao
         if(!empty($rule_list)){
             foreach ($rule_list as $item) {
                 $rule_info = [
-                    'rule_id' => $item['id'],
+                    'id' => $item['id'],
                     'rule_key' => $item['rule_key'],
+                    'rule_name' => $item['rule_name'],
+                    'rule_desc' => $item['rule_desc'],
                     'value' => $item['value'],
                     'month_limit' => $item['month_limit'],
                     'is_have_ext_score' => $item['is_have_ext_score'],
@@ -84,7 +86,7 @@ class ScoreDao
     {
         $start_time = strtotime($month);
         $end_time = strtotime(date('Y-m',strtotime('+1 month')));
-        $score_record = Query::table('sb_user_score_get_rule')
+        $score_record = Query::table('sb_user_score_get_record')
             ->where('user_id',$user_id)
             ->where('get_rule_id',$rule_id)
             ->where('add_time',$start_time,'>=')

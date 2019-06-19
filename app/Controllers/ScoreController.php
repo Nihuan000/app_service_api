@@ -66,6 +66,10 @@ class ScoreController{
                 case -3:
                     $msg = '非法操作';
                     break;
+
+                case 404:
+                    $msg = '产品不存在或积分已领取';
+                    break;
             }
             $result = [];
         }

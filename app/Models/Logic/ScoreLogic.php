@@ -86,7 +86,7 @@ class ScoreLogic
                     'user_id' => $user_id,
                     'opt_user_id' => isset($attr['opt_id']) ? $attr['opt_id'] : $user_id,
                     'opt_user_type' => isset($attr['from_type']) ? $attr['from_type'] : 1,//1:app用户 2:后台用户
-                    'get_rule_id' => $rule_info['id'],
+                    'get_rule_id' => (int)$rule_info['id'],
                     'score_value' => $now_score,
                     'old_score' => $current_score,
                     'new_score' => $current_score,
@@ -106,6 +106,7 @@ class ScoreLogic
                        $record_check = $this->scoreData->getProScoreRecord($user_id,$attr['pro_id'],$rule_info['id']);
                        if($record_check['is_passed'] != 1){
                            $illegal_record = 0;
+                           $code = 404;
                        }
 
                        //实商加速
@@ -185,7 +186,7 @@ class ScoreLogic
                         $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
                         $code = 1;
                     }
-                }else{
+                }elseif($code == 0){
                     $code = -3;
                 }
             }else{
