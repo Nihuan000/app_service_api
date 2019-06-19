@@ -225,7 +225,7 @@ class ScoreLogic
         }
         $user_new_score = 0;
         if($rule_value > 0){
-            $user_new_score = (int)$rule_value * $ratio;
+            $user_new_score = intval($rule_value * $ratio);
         }
         $score_get_record_data['is_valid'] = 1;
         $score_get_record_data['score_value'] = $user_new_score;

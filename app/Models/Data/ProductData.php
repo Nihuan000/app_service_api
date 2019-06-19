@@ -150,8 +150,12 @@ class ProductData
 
         $i = 1;
         while ($flx_count > 0){
+            $end_day = 0;
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
-            $params['end_time'] = strtotime($prev_date);
+            if($i > 1){
+                $end_day = $i - 1;
+            }
+            $params['end_time'] = strtotime("-{$end_day} day",$prev_date);
             $params['limit'] = $flx_count;
             if(!$this->redis->exists($cache_key)){
                 $cache_data = [
