@@ -48,7 +48,7 @@ class ScoreDao
             ->where('start_time',$now_time,'<=')
             ->where('is_enable',1)
             ->where('is_delete',0)
-            ->get(['id','rule_key','rule_name','rule_desc','value','month_limit','is_has_ext_score'])
+            ->get(['id','rule_key','rule_name','rule_desc','value','month_limit','is_have_ext_score'])
             ->getResult();
         if(!empty($rule_list)){
             foreach ($rule_list as $item) {
@@ -57,9 +57,9 @@ class ScoreDao
                     'rule_key' => $item['rule_key'],
                     'value' => $item['value'],
                     'month_limit' => $item['month_limit'],
-                    'is_has_ext_score' => $item['is_has_ext_score'],
+                    'is_have_ext_score' => $item['is_have_ext_score'],
                 ];
-                if($item['is_has_ext_score'] == 1){
+                if($item['is_have_ext_score'] == 1){
                     $ext_score = Query::table('sb_user_score_get_rule_ext')->where('rule_id',$item['id'])->one(['every_order_price','ext_value'])->getResult();
                     if(!empty($ext_score)){
                         $rule_info['every_order_price'] = $ext_score['every_order_price'];
