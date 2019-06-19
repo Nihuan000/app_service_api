@@ -156,7 +156,7 @@ class ProductData
             if(!$this->redis->exists($cache_key)){
                 $cache_data = [
                     'index' => $waterfall_index,
-                    'params' => $params
+                    'params' => json_encode($params)
                 ];
                 $this->redis->hMSet('water_fall_index',$cache_data);
             }

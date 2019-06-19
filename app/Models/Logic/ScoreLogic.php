@@ -134,7 +134,7 @@ class ScoreLogic
                            $illegal_record = 0;
                        }
                        $score_get_record_data['new_score'] = $current_score + $order_score['score_get_record']['score_value'];
-                       array_merge($score_get_record_data,$order_score['score_get_record']);
+                       $score_get_record_data = array_merge($score_get_record_data,$order_score['score_get_record']);
                        break;
 
                    //开通实力商家
@@ -148,7 +148,7 @@ class ScoreLogic
                            $record_id = (int)$strength_Score['record_id'];
                        }else{
                            $score_get_record_data['new_score'] = $current_score + $now_score;
-                           array_merge($score_get_record_data,$strength_Score['score_get_record_data']);
+                           $score_get_record_data = array_merge($score_get_record_data,$strength_Score['score_get_record_data']);
                        }
                        break;
 
@@ -159,7 +159,7 @@ class ScoreLogic
                            $illegal_record = 0;
                        }
                        $isSafePrice = 1;
-                       array_merge($score_get_record_data,$safe_price_score['score_get_record_data']);
+                       $score_get_record_data = array_merge($score_get_record_data,$safe_price_score['score_get_record_data']);
                        break;
 
                     //供应商报价
@@ -225,7 +225,7 @@ class ScoreLogic
         }
         $user_new_score = 0;
         if($rule_value > 0){
-            $user_new_score = $rule_value * $ratio;
+            $user_new_score = (int)$rule_value * $ratio;
         }
         $score_get_record_data['is_valid'] = 1;
         $score_get_record_data['score_value'] = $user_new_score;
