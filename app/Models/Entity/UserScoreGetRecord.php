@@ -26,50 +26,43 @@ class UserScoreGetRecord extends Model
 
     /**
      * @var int $userId 用户id
-     * @Column(name="user_id", type="integer")
-     * @Required()
+     * @Column(name="user_id", type="integer", default=0)
      */
     private $userId;
 
     /**
      * @var int $optUserId 操作人id: 用户支持指定动作扣分（后台发起）,0:脚本
-     * @Column(name="opt_user_id", type="integer")
-     * @Required()
+     * @Column(name="opt_user_id", type="integer", default=0)
      */
     private $optUserId;
 
     /**
-     * @var int $optUserType 操作人类型 1:前台  2:后台 3:脚本
-     * @Column(name="opt_user_type", type="integer")
-     * @Required()
+     * @var int $optUserType 操作人类型 1:前台 2:后台 3:脚本
+     * @Column(name="opt_user_type", type="integer", default=0)
      */
     private $optUserType;
 
     /**
      * @var int $getRuleId 获取积分的规则id sb_user_score_get_rule的主键id
-     * @Column(name="get_rule_id", type="integer")
-     * @Required()
+     * @Column(name="get_rule_id", type="integer", default=0)
      */
     private $getRuleId;
 
     /**
      * @var int $scoreValue 积分值
-     * @Column(name="score_value", type="integer")
-     * @Required()
+     * @Column(name="score_value", type="integer", default=0)
      */
     private $scoreValue;
 
     /**
      * @var int $oldScore 旧活跃积分值,冗余字段,脚本跑的时候为0
-     * @Column(name="old_score", type="integer")
-     * @Required()
+     * @Column(name="old_score", type="integer", default=0)
      */
     private $oldScore;
 
     /**
      * @var int $newScore 新活跃积分值,冗余字段,脚本跑的时候为0
-     * @Column(name="new_score", type="integer")
-     * @Required()
+     * @Column(name="new_score", type="integer", default=0)
      */
     private $newScore;
 
@@ -87,8 +80,7 @@ class UserScoreGetRecord extends Model
 
     /**
      * @var int $addTime 积分获取时间
-     * @Column(name="add_time", type="integer")
-     * @Required()
+     * @Column(name="add_time", type="integer", default=0)
      */
     private $addTime;
 
@@ -100,8 +92,7 @@ class UserScoreGetRecord extends Model
 
     /**
      * @var int $productId 产品id,冗余字段
-     * @Column(name="product_id", type="integer")
-     * @Required()
+     * @Column(name="product_id", type="integer", default=0)
      */
     private $productId;
 
@@ -113,8 +104,7 @@ class UserScoreGetRecord extends Model
 
     /**
      * @var int $unValidType 1:黑名单卖家 2:收货时间-下单时间<1天 3:买家设备被使用达到上限 4:非有效订单(order_remark is_valid不为1)
-     * @Column(name="un_valid_type", type="smallint")
-     * @Required()
+     * @Column(name="un_valid_type", type="smallint", default=0)
      */
     private $unValidType;
 
@@ -160,7 +150,7 @@ class UserScoreGetRecord extends Model
     }
 
     /**
-     * 操作人类型 1:前台  2:后台 3:脚本
+     * 操作人类型 1:前台 2:后台 3:脚本
      * @param int $value
      * @return $this
      */
@@ -342,7 +332,7 @@ class UserScoreGetRecord extends Model
     }
 
     /**
-     * 操作人类型 1:前台  2:后台 3:脚本
+     * 操作人类型 1:前台 2:后台 3:脚本
      * @return int
      */
     public function getOptUserType()
