@@ -26,29 +26,25 @@ class UserScoreLevelUpdateRecord extends Model
 
     /**
      * @var int $scoreGetRecordId sb_user_score_get_record 主键值,0:为脚本跑的
-     * @Column(name="score_get_record_id", type="integer")
-     * @Required()
+     * @Column(name="score_get_record_id", type="integer", default=0)
      */
     private $scoreGetRecordId;
 
     /**
      * @var int $userId 用户id
-     * @Column(name="user_id", type="integer")
-     * @Required()
+     * @Column(name="user_id", type="integer", default=0)
      */
     private $userId;
 
     /**
      * @var int $oldScore 
-     * @Column(name="old_score", type="integer")
-     * @Required()
+     * @Column(name="old_score", type="integer", default=0)
      */
     private $oldScore;
 
     /**
      * @var int $oldLevelId sb_user_score_level_rule 主键值
-     * @Column(name="old_level_id", type="integer")
-     * @Required()
+     * @Column(name="old_level_id", type="integer", default=0)
      */
     private $oldLevelId;
 
@@ -60,15 +56,13 @@ class UserScoreLevelUpdateRecord extends Model
 
     /**
      * @var int $newScore 活跃分+基础分
-     * @Column(name="new_score", type="integer")
-     * @Required()
+     * @Column(name="new_score", type="integer", default=0)
      */
     private $newScore;
 
     /**
      * @var int $newLevelId 新等级id
-     * @Column(name="new_level_id", type="integer")
-     * @Required()
+     * @Column(name="new_level_id", type="integer", default=0)
      */
     private $newLevelId;
 
@@ -80,15 +74,13 @@ class UserScoreLevelUpdateRecord extends Model
 
     /**
      * @var int $optUserId 操作人id 0:系统脚本
-     * @Column(name="opt_user_id", type="integer")
-     * @Required()
+     * @Column(name="opt_user_id", type="integer", default=0)
      */
     private $optUserId;
 
     /**
      * @var int $optUserType 操作人类型 1:前台用户 2:后台管理员 3:脚本
-     * @Column(name="opt_user_type", type="integer")
-     * @Required()
+     * @Column(name="opt_user_type", type="integer", default=0)
      */
     private $optUserType;
 
@@ -100,15 +92,13 @@ class UserScoreLevelUpdateRecord extends Model
 
     /**
      * @var string $desc 
-     * @Column(name="desc", type="string", length=255)
-     * @Required()
+     * @Column(name="desc", type="string", length=255, default="")
      */
     private $desc;
 
     /**
      * @var int $addTime 添加名称
-     * @Column(name="add_time", type="integer")
-     * @Required()
+     * @Column(name="add_time", type="integer", default=0)
      */
     private $addTime;
 
