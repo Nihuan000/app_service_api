@@ -154,6 +154,7 @@ class ScoreDao
         //更新用户总积分
         $userScoreRes = false;
         $total_score = 0;
+        $old_score = 0;
         $current_score = $this->getUserScore($data['user_id']);
         $level_id = $current_score['levelId'];
         if(!empty($current_score)){
@@ -161,11 +162,13 @@ class ScoreDao
                 $score['base_score_value'] = $data['score_value'];
                 $total_score = $current_score['scoreValue'] + $score['base_score_value'];
             }else{
-                $score['score_value'] = $data['new_score'] - $current_score['baseScoreValue'] > 0 ? $data['new_score'] - $current_score['baseScoreValue'] : 0;
-                $total_score = $data['new_score'];
+                $score['score_value'] = $data['new_score'];
+                $total_score = $data['new_score'] + $current_score['baseScoreValue'];
             }
             $score['update_time'] = $now_time;
             $userScoreRes = UserScore::updateOne($score,['user_id' => $data['user_id']])->getResult();
+
+            $old_score = $current_score['scoreValue'] + $current_score['baseScoreValue'];
         }
         //更新用户等级
         $condition = [
@@ -208,10 +211,10 @@ class ScoreDao
                 $level_update_record_data = [
                     'score_get_record_id' => $recordRes,
                     'user_id' => $data['user_id'],
-                    'old_score' => $data['old_score'],
+                    'old_score' => $old_score,
                     'old_level_id'=>$current_score['levelId'],
                     'old_level_name'=>$current_score['levelName'],
-                    'new_score'=> $data['new_score'],
+                    'new_score'=> $total_score,
                     'new_level_id'=>$levelData['level_id'],
                     'new_level_name'=>$levelData['level_name'],
                     'opt_user_id'=>$data['opt_user_id'],

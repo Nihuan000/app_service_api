@@ -73,7 +73,7 @@ class ScoreLogic
                 $current_score = 0;
                 $user_score = $this->scoreData->getUserScore($user_id);
                if(!empty($user_score)){
-                   $current_score = $user_score['scoreValue'] + $user_score['baseScoreValue'];
+                   $current_score = $user_score['scoreValue'];
                }
 
                 //实力值记录
@@ -89,7 +89,7 @@ class ScoreLogic
                     'desc' => $rule_info['rule_desc'] . ", 获取".$now_score.'分',
                     'add_time' => $now_time,
                     'product_id' => isset($attr['pro_id']) ? (int)$attr['pro_id'] : 0,
-                    'order_num' => isset($attr['order_num']) ? $attr['order_num'] : 0,
+                    'order_num' => isset($attr['order_num']) ? $attr['order_num'] : '',
                     'is_valid' => 0,
                     'expire_time'=>strtotime("+4 month",strtotime(date('Y-m-01',$now_time))),
                 ];
