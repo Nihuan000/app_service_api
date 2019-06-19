@@ -69,6 +69,10 @@ class ScoreController{
                 case 404:
                     $msg = '产品不存在或积分已领取';
                     break;
+
+                case 405:
+                    $msg = '报价积分记录已存在';
+                    break;
             }
             $result = [];
         }

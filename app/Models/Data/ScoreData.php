@@ -107,6 +107,7 @@ class ScoreData
     public function getOfferScoreRecord(int $user_id,int $offer_id, int $rule_id)
     {
         $is_passed = 1;
+        $scoreCount = 0;
         $offer = Offer::findOne(['offerer_id' => $user_id, 'offer_id' => $offer_id])->getResult();
         if(!empty($offer)){
             $start_time = strtotime(date('Y-m-d',$offer['offerTime']));
@@ -118,12 +119,11 @@ class ScoreData
                 ['add_time','<',$end_time]
             ];
             $scoreCount = $this->scoreDao->getScoreCountByParams($params);
-            if($scoreCount > 0){
-                $is_passed = 0;
-            }
+        }else{
+            $is_passed = 0;
         }
 
-        return ['is_passed' => $is_passed];
+        return ['is_passed' => $is_passed, 'offer_count' => $scoreCount];
     }
 
 

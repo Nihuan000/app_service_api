@@ -165,13 +165,13 @@ class ScoreLogic
                     //供应商报价
                    case 'seller_offer':
                        $offer_score = $this->scoreData->getOfferScoreRecord($user_id,$attr['offer_id'],$rule_info['id']);
-                       if($offer_score['is_passed'] != 1){
+                       if($rule_info['month_limit'] > $offer_score['offer_count'] && $offer_score['is_passed'] == 1) {
+                           $score_get_record_data['new_score'] = $current_score + $now_score;
+                           $score_get_record_data['is_valid'] = 1;
+                           $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取" . $now_score . '分' . ',报价id:' . $attr['offer_id'];
+                       }else{
                            $illegal_record = 0;
                        }
-
-                       $score_get_record_data['new_score'] = $current_score + $now_score;
-                       $score_get_record_data['is_valid'] = 1;
-                       $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取".$now_score.'分' . ',报价id:' . $attr['offer_id'];
                        break;
                }
 
