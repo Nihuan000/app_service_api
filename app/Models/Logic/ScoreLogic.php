@@ -11,12 +11,14 @@ namespace App\Models\Logic;
 
 use App\Models\Data\ScoreData;
 use App\Models\Data\UserData;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
 use Swoft\Redis\Redis;
 
 /**
  * 用户积分逻辑层
+ * @Bean()
  * @uses  ScoreLogic
  * @author Nihuan
  * @package App\Models\Logic
@@ -56,7 +58,11 @@ class ScoreLogic
         $code = 0;
         $record_id = 0;
         $isSafePrice = 0;
-        $uid = $this->appRedis->get('token:' . $token);
+        if($attr['from_type'] == 1){
+            $uid = $this->appRedis->get('token:' . $token);
+        }else{
+            $uid = $user_id;
+        }
         if(empty($uid) || $uid != $user_id){
             $code = -1;
         }else{

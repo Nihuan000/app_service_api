@@ -34,6 +34,7 @@ return [
     ],
     'appRedis' => [
         'db' => 0,
-        'prefix' => ''
+        'prefix' => '',
+        'serialize'   => 0,
     ],
 ];
