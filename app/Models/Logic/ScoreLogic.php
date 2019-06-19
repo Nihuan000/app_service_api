@@ -47,22 +47,17 @@ class ScoreLogic
     /**
      * @param int $user_id
      * @param string $rule_key
-     * @param string $token
      * @param array $attr
      * @return int
      * @throws DbException
      */
-    public function user_score_increase(int $user_id, string $rule_key, string $token, array $attr)
+    public function user_score_increase(int $user_id, string $rule_key, array $attr)
     {
         $now_time = time();
         $code = 0;
         $record_id = 0;
         $isSafePrice = 0;
-        if($attr['from_type'] == 1){
-            $uid = $this->appRedis->get('token:' . $token);
-        }else{
-            $uid = $user_id;
-        }
+        $uid = $user_id;
         if(empty($uid) || $uid != $user_id){
             $code = -1;
         }else{

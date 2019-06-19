@@ -32,10 +32,9 @@ class ScoreController{
     public function increase(Request $request)
     {
         $user_id = $request->post('user_id');
-        $token = $request->post('token');
         $scenes = $request->post('scenes');
         $extended = $request->post('extended');
-        if(empty($user_id) || empty($token) || empty($scenes)){
+        if(empty($user_id) || empty($scenes)){
             $code = 0;
             $result = [];
             $msg = '参数错误';
@@ -43,7 +42,7 @@ class ScoreController{
             $attr = json_decode($extended,true);
             /* @var ScoreLogic $score_logic */
             $score_logic = App::getBean(ScoreLogic::class);
-            $pushRes = $score_logic->user_score_increase($user_id,$scenes,$token,$attr);
+            $pushRes = $score_logic->user_score_increase($user_id,$scenes,$attr);
             $code = 0;
             switch ($pushRes){
                 case 0:
