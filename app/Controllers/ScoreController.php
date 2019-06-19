@@ -63,7 +63,7 @@ class ScoreController{
                     break;
 
                 case -3:
-                    $msg = '非法操作';
+                    $msg = '积分已达上限或条件不满足';
                     break;
 
                 case 404:
