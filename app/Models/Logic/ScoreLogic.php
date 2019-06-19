@@ -14,6 +14,7 @@ use App\Models\Data\UserData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -58,8 +59,9 @@ class ScoreLogic
         $record_id = 0;
         $isSafePrice = 0;
         $uid = $user_id;
-        if(empty($uid) || $uid != $user_id){
+        if(empty($uid)){
             $code = -1;
+            Log::info('用户不存在:' . $rule_key . '=>' . json_encode($attr,JSON_UNESCAPED_UNICODE));
         }else{
             $rule_list = $this->scoreData->get_rule_list();
             if(isset($rule_list[$rule_key])){
@@ -183,9 +185,11 @@ class ScoreLogic
                     }
                 }elseif($code == 0){
                     $code = -3;
+                    Log::info('不符合积分规则:' . $rule_key . '=>' . json_encode($attr,JSON_UNESCAPED_UNICODE));
                 }
             }else{
                 $code = -2;
+                Log::info('规则不存在:' . $rule_key);
             }
         }
         return $code;
