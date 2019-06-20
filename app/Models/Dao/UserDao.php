@@ -11,6 +11,7 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\SupplierDataStatistic;
+use App\Models\Entity\UserStrength;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
 use App\Models\Entity\UserGrowthRecord;
@@ -692,5 +693,15 @@ class UserDao
     public function isAgentUser($user_id)
     {
         return Query::table('sb_agent_user')->where('uid',$user_id)->where('is_delete',0)->one(['uid'])->getResult();
+    }
+
+    /**
+     * 获取实商信息
+     * @param $id
+     * @return mixed
+     */
+    public function getUserStrengthById($id)
+    {
+        return UserStrength::findById($id)->getResult();
     }
 }

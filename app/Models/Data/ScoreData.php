@@ -195,18 +195,22 @@ class ScoreData
      * 保证金额度获取
      * @param int $user_id 用户id
      * @param int $safe_price 新缴纳保证金额
+     * @param int $is_deduction 0:新增 1：扣除
      * @return array
      */
-    public function getSafePriceScoreRecord(int $user_id,int $safe_price)
+    public function getSafePriceScoreRecord(int $user_id,int $safe_price, int $is_deduction = 0)
     {
         $is_passed = 1;
-        $total_price = $safe_price;
         $user_info = $this->userDao->getUserInfoByUid($user_id);
         if(!empty($user_info) && $user_info['safePrice'] >0){
-            $total_price = $user_info['safePrice'] + $safe_price;
+            if($is_deduction == 0){
+                $safe_price += $user_info['safePrice'];
+            }else{
+                $safe_price = $user_info['safePrice'] - $safe_price;
+            }
         }
 
-        return ['is_passed' => $is_passed, 'total_price' => $total_price];
+        return ['is_passed' => $is_passed, 'total_price' => $safe_price];
     }
 
     /**
@@ -220,5 +224,17 @@ class ScoreData
     public function saveUserScoreTask(array $data, int $record_id, int $isUserStrength,int $isSafePrice)
     {
         return $this->scoreDao->userScoreTask($data,$record_id,$isUserStrength,$isSafePrice);
+    }
+
+    /**
+     * @param array $data
+     * @param int $isUserStrength
+     * @param int $isSafePrice
+     * @return bool
+     * @throws DbException
+     */
+    public function userScoreDeduction(array $data, int $isUserStrength,int $isSafePrice)
+    {
+        return $this->scoreDao->userScoreDeduction($data,$isUserStrength,$isSafePrice);
     }
 }

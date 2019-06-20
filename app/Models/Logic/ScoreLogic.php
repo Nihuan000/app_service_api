@@ -197,6 +197,103 @@ class ScoreLogic
     }
 
     /**
+     * @param int $user_id
+     * @param string $rule_key
+     * @param array $attr
+     * @return int
+     * @throws DbException
+     */
+    public function user_score_deduction(int $user_id, string $rule_key, array $attr)
+    {
+        $code = 0;
+        $now_time = time();
+        $isSafePrice = 0;
+        $rule_list = $this->scoreData->get_rule_list();
+        if(isset($rule_list[$rule_key])) {
+            $rule_info = $rule_list[$rule_key];
+            $now_score = $rule_info['value']; //当前规则积分
+            //获取用户当前积分
+            $current_score = 0;
+            $user_score = $this->scoreData->getUserScore($user_id);
+            if(!empty($user_score)){
+                $current_score = $user_score['scoreValue'];
+            }
+            //是否实力商家
+            $isUserStrength = $this->userData->getIsUserStrength($user_id);
+
+            //实力值记录
+            $score_get_record_data = [
+                'user_id' => $user_id,
+                'opt_user_id' => isset($attr['opt_id']) ? $attr['opt_id'] : $user_id,
+                'opt_user_type' => isset($attr['from_type']) ? $attr['from_type'] : 1,//1:app用户 2:后台用户
+                'get_rule_id' => (int)$rule_info['id'],
+                'score_value' => $now_score,
+                'old_score' => 0,
+                'new_score' => 0,
+                'title'=> $rule_info['rule_name'],
+                'desc' => $rule_info['rule_desc'] . ", 扣除".$now_score.'分',
+                'add_time' => $now_time,
+                'product_id' => isset($attr['pro_id']) ? (int)$attr['pro_id'] : 0,
+                'order_num' => isset($attr['order_num']) ? $attr['order_num'] : '',
+                'is_valid' => 0,
+                'expire_time'=>strtotime("+4 month",strtotime(date('Y-m-01',$now_time))),
+            ];
+
+            $illegal_record = 1;
+            switch ($rule_key){
+                //实力商家到期
+                case 'seller_user_strength_experience_expire':
+                    $strength_Score = $this->user_strength_score_deduction($attr);
+                    if($strength_Score['is_passed'] != 1){
+                        $illegal_record = 0;
+                    }
+                    $score_get_record_data['new_score'] = $current_score + $now_score;
+                    $score_get_record_data = array_merge($score_get_record_data,$strength_Score['score_get_record_data']);
+                    break;
+
+                //提取保证金
+                case 'seller_safe_price':
+                    $safe_price_score = $this->user_safe_price_score_deduction($user_id,$attr,$rule_info);
+                    if($safe_price_score['is_passed'] != 1){
+                        $illegal_record = 0;
+                    }
+                    $isSafePrice = 1;
+
+                    //保证金积分值新旧的差值
+                    $new_safe_price_score = $safe_price_score['score'] - $user_score['baseScoreValue'];
+                    if($new_safe_price_score != 0){
+                        //保证金积分值新旧的差值
+                        $score_get_record_data['score_value'] = $new_safe_price_score;
+                        $score_get_record_data['is_valid'] = 1;
+                        $score_get_record_data['title'] = '提取保证金';
+                        $score_get_record_data['desc'] = '提取保证金，积分' . $new_safe_price_score;
+                        $score_get_record_data['expire_time'] = strtotime("2099-12-31 23:59:59");//永远有效
+                    }else{
+                        $illegal_record = 0;
+                    }
+                    break;
+            }
+
+            //判断操作是否合法并写入积分记录
+            if($illegal_record == 1){
+                $scoreRes = $this->scoreData->userScoreDeduction($score_get_record_data,$isUserStrength,$isSafePrice);
+                if($scoreRes > 0){
+                    //存储新的等级排序
+                    $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
+                }
+                $code = 1;
+            }elseif($code == 0){
+                $code = -3;
+                Log::info('不符合积分规则:' . $rule_key . '=>' . json_encode($attr,JSON_UNESCAPED_UNICODE));
+            }
+        }else{
+            $code = -2;
+            Log::info('规则不存在:' . $rule_key);
+        }
+        return $code;
+    }
+
+    /**
      * 订单积分计算
      * @param $user_id
      * @param $attr
@@ -311,5 +408,68 @@ class ScoreLogic
         }
 
         return ['is_passed' => $deposit_score['is_passed'],'record_id' => $record_id, 'score_get_record_data' => $score_get_record_data];
+    }
+
+    /**
+     * 提取保证金对应积分计算
+     * @param $user_id
+     * @param $attr
+     * @param $rule_info
+     * @return array
+     */
+    private function user_safe_price_score_deduction($user_id,$attr,$rule_info)
+    {
+        $is_passed = 1;
+        $record_check = $this->scoreData->getSafePriceScoreRecord($user_id,$attr['safe_price'],1);
+        $order_price = $record_check['total_price'];
+        $min_safe_price = $this->userData->getSetting('MIN_SAFE_PRICE');
+
+        if($order_price == 0){
+            //无保证金
+            $rule_score_value = 0;
+        }elseif($rule_info['is_have_ext_score'] && $rule_info['every_order_price'] && $rule_info['ext_value']){
+            if($order_price >= $min_safe_price){
+                //超过指定金额,每超出x元额外加y分
+                $ext_score_number = floor(($order_price - $min_safe_price)/$rule_info['every_order_price']);
+                $ext_score = $ext_score_number*$rule_info['ext_value'];
+                $rule_score_value = $rule_info['value'] + $ext_score;
+
+            }else{
+                //200分基础
+                $rule_score_value = $rule_info['value'];
+            }
+        }else{
+            $rule_score_value = $rule_info['value'];
+        }
+
+
+        //积分最多300
+        $max_safe_price_score = $this->userData->getSetting('max_safe_price_score');
+        if($rule_score_value > $max_safe_price_score){
+            $rule_score_value = $max_safe_price_score;
+        }
+
+        return ['is_passed' => $is_passed, 'score' => $rule_score_value];
+    }
+
+    /**
+     * 实商过期
+     * @param $attr
+     * @return array
+     */
+    private function user_strength_score_deduction($attr)
+    {
+        $score_get_record_data = [];
+        $is_passed = 1;
+        if(!isset($attr['id'])){
+            $is_passed = 0;
+        }
+        $strength_info = $this->userData->get_strength_by_id($attr['id']);
+        if(!empty($strength_info)){
+            $score_get_record_data['is_valid'] = 1;
+            $score_get_record_data['expire_time'] = $strength_info['endTime'];
+        }
+
+        return ['is_passed' => $is_passed, 'score_get_record_data' => $score_get_record_data];
     }
 }

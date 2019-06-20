@@ -754,4 +754,14 @@ class UserData
     {
         return $this->userDao->getLastUserStrength($user_id);
     }
+
+    /**
+     * 获取最后一次的实商过期记录
+     * @param $id
+     * @return mixed
+     */
+    public function get_strength_by_id($id)
+    {
+        return $this->userDao->getUserStrengthById($id);
+    }
 }
