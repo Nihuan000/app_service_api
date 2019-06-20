@@ -253,14 +253,14 @@ class ScoreLogic
 
                 //提取保证金
                 case 'seller_safe_price':
-                    $safe_price_score = $this->user_safe_price_score_deduction($user_id,$attr,$rule_info);
+                    $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info);
                     if($safe_price_score['is_passed'] != 1){
                         $illegal_record = 0;
                     }
                     $isSafePrice = 1;
 
                     //保证金积分值新旧的差值
-                    $new_safe_price_score = $safe_price_score['score'] - $user_score['baseScoreValue'];
+                    $new_safe_price_score = 0 - $safe_price_score['score'];
                     if($new_safe_price_score != 0){
                         //保证金积分值新旧的差值
                         $score_get_record_data['score_value'] = $new_safe_price_score;
@@ -412,16 +412,14 @@ class ScoreLogic
 
     /**
      * 提取保证金对应积分计算
-     * @param $user_id
      * @param $attr
      * @param $rule_info
      * @return array
      */
-    private function user_safe_price_score_deduction($user_id,$attr,$rule_info)
+    private function user_safe_price_score_deduction($attr,$rule_info)
     {
         $is_passed = 1;
-        $record_check = $this->scoreData->getSafePriceScoreRecord($user_id,$attr['safe_price'],1);
-        $order_price = $record_check['total_price'];
+        $order_price = $attr['safe_price'];
         $min_safe_price = $this->userData->getSetting('MIN_SAFE_PRICE');
 
         if($order_price == 0){
