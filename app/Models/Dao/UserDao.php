@@ -704,4 +704,42 @@ class UserDao
     {
         return UserStrength::findById($id)->getResult();
     }
+
+    /**
+     * 时尚体验记录获取
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getUserStrengthExperienceInfo(int $user_id)
+    {
+        return Query::table('sb_user_strength_experience_receive')
+            ->where('user_id',$user_id)
+            ->where('is_expire',0)
+            ->where('is_cancel',1)
+            ->orderBy('add_time','DESC')
+            ->orderBy('id','DESC')
+            ->one(['experience_id','id','old_expire_time','start_time','add_time'])
+            ->getResult();
+    }
+
+    /**
+     *
+     * @param int $id
+     * @param array $data
+     * @return mixed
+     */
+    public function updateStrengthExperience(int $id,array $data)
+    {
+        return Query::table('sb_user_strength_experience_receive')->where('id',$id)->update($data)->getResult();
+    }
+
+    /**
+     * 实商体验信息获取
+     * @param int $experience_id
+     * @return mixed
+     */
+    public function experienceInfo(int $experience_id)
+    {
+        return Query::table('sb_user_strength_experience')->where('id',$experience_id)->one()->getResult();
+    }
 }

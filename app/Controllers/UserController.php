@@ -14,7 +14,9 @@ use App\Models\Logic\UserLogic;
 use App\Models\Data\UserData;
 use App\Models\Data\BuyData;
 use App\Models\Data\OrderData;
+use App\Models\Logic\UserStrengthLogic;
 use Swoft\App;
+use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Bean\Annotation\Inject;
@@ -112,7 +114,7 @@ class UserController{
      * @RequestMapping()
      * @param Request $request
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function user_growth_redo(Request $request): array
     {
@@ -274,7 +276,7 @@ class UserController{
      * 实商到期提醒添加
      * @param Request $request
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function strength_expire_notice(Request $request)
     {
@@ -284,47 +286,13 @@ class UserController{
             $result = [];
             $msg = '参数错误';
         }else{
-            $notice_history_key = 'over_strength_history_' . date('Y'); //提示历史记录
-            $user_ids = [];
-            $config = \Swoft::getBean('config');
-            $sys_msg = $config->get('sysMsg');
-            //查看是否有开通记录
-            $open_info = $this->userData->getIsUserStrength($user_id);
-            $receive_status = 0;
-            $test_list = $this->userData->getTesters();
-            if(in_array($user_id, $test_list) || $this->userData->getSetting('strength_over_switch') == 1){
-                $receive_status = 1;
-            }
-            if(empty($open_info) && $receive_status == 1){
-                $history_record = $this->redis->sIsMember($notice_history_key,(string)$user_id);
-                if($history_record == 0){
-                    //发送系统消息
-                    ################## 消息基本信息开始 #######################
-                    $extra = $sys_msg;
-                    $extra['title'] = '实商已到期';
-                    $extra['msgContent'] = "您的实力商家权限已到期，\n点击重新开通";
-                    ################## 消息基本信息结束 #######################
-
-                    ################## 消息扩展字段开始 #######################
-                    $extraData['keyword'] = '#点击重新开通#';
-                    $extraData['type'] = 18;
-                    $extraData['url'] = $this->userData->getSetting('user_strength_url');
-                    ################## 消息扩展字段结束 #######################
-
-                    $extra['data'] = [$extraData];
-                    $extra['content'] = "您的实力商家权限已到期，#点击重新开通#";
-                    $notice['extra'] = $extra;
-                    $this->redis->sAdd($notice_history_key, (string)$user_id);
-                    sendInstantMessaging('1', (string)$user_id, json_encode($notice['extra']));
-                    $user_ids[] = $user_id;
-                }else{
-                    write_log(2,$user_id . '实商到期推送记录已存在');
-                }
-            }else{
-                write_log(2,$user_id . '存在已开通记录，不再提醒');
-            }
-            if(!empty($user_ids)){
-                write_log(2,json_encode($user_ids));
+            /* @var UserStrengthLogic $strength_logic */
+            $strength_logic = App::getBean(UserStrengthLogic::class);
+            $sendRes = $strength_logic->strength_expire_notice($user_id);
+            if(!empty($sendRes)){
+                $code = 1;
+                $result = [];
+                $msg = '执行成功';
             }
         }
         return compact('code','msg','result');

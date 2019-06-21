@@ -764,4 +764,38 @@ class UserData
     {
         return $this->userDao->getUserStrengthById($id);
     }
+
+    /**
+     * 体验记录
+     * @param $user_id
+     * @return mixed
+     */
+    public function get_strength_experience_info($user_id)
+    {
+        return $this->userDao->getUserStrengthExperienceInfo($user_id);
+    }
+
+    /**
+     * 时尚体验过期
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function strength_receive_expired($id,$data)
+    {
+        $data['is_cancel'] = 1;
+        $data['is_expire'] = 1;
+        $data['cancel_time'] = time();
+        return $this->userDao->updateStrengthExperience($id,$data);
+    }
+
+    /**
+     * 实商体验类目
+     * @param int $experience_id
+     * @return mixed
+     */
+    public function get_experience_info(int $experience_id)
+    {
+        return $this->userDao->experienceInfo($experience_id);
+    }
 }
