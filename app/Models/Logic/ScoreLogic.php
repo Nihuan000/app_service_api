@@ -240,6 +240,7 @@ class ScoreLogic
             ];
 
             $illegal_record = 1;
+            $is_send_notice = 1;
             switch ($rule_key){
                 //实力商家到期
                 case 'seller_user_strength_experience_expire':
@@ -254,6 +255,9 @@ class ScoreLogic
                 //提取保证金
                 case 'seller_safe_price':
                     $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info);
+                    if(isset($attr['send_notice'])){
+                        $is_send_notice = $attr['send_notice'];
+                    }
                     if($safe_price_score['is_passed'] != 1){
                         $illegal_record = 0;
                     }
@@ -276,7 +280,7 @@ class ScoreLogic
 
             //判断操作是否合法并写入积分记录
             if($illegal_record == 1){
-                $scoreRes = $this->scoreData->userScoreDeduction($score_get_record_data,$isUserStrength,$isSafePrice);
+                $scoreRes = $this->scoreData->userScoreDeduction($score_get_record_data,$isUserStrength,$isSafePrice,$is_send_notice);
                 if($scoreRes > 0){
                     //存储新的等级排序
                     $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);

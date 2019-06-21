@@ -230,11 +230,12 @@ class ScoreData
      * @param array $data
      * @param int $isUserStrength
      * @param int $isSafePrice
+     * @param int $isSendNotice
      * @return bool
      * @throws DbException
      */
-    public function userScoreDeduction(array $data, int $isUserStrength,int $isSafePrice)
+    public function userScoreDeduction(array $data, int $isUserStrength,int $isSafePrice,int $isSendNotice)
     {
-        return $this->scoreDao->userScoreDeduction($data,$isUserStrength,$isSafePrice);
+        return $this->scoreDao->userScoreDeduction($data,$isUserStrength,$isSafePrice,$isSendNotice);
     }
 }

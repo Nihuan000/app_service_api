@@ -200,13 +200,15 @@ class ScoreDao
     }
 
     /**
+     * 扣除积分操作
      * @param array $data
      * @param int $is_strength
      * @param int $is_safe_price
+     * @param int $is_send_notice
      * @return bool|int|mixed
      * @throws DbException
      */
-    public function userScoreDeduction(array $data,int $is_strength,int $is_safe_price)
+    public function userScoreDeduction(array $data,int $is_strength,int $is_safe_price,int $is_send_notice = 1)
     {
         $updateScoreRes = true;
         $updateUserRes = true;
@@ -246,7 +248,7 @@ class ScoreDao
         $new_level = UserScoreLevelRule::findOne($condition,['orderby' => ['min_score' => 'desc'], 'fields' => ['id','level_name','sort']])->getResult();
 
         if($current_score['levelId'] != $new_level['sort']){
-            $levelUpRes = $this->userLevelUpdateOperate($data,$new_level,$is_strength,$recordRes,$old_score,$current_score,$total_score);
+            $levelUpRes = $this->userLevelUpdateOperate($data,$new_level,$is_strength,$recordRes,$old_score,$current_score,$total_score,$is_send_notice);
             $updateScoreRes = $levelUpRes['updateScoreRes'];
             $updateUserRes = $levelUpRes['updateUserRes'];
             $UserLevelRec = $levelUpRes['UserLevelRec'];
@@ -264,16 +266,17 @@ class ScoreDao
 
     /**
      * 用户积分等级变更操作
-     * @param $data
-     * @param $new_level
-     * @param $is_strength
-     * @param $recordRes
-     * @param $old_score
-     * @param $current_score
-     * @param $total_score
+     * @param array $data 要更新数据
+     * @param array $new_level 当前积分对应的等级信息
+     * @param int $is_strength 是否实商 1:是 0:否
+     * @param int $recordRes 积分记录id
+     * @param int $old_score 更新前积分
+     * @param int $current_score 老的等级积分信息
+     * @param int $total_score 总积分 score_value + base_score_value
+     * @param int $is_send_notice 是否发送等级变更消息 0:否 1：是
      * @return array
      */
-    private function userLevelUpdateOperate($data,$new_level,$is_strength,$recordRes,$old_score,$current_score,$total_score)
+    private function userLevelUpdateOperate($data,$new_level,$is_strength,$recordRes,$old_score,$current_score,$total_score,$is_send_notice = 1)
     {
         $updateScoreRes = true;
         $updateUserRes = true;
@@ -324,54 +327,56 @@ class ScoreDao
             $UserLevelModel = new UserScoreLevelUpdateRecord();
             $UserLevelRec = $UserLevelModel->fill($level_update_record_data)->save()->getResult();
 
-            ###### 发送等级变动通知开始 ######
-            $notice_href_keyword = "查看特权";//通知跳转的关键词
-            if($levelData['level_id'] > $current_score['levelId']){
-                $msg_title = "升级通知";
-                $content  = "恭喜您晋升到".$levelData['level_name']."会员，全新特权为您开启";
+            if($is_send_notice == 1){
+                ###### 发送等级变动通知开始 ######
+                $notice_href_keyword = "查看特权";//通知跳转的关键词
+                if($levelData['level_id'] > $current_score['levelId']){
+                    $msg_title = "升级通知";
+                    $content  = "恭喜您晋升到".$levelData['level_name']."会员，全新特权为您开启";
 
-            }else{
-                $msg_title = '降级通知';
-                $notice_href_keyword = "查看升级规则";
-                $content  = "根据近3个月的累计分数来看，分数不达标，已降级到".$levelData['level_name']."会员 ";
+                }else{
+                    $msg_title = '降级通知';
+                    $notice_href_keyword = "查看升级规则";
+                    $content  = "根据近3个月的累计分数来看，分数不达标，已降级到".$levelData['level_name']."会员 ";
 
+                }
+
+                //供应商升降级图片
+                $up_down_img['supplier'] = array(
+                    'up'=>[
+                        2=> 'https://image.isoubu.com/sysMsg/5a461ed75a374.png',//铜
+                        3=> 'https://image.isoubu.com/sysMsg/5a461ee5c5a35.png',//银
+                        4=> 'https://image.isoubu.com/sysMsg/5a461ecfd5415.png',//金
+                        5=> 'https://image.isoubu.com/sysMsg/5a461eeab7b7d.png',//砖石
+                    ],
+                    'down'=>[
+                        1=>"https://image.isoubu.com/member_msg/downgrade-normal-provider.png",//普通
+                        2=>"https://image.isoubu.com/member_msg/downgrade-bronze-provider.png",//铜
+                        3=>"https://image.isoubu.com/member_msg/downgrade-silver-provider.png",//银
+                        4=>"https://image.isoubu.com/member_msg/downgrade-gold-provider.png",//金牌
+                    ]
+                );
+
+                //通知图片地址
+                if($levelData['level_id'] > $current_score['levelId']){
+                    $notice_img_url = $up_down_img['supplier']['up'][$levelData['level_id']];
+                }else{
+                    $notice_img_url = $up_down_img['supplier']['down'][$levelData['level_id']];
+                }
+
+                $info['title']  = $info['msgTitle'] = $msg_title;
+                $info['msgContent'] = $info['content'] = $content;
+                $info['imgUrl'] = $notice_img_url;
+                $info['Url'] = $this->userData->getSetting('user_center_home_page');//会员中心首页
+                $info['isRich'] = 1;
+                $info['commendUser'] = array();
+                $d = [["keyword"=>"#".$notice_href_keyword."#","type"=>20,"id"=>0,"url"=>""]];//跳转到会员中心
+                $info['data'] = $d;
+                $info['showData'] = array();
+                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
+
+                ###### 发送等级变动通知结束 ######
             }
-
-            //供应商升降级图片
-            $up_down_img['supplier'] = array(
-                'up'=>[
-                    2=> 'https://image.isoubu.com/sysMsg/5a461ed75a374.png',//铜
-                    3=> 'https://image.isoubu.com/sysMsg/5a461ee5c5a35.png',//银
-                    4=> 'https://image.isoubu.com/sysMsg/5a461ecfd5415.png',//金
-                    5=> 'https://image.isoubu.com/sysMsg/5a461eeab7b7d.png',//砖石
-                ],
-                'down'=>[
-                    1=>"https://image.isoubu.com/member_msg/downgrade-normal-provider.png",//普通
-                    2=>"https://image.isoubu.com/member_msg/downgrade-bronze-provider.png",//铜
-                    3=>"https://image.isoubu.com/member_msg/downgrade-silver-provider.png",//银
-                    4=>"https://image.isoubu.com/member_msg/downgrade-gold-provider.png",//金牌
-                ]
-            );
-
-            //通知图片地址
-            if($levelData['level_id'] > $current_score['levelId']){
-                $notice_img_url = $up_down_img['supplier']['up'][$levelData['level_id']];
-            }else{
-                $notice_img_url = $up_down_img['supplier']['down'][$levelData['level_id']];
-            }
-
-            $info['title']  = $info['msgTitle'] = $msg_title;
-            $info['msgContent'] = $info['content'] = $content;
-            $info['imgUrl'] = $notice_img_url;
-            $info['Url'] = $this->userData->getSetting('user_center_home_page');//会员中心首页
-            $info['isRich'] = 1;
-            $info['commendUser'] = array();
-            $d = [["keyword"=>"#".$notice_href_keyword."#","type"=>20,"id"=>0,"url"=>""]];//跳转到会员中心
-            $info['data'] = $d;
-            $info['showData'] = array();
-            sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
-
-            ###### 发送等级变动通知结束 ######
             $level_id = $levelData['level_id'];
         }
 
