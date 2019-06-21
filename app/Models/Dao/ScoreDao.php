@@ -340,16 +340,16 @@ class ScoreDao
             //供应商升降级图片
             $up_down_img['supplier'] = array(
                 'up'=>[
-                    1=> 'https://image.isoubu.com/sysMsg/5a461ed75a374.png',//铜
-                    2=> 'https://image.isoubu.com/sysMsg/5a461ee5c5a35.png',//银
-                    3=> 'https://image.isoubu.com/sysMsg/5a461ecfd5415.png',//金
-                    4=> 'https://image.isoubu.com/sysMsg/5a461eeab7b7d.png',//砖石
+                    2=> 'https://image.isoubu.com/sysMsg/5a461ed75a374.png',//铜
+                    3=> 'https://image.isoubu.com/sysMsg/5a461ee5c5a35.png',//银
+                    4=> 'https://image.isoubu.com/sysMsg/5a461ecfd5415.png',//金
+                    5=> 'https://image.isoubu.com/sysMsg/5a461eeab7b7d.png',//砖石
                 ],
                 'down'=>[
-                    0=>"https://image.isoubu.com/member_msg/downgrade-normal-provider.png",//普通
-                    1=>"https://image.isoubu.com/member_msg/downgrade-bronze-provider.png",//铜
-                    2=>"https://image.isoubu.com/member_msg/downgrade-silver-provider.png",//银
-                    3=>"https://image.isoubu.com/member_msg/downgrade-gold-provider.png",//金牌
+                    1=>"https://image.isoubu.com/member_msg/downgrade-normal-provider.png",//普通
+                    2=>"https://image.isoubu.com/member_msg/downgrade-bronze-provider.png",//铜
+                    3=>"https://image.isoubu.com/member_msg/downgrade-silver-provider.png",//银
+                    4=>"https://image.isoubu.com/member_msg/downgrade-gold-provider.png",//金牌
                 ]
             );
 
