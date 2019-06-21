@@ -113,19 +113,23 @@ class UserStrengthLogic
                 if($experienceRes && $strengthRes)
                 {
                     Db::commit();
+                    $code = 1;
+                }else{
+                    Db::rollback();
+                    $code = -3;
+                }
+
+                if($code == 1){
                     //用户积分扣除
                     /* @var ScoreLogic $score_logic */
                     $score_logic = App::getBean(ScoreLogic::class);
                     $score_logic->user_score_deduction($strength_info['user_id'],'seller_user_strength_experience_expire',['id' => $strength_info['id']]);
-                    $code = 1;
+
 
                     //发送实商到期提醒
                     if($strength_info['pay_for_open'] == 1){
                         $this->strength_expire_notice($strength_info['user_id']);
                     }
-                }else{
-                    Db::rollback();
-                    $code = -3;
                 }
             }
         }
