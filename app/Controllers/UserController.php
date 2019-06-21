@@ -281,6 +281,7 @@ class UserController{
     public function strength_expired(Request $request)
     {
         $user_id = $request->post('user_id');
+        $is_experience = $request->post('is_experience',0);
         if(empty($user_id)){
             $code = 0;
             $result = [];
@@ -288,7 +289,7 @@ class UserController{
         }else{
             /* @var UserStrengthLogic $strength_logic */
             $strength_logic = App::getBean(UserStrengthLogic::class);
-            $expiredRes = $strength_logic->user_strength_expired([],$user_id);
+            $expiredRes = $strength_logic->user_strength_expired([],$user_id,$is_experience);
             if(!empty($expiredRes)){
                 $code = 1;
                 $result = [];

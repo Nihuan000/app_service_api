@@ -40,10 +40,11 @@ class UserStrengthLogic
      * 用户实商过期处理
      * @param array $strength_info
      * @param int $user_id
+     * @param int $is_experience
      * @return int
      * @throws DbException
      */
-    public function user_strength_expired(array $strength_info = [], int $user_id = 0)
+    public function user_strength_expired(array $strength_info = [], int $user_id = 0,int $is_experience = 0)
     {
         $now_time = time();
         $code = 0;
@@ -81,7 +82,7 @@ class UserStrengthLogic
                         if($experience['experience_id'] == $this->safe_experience_id){
                             $remark = "提取保证金,实商体验取消";
                         }else{
-                            if($strength_info['end_time'] > $now_time){
+                            if($strength_info['end_time'] > $now_time && $is_experience == 0){
                                 $code = -2; //体验未到期
                                 return $code;
                             }
@@ -109,13 +110,13 @@ class UserStrengthLogic
                     'remark' => $remark
                 ];
                 $strengthRes = $this->userData->userStrengthPlus($strength_info['user_id'],$strength_info['id'],$strengthParams);
-                //用户积分扣除
-                /* @var ScoreLogic $score_logic */
-                $score_logic = App::getBean(ScoreLogic::class);
-                $scoreRes = $score_logic->user_score_deduction($strength_info['user_id'],'seller_user_strength_experience_expire',['id' => $strength_info['id']]);
-                if($experienceRes && $strengthRes && $scoreRes == 1)
+                if($experienceRes && $strengthRes)
                 {
                     Db::commit();
+                    //用户积分扣除
+                    /* @var ScoreLogic $score_logic */
+                    $score_logic = App::getBean(ScoreLogic::class);
+                    $score_logic->user_score_deduction($strength_info['user_id'],'seller_user_strength_experience_expire',['id' => $strength_info['id']]);
                     $code = 1;
 
                     //发送实商到期提醒
