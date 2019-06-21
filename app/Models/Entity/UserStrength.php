@@ -11,7 +11,6 @@ use Swoft\Db\Types;
 
 /**
  * 实力商家表
-
  * @Entity()
  * @Table(name="sb_user_strength")
  * @uses      UserStrength
@@ -67,6 +66,12 @@ class UserStrength extends Model
     private $level;
 
     /**
+     * @var int $payForOpen 是否付费开通　0:否　１：是
+     * @Column(name="pay_for_open", type="tinyint", default=0)
+     */
+    private $payForOpen;
+
+    /**
      * @var int $areaGroup 区域分组 1:客服部 2 :广州区 3：柯桥区
      * @Column(name="area_group", type="integer", default=0)
      */
@@ -91,6 +96,30 @@ class UserStrength extends Model
      * @Column(name="remark", type="string", length=255, default="")
      */
     private $remark;
+
+    /**
+     * @var int $renewTime 续费开始时间
+     * @Column(name="renew_time", type="integer", default=0)
+     */
+    private $renewTime;
+
+    /**
+     * @var int $renewPayTime 续费付款时间
+     * @Column(name="renew_pay_time", type="integer", default=0)
+     */
+    private $renewPayTime;
+
+    /**
+     * @var float $totalAmount 交易总额
+     * @Column(name="total_amount", type="decimal", default=0)
+     */
+    private $totalAmount;
+
+    /**
+     * @var float $orderThreshold 交易额度阈值
+     * @Column(name="order_threshold", type="decimal", default=300000)
+     */
+    private $orderThreshold;
 
     /**
      * @param int $value
@@ -176,6 +205,18 @@ class UserStrength extends Model
     }
 
     /**
+     * 是否付费开通　0:否　１：是
+     * @param int $value
+     * @return $this
+     */
+    public function setPayForOpen(int $value): self
+    {
+        $this->payForOpen = $value;
+
+        return $this;
+    }
+
+    /**
      * 区域分组 1:客服部 2 :广州区 3：柯桥区
      * @param int $value
      * @return $this
@@ -219,6 +260,54 @@ class UserStrength extends Model
     public function setRemark(string $value): self
     {
         $this->remark = $value;
+
+        return $this;
+    }
+
+    /**
+     * 续费开始时间
+     * @param int $value
+     * @return $this
+     */
+    public function setRenewTime(int $value): self
+    {
+        $this->renewTime = $value;
+
+        return $this;
+    }
+
+    /**
+     * 续费付款时间
+     * @param int $value
+     * @return $this
+     */
+    public function setRenewPayTime(int $value): self
+    {
+        $this->renewPayTime = $value;
+
+        return $this;
+    }
+
+    /**
+     * 交易总额
+     * @param float $value
+     * @return $this
+     */
+    public function setTotalAmount(float $value): self
+    {
+        $this->totalAmount = $value;
+
+        return $this;
+    }
+
+    /**
+     * 交易额度阈值
+     * @param float $value
+     * @return $this
+     */
+    public function setOrderThreshold(float $value): self
+    {
+        $this->orderThreshold = $value;
 
         return $this;
     }
@@ -286,6 +375,15 @@ class UserStrength extends Model
     }
 
     /**
+     * 是否付费开通　0:否　１：是
+     * @return int
+     */
+    public function getPayForOpen()
+    {
+        return $this->payForOpen;
+    }
+
+    /**
      * 区域分组 1:客服部 2 :广州区 3：柯桥区
      * @return int
      */
@@ -319,6 +417,42 @@ class UserStrength extends Model
     public function getRemark()
     {
         return $this->remark;
+    }
+
+    /**
+     * 续费开始时间
+     * @return int
+     */
+    public function getRenewTime()
+    {
+        return $this->renewTime;
+    }
+
+    /**
+     * 续费付款时间
+     * @return int
+     */
+    public function getRenewPayTime()
+    {
+        return $this->renewPayTime;
+    }
+
+    /**
+     * 交易总额
+     * @return mixed
+     */
+    public function getTotalAmount()
+    {
+        return $this->totalAmount;
+    }
+
+    /**
+     * 交易额度阈值
+     * @return mixed
+     */
+    public function getOrderThreshold()
+    {
+        return $this->orderThreshold;
     }
 
 }
