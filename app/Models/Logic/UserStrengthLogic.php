@@ -50,6 +50,8 @@ class UserStrengthLogic
         if(empty($strength_info) && $user_id == 0){
             $code = -1;
         }else{
+
+            //调用接口请求，判断user_id获取实商信息
             if($user_id > 0){
                 $user_strength = $this->userData->getUserStrengthInfo($user_id);
                 if(!empty($user_strength)){
@@ -62,8 +64,12 @@ class UserStrengthLogic
                 }
             }
 
-
             if(!empty($strength_info)){
+                //付费实商未到期,不予处理
+                if($strength_info['end_time'] > $now_time && $strength_info['pay_for_open'] == 1){
+                    $code = -2;
+                    return $code;
+                }
                 Db::beginTransaction();
                 $remark = '实商到期';
                 $experienceRes = true;
@@ -86,6 +92,7 @@ class UserStrengthLogic
                         }
                         $real_experience_day = (strtotime(date('Y-m-d',$now_time)) - strtotime(date('Y-m-d',$experience['add_time'])))/(3600*24);//实际体验的天数
 
+                        //执行体验过期
                         $data = [
                             'remark' => $remark,
                             'real_experience_day' => $real_experience_day
@@ -102,7 +109,7 @@ class UserStrengthLogic
                     'remark' => $remark
                 ];
                 $strengthRes = $this->userData->userStrengthPlus($strength_info['user_id'],$strength_info['id'],$strengthParams);
-                //用户积分变更
+                //用户积分扣除
                 /* @var ScoreLogic $score_logic */
                 $score_logic = App::getBean(ScoreLogic::class);
                 $scoreRes = $score_logic->user_score_deduction($strength_info['user_id'],'seller_user_strength_experience_expire',['id' => $strength_info['id']]);

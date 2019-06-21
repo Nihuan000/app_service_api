@@ -273,6 +273,32 @@ class UserController{
     }
 
     /**
+     * 实商过期
+     * @param Request $request
+     * @return array
+     * @throws DbException
+     */
+    public function strength_expired(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        if(empty($user_id)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            /* @var UserStrengthLogic $strength_logic */
+            $strength_logic = App::getBean(UserStrengthLogic::class);
+            $expiredRes = $strength_logic->user_strength_expired([],$user_id);
+            if(!empty($expiredRes)){
+                $code = 1;
+                $result = [];
+                $msg = '执行成功';
+            }
+        }
+        return compact('code','msg','result');
+    }
+
+    /**
      * 实商到期提醒添加
      * @param Request $request
      * @return array
