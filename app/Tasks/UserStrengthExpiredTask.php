@@ -37,7 +37,7 @@ class UserStrengthExpiredTask{
      * 实商过期任务
      * 3-5 seconds per minute 每分钟第45秒执行
      *
-     * @Scheduled(cron="45 * * * * *")
+     * @Scheduled(cron="0 * * * * *")
      * @throws DbException
      */
     public function expiredTask()
