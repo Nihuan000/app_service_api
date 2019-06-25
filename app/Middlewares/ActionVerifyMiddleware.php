@@ -32,7 +32,26 @@ class ActionVerifyMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // before request handle
-        var_dump($request);
+        $auth = true;
+        $request_params = isset($request['post']) ? $request['post'] : [];
+        if(empty($request_params)){
+            $auth = false;
+        }else{
+            $sign_key = '';
+            $sign = isset($request_params['sign']) ? $request_params['sign'] : '';
+            unset($request_params['sign']);
+            foreach ($request_params as $sub_key => $item) {
+                $sign_key .= $item;
+            }
+            $secret_key = md5($sign_key);
+            if($sign == '' || $sign != $secret_key){
+                $auth = false;
+            }
+        }
+
+        if(!$auth){
+            return response()->withStatus(401);
+        }
         $response = $handler->handle($request);
 
         // after request handle
