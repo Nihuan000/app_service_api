@@ -20,7 +20,7 @@ use App\Middlewares\ActionVerifyMiddleware;
 
 /**
  * Class ScoreController
- * @Middleware(class="ActionVerifyMiddleware::class")
+ * @Middleware(class=ActionVerifyMiddleware::class)
  * @Controller(prefix="/score")
  * @package App\Controllers
  */
