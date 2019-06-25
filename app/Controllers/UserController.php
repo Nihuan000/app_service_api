@@ -364,4 +364,14 @@ class UserController{
         }
         return compact('code','msg','result');
     }
+
+    /**
+     * 实商开通入口
+     * @param Request $request
+     */
+    public function user_strength_open(Request $request)
+    {
+        //todo 实商开通/续费功能重写
+        $user_id = $request->post('user_id');
+    }
 }

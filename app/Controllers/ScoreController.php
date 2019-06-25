@@ -13,11 +13,13 @@ namespace App\Controllers;
 use App\Models\Logic\ScoreLogic;
 use Swoft\App;
 use Swoft\Db\Exception\DbException;
+use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 
 /**
  * Class ScoreController
+ * @Middleware(ActionVerifyMiddleware::class)
  * @Controller(prefix="/score")
  * @package App\Controllers
  */
@@ -31,6 +33,7 @@ class ScoreController{
      */
     public function increase(Request $request)
     {
+        var_dump($request->post());
         $user_id = $request->post('user_id');
         $scenes = $request->post('scenes');
         $extended = $request->post('extended');
