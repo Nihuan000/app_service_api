@@ -16,10 +16,11 @@ use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
+use App\Middlewares\ActionVerifyMiddleware;
 
 /**
  * Class ScoreController
- * @Middleware(ActionVerifyMiddleware::class)
+ * @Middleware(class="ActionVerifyMiddleware::class")
  * @Controller(prefix="/score")
  * @package App\Controllers
  */
