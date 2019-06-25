@@ -33,7 +33,10 @@ class ActionVerifyMiddleware implements MiddlewareInterface
     {
         // before request handle
         $auth = true;
-        $request_params = isset($request['post']) ? $request['post'] : [];
+        //SERVER类获取
+//        $server_params = $request->getServerParams();
+        //提交参数获取
+        $request_params = $request->getParsedBody();
         if(empty($request_params)){
             $auth = false;
         }else{
