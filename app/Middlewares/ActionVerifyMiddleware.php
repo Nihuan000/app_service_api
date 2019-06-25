@@ -47,6 +47,10 @@ class ActionVerifyMiddleware implements MiddlewareInterface
                 $sign_key .= $item;
             }
             $secret_key = md5($sign_key);
+            $verify_user_id = ($request_params['user_code'] - 2019) / 15;
+            if(isset($request_params['user_id']) && $request_params['user_id'] != $verify_user_id){
+                $auth = false;
+            }
             if($sign == '' || $sign != $secret_key){
                 $auth = false;
             }

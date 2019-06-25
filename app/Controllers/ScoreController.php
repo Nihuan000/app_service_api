@@ -34,7 +34,6 @@ class ScoreController{
      */
     public function increase(Request $request)
     {
-        var_dump($request->post());
         $user_id = $request->post('user_id');
         $scenes = $request->post('scenes');
         $extended = $request->post('extended');

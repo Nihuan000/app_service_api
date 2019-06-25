@@ -18,12 +18,13 @@ use App\Models\Logic\UserStrengthLogic;
 use Swoft\App;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
-use Swoft\Log\Log;
+use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Redis\Redis;
+use App\Middlewares\ActionVerifyMiddleware;
 
 /**
  * Class UserControllerController
@@ -366,12 +367,63 @@ class UserController{
     }
 
     /**
-     * 实商开通入口
+     * 实商开通/续费功能入口
+     * @Middleware(class=ActionVerifyMiddleware::class)
      * @param Request $request
+     * @return array
+     * @throws DbException
+     * @throws MysqlException
      */
     public function user_strength_open(Request $request)
     {
-        //todo 实商开通/续费功能重写
         $user_id = $request->post('user_id');
+        $order_num = $request->post('order_num','');
+        $pay_for_open = $request->post('pay_for_open');
+        $experience_key = $request->post('experience_key','');
+
+        if(empty($user_id) || ($order_num == '' && $pay_for_open == 1) || ($pay_for_open == 0 AND $experience_key == '')){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $result = [];
+            $code = 0;
+            $msg = '';
+            /* @var UserStrengthLogic $strength_logic */
+            $strength_logic = App::getBean(UserStrengthLogic::class);
+            $openRes = $strength_logic->user_strength_open($user_id,$order_num,$experience_key,$pay_for_open);
+            switch ($openRes){
+                case 0:
+                    $msg = '实商操作失败';
+                    break;
+
+                case 1:
+                    $msg = '操作成功';
+                    $code = 1;
+                    break;
+
+                case -1:
+                    $msg = '实商有效期内，不能再次申请体验';
+                    break;
+
+                case -2:
+                    $msg = '付款订单不存在';
+                    break;
+
+                case -3:
+                    $msg = '体验活动已下线';
+                    break;
+
+                case -4:
+                    $msg = '已领取,请勿重复点击';
+                    break;
+
+                case -5:
+                    $msg = '实商体验领取失败';
+                    break;
+            }
+        }
+
+        return compact('code','msg','result');
     }
 }

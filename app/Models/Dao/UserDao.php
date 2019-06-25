@@ -12,6 +12,7 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\SupplierDataStatistic;
 use App\Models\Entity\UserStrength;
+use Elasticsearch\Endpoints\DeleteByQuery;
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\User;
 use App\Models\Entity\UserGrowthRecord;
@@ -323,7 +324,7 @@ class UserDao
             ->where('end_time',$time,'>')
             ->where('activity_type',$activity_type)
             ->where('is_enable',1)
-            ->get()->getResult();
+            ->one()->getResult();
     }
 
     /**
@@ -715,7 +716,7 @@ class UserDao
         return Query::table('sb_user_strength_experience_receive')
             ->where('user_id',$user_id)
             ->where('is_expire',0)
-            ->where('is_cancel',1)
+            ->where('is_cancel',0)
             ->orderBy('add_time','DESC')
             ->orderBy('id','DESC')
             ->one(['experience_id','id','old_expire_time','start_time','add_time'])
@@ -736,10 +737,100 @@ class UserDao
     /**
      * 实商体验信息获取
      * @param int $experience_id
+     * @param string $experience_key
      * @return mixed
      */
-    public function experienceInfo(int $experience_id)
+    public function experienceInfo(int $experience_id,string $experience_key = '')
     {
-        return Query::table('sb_user_strength_experience')->where('id',$experience_id)->one()->getResult();
+        $field = 'id';
+        if($experience_id == 0){
+            $field = 'experience_key';
+            $experience_id = $experience_key;
+        }
+        return Query::table('sb_user_strength_experience')->where($field,$experience_id)->one()->getResult();
+    }
+
+    /**
+     * 增值服务订单获取
+     * @param string $order_num
+     * @return mixed
+     */
+    public function appreciationOrderInfo(string $order_num)
+    {
+        return Query::table('sb_appreciation_order')->where('order_num',$order_num)->where('status',20)->one()->getResult();
+    }
+
+    /**
+     * 增值服务产品信息
+     * @param int $product_id
+     * @return mixed
+     */
+    public function getAppreciationProduct(int $product_id)
+    {
+        return Query::table('sb_appreciation_product')->where('id',$product_id)->one()->getResult();
+    }
+
+    /**
+     * 实商活动奖励表
+     * @param int $activity_id
+     * @param int $safe_price
+     * @return mixed
+     */
+    public function getStrengthActivityPresentation(int $activity_id, int $safe_price)
+    {
+        return Query::table('sb_user_strength_activity_presentation')
+            ->where('activity_id',$activity_id)
+            ->where('min_safe_price',$safe_price,'<=')
+            ->where('is_enable',1)
+            ->one(['id,presentation_value,presentation_value_type'])
+            ->getResult();
+    }
+
+    /**
+     * 实商活动奖励领取
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function saveStrengthPresentationReceive(array $data)
+    {
+        return Query::table('sb_user_strength_activity_presentation_receive_log')->insert($data)->getResult();
+    }
+
+    /**
+     * 实商数据更新
+     * @param array $data
+     * @param int $id
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function saveStrengthInfo(array $data, int $id = 0)
+    {
+        if($id > 0){
+            return UserStrength::updateOne($data,['id' => $id])->getResult();
+        }
+        return Query::table('sb_user_strength')->insert($data)->getResult();
+    }
+
+    /**
+     * 实商体验领取判断
+     * @param int $user_id
+     * @param int $id
+     * @return mixed
+     */
+    public function getExperienceReceiveCount(int $user_id, int $id)
+    {
+        return Query::table('sb_user_strength_experience_receive')->where('user_id',$user_id)->where('experience_id',$id)->count()->getResult();
+    }
+
+    /**
+     * 实商体验记录添加
+     * @param array $receive_data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function saveExperienceReceiveRecord(array $receive_data)
+    {
+        return Query::table('sb_user_strength_experience_receive')->insert($receive_data)->getResult();
     }
 }
