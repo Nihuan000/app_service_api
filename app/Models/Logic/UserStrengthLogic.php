@@ -217,8 +217,8 @@ class UserStrengthLogic
         $historyRes = true;
         if($change_record_type > 0){
             $change = [
-                'old_time' => isset($user_strength_info) ? $user_strength_info['end_time'] : 0,
-                'end_time' => isset($add_user_strength_data) ? $add_user_strength_data['end_time'] : 0,
+                'old_end_time' => isset($user_strength_info) ? $user_strength_info['end_time'] : 0,
+                'new_end_time' => isset($add_user_strength_data) ? $add_user_strength_data['end_time'] : 0,
                 'change_type' => $change_record_type,
                 'user_id' => $user_id
             ];
