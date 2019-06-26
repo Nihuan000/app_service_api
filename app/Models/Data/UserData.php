@@ -754,4 +754,125 @@ class UserData
     {
         return $this->userDao->getLastUserStrength($user_id);
     }
+
+    /**
+     * 获取最后一次的实商过期记录
+     * @param $id
+     * @return mixed
+     */
+    public function get_strength_by_id($id)
+    {
+        return $this->userDao->getUserStrengthById($id);
+    }
+
+    /**
+     * 体验记录
+     * @param $user_id
+     * @return mixed
+     */
+    public function get_strength_experience_info($user_id)
+    {
+        return $this->userDao->getUserStrengthExperienceInfo($user_id);
+    }
+
+    /**
+     * 时尚体验过期
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function strength_receive_expired($id,$data)
+    {
+        $data['is_cancel'] = 1;
+        $data['is_expire'] = 1;
+        $data['cancel_time'] = time();
+        return $this->userDao->updateStrengthExperience($id,$data);
+    }
+
+    /**
+     * 实商体验类目
+     * @param int $experience_id 体验规则id
+     * @param string $experience_key 体验规则标识
+     * @return mixed
+     */
+    public function get_experience_info(int $experience_id,string $experience_key = '')
+    {
+        return $this->userDao->experienceInfo($experience_id,$experience_key);
+    }
+
+    /**
+     * 增值服务订单详情
+     * @param string $order_num
+     * @return mixed
+     */
+    public function get_appreciation_order(string $order_num)
+    {
+        return $this->userDao->appreciationOrderInfo($order_num);
+    }
+
+    /**
+     * 增值服务产品获取
+     * @param int $product_id
+     * @return mixed
+     */
+    public function get_appreciation_product(int $product_id)
+    {
+        return $this->userDao->getAppreciationProduct($product_id);
+    }
+
+    /**
+     * 实商活动奖励获取
+     * @param int $activity_id
+     * @param int $safe_price
+     * @return mixed
+     */
+    public function get_appreciation_presentation(int $activity_id, int $safe_price)
+    {
+        return $this->userDao->getStrengthActivityPresentation($activity_id,$safe_price);
+    }
+
+    /**
+     * 实商活动领取记录添加
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function save_appreciation_activity_receive(array $data)
+    {
+        return $this->userDao->saveStrengthPresentationReceive($data);
+    }
+
+    /**
+     * 实商开通/续期
+     * @param array $data
+     * @param int $id
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function save_user_strength(array $data, int $id)
+    {
+        return $this->userDao->saveStrengthInfo($data,$id);
+    }
+
+    /**
+     * 实商体验领取数获取
+     * @param int $user_id
+     * @param int $id
+     * @return mixed
+     */
+    public function get_strength_experience_count(int $user_id, int $id)
+    {
+        return $this->userDao->getExperienceReceiveCount($user_id,$id);
+    }
+
+    /**
+     * 实商体验领取
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function save_strength_experience_receive(array $data)
+    {
+        return $this->userDao->saveExperienceReceiveRecord($data);
+    }
 }

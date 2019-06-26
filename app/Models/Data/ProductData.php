@@ -139,7 +139,7 @@ class ProductData
         if(count($last_waterfall_count) == 0){
             $last_info = $this->redis->zRange($waterfall_index,0,0,true);
             $last_time_arr = array_values($last_info);
-            $prev_time = (int)$last_time_arr[1];
+            $prev_time = (int)$last_time_arr[0];
             $prev_date = date('Y-m-d',$prev_time);
             $flx_count = $params['psize'];
         }else{
@@ -150,13 +150,17 @@ class ProductData
 
         $i = 1;
         while ($flx_count > 0){
+            $end_day = 0;
             $params['prev_time'] = strtotime("-{$i} day",strtotime($prev_date));
-            $params['end_time'] = strtotime($prev_date);
+            if($i > 1){
+                $end_day = $i - 1;
+            }
+            $params['end_time'] = strtotime("-{$end_day} day",$prev_date);
             $params['limit'] = $flx_count;
             if(!$this->redis->exists($cache_key)){
                 $cache_data = [
                     'index' => $waterfall_index,
-                    'params' => $params
+                    'params' => json_encode($params)
                 ];
                 $this->redis->hMSet('water_fall_index',$cache_data);
             }

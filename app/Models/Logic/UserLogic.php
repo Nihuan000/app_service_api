@@ -18,6 +18,7 @@ use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserSubscriptionTagData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
+use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
@@ -79,7 +80,7 @@ class UserLogic
     /**
      * @param array $params
      * @return int
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function checkUserTagExists(array $params)
     {
@@ -91,7 +92,7 @@ class UserLogic
      * @param $params
      * @param $last_day_time
      * @param $day_type
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function supplierDataList($params, $last_day_time, $day_type)
     {
@@ -196,7 +197,7 @@ class UserLogic
     /**
      * 实商数据
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getStrengthUserList()
     {
@@ -207,7 +208,7 @@ class UserLogic
      * 供应商推荐
      * @param array $params
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getRecommendShopList(array $params)
     {
@@ -282,7 +283,7 @@ class UserLogic
      * @param $pay_time
      * @return bool|\Swoft\Core\ResultInterface
      * @throws MysqlException
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function strengthUserOrderTotal($user_id,$order_num,$total_amount,$pay_time)
     {
@@ -343,7 +344,7 @@ class UserLogic
      * @param array $params
      * @param array $rule
      * @return bool
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function growth($params, $rule)
     {
@@ -453,7 +454,7 @@ class UserLogic
      * @param int $user_id
      * @param string $main_product
      * @return int
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function get_completion_rate($user_id,$main_product){
         $base_count = 3;
@@ -547,6 +548,9 @@ class UserLogic
      * 获取主营行业
      * @Author yang
      * @Date 19-03-25
+     * @param $user_id
+     * @return mixed
+     * @throws DbException
      */
     private function private_get_user_purchaser_industry($user_id){
         $this->userData->getUserPurchaserIndustry($user_id);
