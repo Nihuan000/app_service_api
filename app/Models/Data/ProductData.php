@@ -139,7 +139,7 @@ class ProductData
         if(count($last_waterfall_count) == 0){
             $last_info = $this->redis->zRange($waterfall_index,0,0,true);
             $last_time_arr = array_values($last_info);
-            $prev_time = (int)$last_time_arr[1];
+            $prev_time = (int)$last_time_arr[0];
             $prev_date = date('Y-m-d',$prev_time);
             $flx_count = $params['psize'];
         }else{

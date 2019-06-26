@@ -244,11 +244,11 @@ class RobotPurchaseTask{
     {
         Log::info('拼团到期任务开启');
         $prev_time = strtotime('-24 hour');
-        $purchase_list = Query::table('sb_group_purchase_order')->where('open_time',$prev_time,'<=')->where('status',1)->get(['gpo_id','order_num','is_robot'])->getResult();
+        $purchase_list = Query::table('sb_group_purchase_order')->where('open_time',$prev_time,'<=')->where('is_leader',1)->where('status',1)->get(['gpo_id','original_num'])->getResult();
         if(!empty($purchase_list)){
             $cancel = [];
             foreach ($purchase_list as $item) {
-                write_log(2,'订单:' . $item['order_num'] . '拼团失败');
+                write_log(2,'订单:' . $item['original_num'] . '拼团失败');
                 $cancel[] = $item['order_num'];
             }
             if(!empty($cancel)){
