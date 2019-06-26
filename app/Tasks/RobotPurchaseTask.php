@@ -10,6 +10,7 @@
 
 namespace App\Tasks;
 
+use App\Models\Data\UserData;
 use App\Models\Logic\UserStrengthLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
@@ -39,6 +40,12 @@ class RobotPurchaseTask{
      * @var Redis
      */
     private $appRedis;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
 
     /**
      * 拼团成功实商补充任务/机器人参团状态修改
@@ -201,6 +208,9 @@ class RobotPurchaseTask{
                                                 if($original['is_robot'] == 0){
                                                     try {
                                                         $strengthRes = $this->userStrengthLogic->user_strength_open($original['user_id'], $original['order_num'], '', 1);
+                                                        if($strengthRes == 1){
+                                                            $this->send_purchase_notice($original['user_id'],3);
+                                                        }
                                                         write_log(2,"实商开通结果:" . $original['order_num'] . '=>' . $strengthRes);
                                                     } catch (DbException $e) {
                                                         Log::info($e->getMessage());
@@ -217,6 +227,11 @@ class RobotPurchaseTask{
                                             $robot_list = array_column($original_order,'is_robot');
                                             if(in_array(0,$robot_list)){
                                                 $random = rand(30,90);
+                                                foreach ($original_order as $key => $person) {
+                                                    if($person['is_robot'] == 0){
+                                                        $this->send_purchase_notice($person['user_id'],2);
+                                                    }
+                                                }
                                             }else{
                                                 $random = rand(60,180);
                                             }
@@ -259,5 +274,59 @@ class RobotPurchaseTask{
         }
         Log::info('拼团到期任务结束');
         return ['拼团到期任务'];
+    }
+
+    /**
+     * 拼团通知
+     * @param $user_id
+     * @param int $step 1:创建 2：新加入 3：成功
+     */
+    protected function send_purchase_notice($user_id,$step = 1)
+    {
+        $msgContent = $content = $sms = '';
+        $sms_url = $this->userData->getSetting('group_purchase_short_url');
+        switch ($step){
+            case 1:
+                $msgContent = '【拼团提醒】一年实力商家权益拼团创建成功！赶紧邀请好友参团吧！点击查看';
+                $content = '【拼团提醒】一年实力商家权益拼团创建成功！赶紧邀请好友参团吧！#点击查看#';
+                $sms = '【搜布】一年实力商家权益拼团创建成功！赶紧邀请好友参团吧！' .$sms_url. ' 退订回T';
+                break;
+
+            case 2:
+                $msgContent = '【拼团提醒】您的拼团有新的好友加入，再邀请一位即可拼团成功！点击查看';
+                $content = '【拼团提醒】您的拼团有新的好友加入，再邀请一位即可拼团成功！#点击查看#';
+                $sms = '【搜布】您的拼团有新的好友加入，再邀请一位即可拼团成功！ ' . $sms_url . '退订回T';
+                break;
+
+            case 3:
+                $msgContent = '【拼团提醒】恭喜您一年实力商家拼团成功！赶紧打开app享受权益吧！点击查看';
+                $content = '【拼团提醒】恭喜您一年实力商家拼团成功！赶紧打开app享受权益吧！#点击查看#';
+                $sms = '【搜布】恭喜您一年实力商家拼团成功！赶紧打开app享受权益吧！ ' . $sms_url . ' 退订回T';
+                break;
+        }
+
+        if(!empty($msgContent)){
+            //发送系统消息
+            $config = \Swoft::getBean('config');
+            $sys_msg = $config->get('sysMsg');
+            $extra = $sys_msg;
+            $extra['title'] =  $extra['msgTitle'] = "";
+            $extra['isRich'] = 0;
+            $extra['msgContent'] = $msgContent;
+            $extra['content'] = $content;
+            $d = [["keyword"=>"#点击查看#","type"=>18,"id"=>0,"url"=>$this->userData->getSetting('group_purchase_url')]];
+            $datashow = array();
+            $extra['data'] = $d;
+            $extra['commendUser'] = array();
+            $extra['showData'] = $datashow;
+            $data['extra'] = $extra;
+            sendInstantMessaging('1',(string)$user_id,json_encode($data['extra']));
+        }
+        if($this->userData->getSetting('SEND_SMS') == 1 && !empty($sms)){
+            $user_info = $this->userData->getUserInfo($user_id);
+            if(!empty($user_info)){
+                sendSms($user_info['phone'],$sms,2,2);
+            }
+        }
     }
 }
