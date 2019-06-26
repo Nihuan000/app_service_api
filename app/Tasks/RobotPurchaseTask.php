@@ -121,6 +121,7 @@ class RobotPurchaseTask{
                             $order['is_robot'] = 1;
                             $order['is_leader'] = 1;
                             $order['add_time'] = $start_time;
+                            $order['open_time'] = $start_time;
                             $order['pay_time'] = $start_time;
                             $order['status'] = 1;
                             $purchase_order = Query::table('sb_group_purchase_order')->insert($order)->getResult();
