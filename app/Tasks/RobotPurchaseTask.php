@@ -91,6 +91,7 @@ class RobotPurchaseTask{
         $hour = date('H');
         $now_time = time();
         $start_cache = 'robot_open_time';
+        $robot_purchase_cache = 'robot_purchase_cache';
         $original_list = Query::table('sb_group_purchase_order')->where('is_leader',1)->where('status',1)->count()->getResult();
         $has_defer = 0; //是否晚间顺延
         if($original_list < 6){
@@ -124,6 +125,8 @@ class RobotPurchaseTask{
                             $order['status'] = 1;
                             $purchase_order = Query::table('sb_group_purchase_order')->insert($order)->getResult();
                             if($purchase_order){
+                                //缓存机器人用户名/头像
+                                $this->appRedis->hSet($robot_purchase_cache,$info[0],$robot_info);
                                 write_log(2,'机器人开团订单号:' . $original_num);
                                 $random = rand(60,180);
                                 $random_time = time() + $random * 60;
@@ -156,6 +159,7 @@ class RobotPurchaseTask{
         Log::info('机器人参团任务开启');
         $cache_key = 'group_purchase_robot_list';
         $robot_user_list = 'robot_user_list';
+        $robot_purchase_cache = 'robot_purchase_cache';
         $robot_list = $this->appRedis->hKeys($cache_key);
         if(!empty($robot_list)){
             foreach ($robot_list as $robot) {
@@ -182,6 +186,8 @@ class RobotPurchaseTask{
                                 $order['status'] = 1;
                                 $purchase_order = Query::table('sb_group_purchase_order')->insert($order)->getResult();
                                 if($purchase_order != false){
+                                    //缓存机器人用户名/头像
+                                    $this->appRedis->hSet($robot_purchase_cache,$info[0],$robot_info);
                                     //其他参团人判断
                                     $original_order = Query::table('sb_group_purchase_order')->where('original_num',$robot)->where('status',1)->get(['gpo_id','is_robot','user_id','order_num'])->getResult();
                                     if(!empty($original_order) && count($original_order) >= 3) {
