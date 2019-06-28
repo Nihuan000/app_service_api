@@ -298,6 +298,7 @@ class RobotPurchaseTask{
                                             //记录退回
                                             $ref['order_num'] = $order_info['order_num'];
                                             $ref['shop_id'] = $order_info['user_id'];
+                                            $ref['user_id'] = $order_info['user_id'];
                                             $ref['re_price'] = $appreciation_order['pay_total_amount'];
                                             $ref['reason_name'] = '拼团失败退回';
                                             $ref['type'] = 1;
@@ -312,7 +313,7 @@ class RobotPurchaseTask{
                                             $rec['user_id'] = $order_info['user_id'];
                                             $rec['money'] = $appreciation_order['pay_total_amount'];
                                             $rec['order_num'] = $order_info['order_num'];
-                                            $rec['record_from'] = 24;
+                                            $rec['record_from'] = 25;
                                             $rec['record_type'] = 1;
                                             $rec['record_time'] = time();
                                             $walletRec = Query::table('sb_order_wallet_record')->insert($rec)->getResult();
