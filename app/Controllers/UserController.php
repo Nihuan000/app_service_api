@@ -276,6 +276,7 @@ class UserController{
     /**
      * 实商过期
      * @param Request $request
+     * @RequestMapping()
      * @return array
      * @throws DbException
      */
@@ -303,6 +304,7 @@ class UserController{
     /**
      * 实商到期提醒添加
      * @param Request $request
+     * @RequestMapping()
      * @return array
      * @throws DbException
      */
@@ -329,6 +331,7 @@ class UserController{
     /**
      * 用户实商变更记录
      * @param Request $request
+     * @RequestMapping()
      * @return array
      * @throws MysqlException
      */
@@ -370,6 +373,7 @@ class UserController{
      * 实商开通/续费功能入口
      * @Middleware(class=ActionVerifyMiddleware::class)
      * @param Request $request
+     * @RequestMapping()
      * @return array
      * @throws DbException
      * @throws MysqlException
