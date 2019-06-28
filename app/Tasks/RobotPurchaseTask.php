@@ -277,49 +277,53 @@ class RobotPurchaseTask{
                 if($cancelRes){
                     foreach ($cancel as $order_num) {
                         //查询到期订单信息
-                        $order_info = Query::table('sb_group_purchase_order')->where('original_num',$order_num)->where('status',3)->one()->getResult();
-                        if(!empty($order_info) && $order_info['is_robot'] == 0){
-                            $appreciation_order = Query::table('sb_appreciation_order')->where('order_num',$order_info['order_num'])->where('user_id',$order_info['user_id'])->where('status', 20)->one()->getResult();
-                            $order_record = Query::table('sb_order_record')->where('re_type',13)->where('order_uid',$order_info['user_id'])->where('order_num',$order_info['order_num'])->where('status',2)->one()->getResult();
-                            if($appreciation_order && $order_record){
-                                //退回金额到钱包
-                                Db::beginTransaction();
-                                $walletRes = $recordRes = $walletRec = false;
-                                $wallet = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->one(['balance'])->getResult();
-                                if(!empty($wallet)){
-                                    write_log(2,'用户:' . $order_info['user_id'] . '钱包余额' . $wallet['balance']);
-                                    $new_balance = $wallet['balance'] + $appreciation_order['pay_total_amount'];
-                                    write_log(2,'用户:' . $order_info['user_id'] . '退回后金额' . $new_balance);
-                                    $data['balance'] = $new_balance;
-                                    $data['update_time'] = time();
-                                    $walletRes = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->update($data)->getResult();
-                                    //记录退回
-                                    $ref['order_num'] = $order_info['order_num'];
-                                    $ref['user_id'] = $order_info['user_id'];
-                                    $ref['re_price'] = $appreciation_order['pay_total_amount'];
-                                    $ref['reason_name'] = '拼团失败退回';
-                                    $ref['type'] = 1;
-                                    $ref['re_type'] = 7;
-                                    $ref['remark'] = '实商拼团失败，退回钱包余额';
-                                    $ref['total_price'] = $appreciation_order['pay_total_amount'];
-                                    $ref['status'] = 2;
-                                    $ref['add_time'] = time();
-                                    $ref['finish_time'] = time();
-                                    $recordRes = Query::table('sb_order_refund')->insert($ref)->getResult();
-                                    //钱包记录添加
-                                    $rec['user_id'] = $order_info['user_id'];
-                                    $rec['money'] = $appreciation_order['pay_total_amount'];
-                                    $rec['order_num'] = $order_info['order_num'];
-                                    $rec['record_from'] = 24;
-                                    $rec['record_type'] = 1;
-                                    $rec['record_time'] = time();
-                                    $walletRec = Query::table('sb_order_wallet_record')->insert($rec)->getResult();
-                                }
+                        $order_list = Query::table('sb_group_purchase_order')->where('original_num',$order_num)->where('status',3)->get()->getResult();
+                        if(!empty($order_list)){
+                            foreach ($order_list as $order_info) {
+                                if(!empty($order_info) && $order_info['is_robot'] == 0){
+                                    $appreciation_order = Query::table('sb_appreciation_order')->where('order_num',$order_info['order_num'])->where('user_id',$order_info['user_id'])->where('status', 20)->one()->getResult();
+                                    $order_record = Query::table('sb_order_record')->where('re_type',13)->where('order_uid',$order_info['user_id'])->where('order_num',$order_info['order_num'])->where('status',2)->one()->getResult();
+                                    if($appreciation_order && $order_record){
+                                        //退回金额到钱包
+                                        Db::beginTransaction();
+                                        $walletRes = $recordRes = $walletRec = false;
+                                        $wallet = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->one(['balance'])->getResult();
+                                        if(!empty($wallet)){
+                                            write_log(2,'用户:' . $order_info['user_id'] . '钱包余额' . $wallet['balance']);
+                                            $new_balance = $wallet['balance'] + $appreciation_order['pay_total_amount'];
+                                            write_log(2,'用户:' . $order_info['user_id'] . '退回后金额' . $new_balance);
+                                            $data['balance'] = $new_balance;
+                                            $data['update_time'] = time();
+                                            $walletRes = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->update($data)->getResult();
+                                            //记录退回
+                                            $ref['order_num'] = $order_info['order_num'];
+                                            $ref['shop_id'] = $order_info['user_id'];
+                                            $ref['re_price'] = $appreciation_order['pay_total_amount'];
+                                            $ref['reason_name'] = '拼团失败退回';
+                                            $ref['type'] = 1;
+                                            $ref['re_type'] = 7;
+                                            $ref['remark'] = '实商拼团失败，退回钱包余额';
+                                            $ref['total_price'] = $appreciation_order['pay_total_amount'];
+                                            $ref['status'] = 2;
+                                            $ref['add_time'] = time();
+                                            $ref['finish_time'] = time();
+                                            $recordRes = Query::table('sb_order_refund')->insert($ref)->getResult();
+                                            //钱包记录添加
+                                            $rec['user_id'] = $order_info['user_id'];
+                                            $rec['money'] = $appreciation_order['pay_total_amount'];
+                                            $rec['order_num'] = $order_info['order_num'];
+                                            $rec['record_from'] = 24;
+                                            $rec['record_type'] = 1;
+                                            $rec['record_time'] = time();
+                                            $walletRec = Query::table('sb_order_wallet_record')->insert($rec)->getResult();
+                                        }
 
-                                if($walletRes && $walletRec && $recordRes){
-                                    Db::commit();
-                                }else{
-                                    Db::rollback();
+                                        if($walletRes && $walletRec && $recordRes){
+                                            Db::commit();
+                                        }else{
+                                            Db::rollback();
+                                        }
+                                    }
                                 }
                             }
                         }
