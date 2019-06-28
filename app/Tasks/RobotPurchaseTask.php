@@ -261,6 +261,7 @@ class RobotPurchaseTask{
     public function cancelTask()
     {
         Log::info('拼团到期任务开启');
+        $cache_key = 'group_purchase_robot_list';
         $prev_time = strtotime('-24 hour');
         $purchase_list = Query::table('sb_group_purchase_order')->where('open_time',$prev_time,'<=')->where('is_leader',1)->where('status',1)->get(['gpo_id','original_num'])->getResult();
         if(!empty($purchase_list)){
@@ -272,11 +273,11 @@ class RobotPurchaseTask{
             if(!empty($cancel)){
                 $update['status'] = 3;
                 $update['cancel_time'] = time();
-                $cancelRes = Query::table('sb_group_purchase_order')->whereIn('order_num',$cancel)->update($update)->getResult();
+                $cancelRes = Query::table('sb_group_purchase_order')->whereIn('original_num',$cancel)->update($update)->getResult();
                 if($cancelRes){
                     foreach ($cancel as $order_num) {
                         //查询到期订单信息
-                        $order_info = Query::table('sb_group_purchase_order')->where('order_num',$order_num)->where('status',3)->one()->getResult();
+                        $order_info = Query::table('sb_group_purchase_order')->where('original_num',$order_num)->where('status',3)->one()->getResult();
                         if(!empty($order_info) && $order_info['is_robot'] == 0){
                             $appreciation_order = Query::table('sb_appreciation_order')->where('order_num',$order_info['order_num'])->where('user_id',$order_info['user_id'])->where('status', 20)->one()->getResult();
                             $order_record = Query::table('sb_order_record')->where('re_type',13)->where('order_uid',$order_info['user_id'])->where('order_num',$order_info['order_num'])->where('status',2)->one()->getResult();
@@ -311,6 +312,7 @@ class RobotPurchaseTask{
                                 }
                             }
                         }
+                        $this->appRedis->hDel($cache_key,$order_num);
                     }
                 }
             }
