@@ -51,7 +51,7 @@ class RobotPurchaseTask{
     /**
      * 拼团成功实商补充任务/机器人参团状态修改
      * 7.2-7.4 每分钟第5秒执行
-     * @Scheduled(cron="5 * * 26-28 6 *")
+     * @Scheduled(cron="5 * * 2-4 7 *")
      */
     public function groupStrengthTask()
     {
@@ -90,7 +90,7 @@ class RobotPurchaseTask{
     /**
      * 判断拼团个数&自动开团
      * 7.2-7.4 每分钟第16秒执行
-     * @Scheduled(cron="0 0 * 26-28 6 *")
+     * @Scheduled(cron="0 0 * 2-4 7 *")
      * @throws MysqlException
      */
     public function robotOpenTask()
@@ -158,7 +158,7 @@ class RobotPurchaseTask{
     /**
      * 机器人自动参团
      * 7.2-7.4 每分钟第16秒执行
-     * @Scheduled(cron="16 * * 26-28 6 *")
+     * @Scheduled(cron="16 * * 2-5 7 *")
      * @throws MysqlException
      */
     public function robotMissionTask()
@@ -254,7 +254,7 @@ class RobotPurchaseTask{
     /**
      * 拼团到期退款操作
      * 7.2-7.4 每分钟第25秒执行
-     * @Scheduled(cron="25 * * 26-28 6 *")
+     * @Scheduled(cron="25 * * 2-5 7 *")
      * @throws MysqlException
      * @throws DbException
      */
