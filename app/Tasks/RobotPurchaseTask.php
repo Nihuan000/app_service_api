@@ -267,7 +267,7 @@ class RobotPurchaseTask{
             $cancel = [];
             foreach ($purchase_list as $item) {
                 write_log(2,'订单:' . $item['original_num'] . '拼团失败');
-                $cancel[] = $item['order_num'];
+                $cancel[] = $item['original_num'];
             }
             if(!empty($cancel)){
                 $update['status'] = 3;
@@ -278,8 +278,8 @@ class RobotPurchaseTask{
                         //查询到期订单信息
                         $order_info = Query::table('sb_group_purchase_order')->where('order_num',$order_num)->where('status',3)->one()->getResult();
                         if(!empty($order_info) && $order_info['is_robot'] == 0){
-                            $appreciation_order = Query::table('sb_appreciation_order')->where('order_num',$order_num)->where('user_id',$order_info['user_id'])->where('status', 20)->one()->getResult();
-                            $order_record = Query::table('sb_order_record')->where('re_type',13)->where('order_uid',$order_info['user_id'])->where('order_num',$order_num)->where('status',2)->one()->getResult();
+                            $appreciation_order = Query::table('sb_appreciation_order')->where('order_num',$order_info['order_num'])->where('user_id',$order_info['user_id'])->where('status', 20)->one()->getResult();
+                            $order_record = Query::table('sb_order_record')->where('re_type',13)->where('order_uid',$order_info['user_id'])->where('order_num',$order_info['order_num'])->where('status',2)->one()->getResult();
                             if($appreciation_order && $order_record){
                                 //退回金额到钱包
                                 Db::beginTransaction();
@@ -293,11 +293,11 @@ class RobotPurchaseTask{
                                     $data['update_time'] = time();
                                     $walletRes = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->update($data)->getResult();
                                     //记录退回
-                                    $recordRes = Query::table('sb_order_record')->where('order_num',$order_num)->where('order_uid',$order_info['user_id'])->update(['status' => 3])->getResult();
+                                    $recordRes = Query::table('sb_order_record')->where('order_num',$order_info['order_num'])->where('order_uid',$order_info['user_id'])->update(['status' => 3])->getResult();
                                     //钱包记录添加
                                     $rec['user_id'] = $order_info['user_id'];
                                     $rec['money'] = $appreciation_order['pay_total_amount'];
-                                    $rec['order_num'] = $order_num;
+                                    $rec['order_num'] = $order_info['order_num'];
                                     $rec['record_from'] = 24;
                                     $rec['record_type'] = 1;
                                     $rec['record_time'] = time();
