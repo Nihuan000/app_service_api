@@ -68,10 +68,11 @@ class UserController{
 
     /**
      * 采购商用户成长值操作
-     * @author yang
-     * @RequestMapping()
      * @param Request $request
      * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     * @author yang
+     * @RequestMapping()
      */
     public function user_growth(Request $request): array
     {
@@ -366,6 +367,7 @@ class UserController{
             $code = 1;
             $result = [];
         }
+
         return compact('code','msg','result');
     }
 

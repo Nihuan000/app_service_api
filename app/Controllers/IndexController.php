@@ -461,33 +461,4 @@ class IndexController
         }
         return compact("code","result","msg");
     }
-
-    /**
-     * 测试短连接生成
-     * @param Request $request
-     * @return array
-     */
-    public function test_shot_url(Request $request)
-    {
-        $is_soubu = $request->post('is_soubu');
-        $days = $request->post('days');
-        $type = $request->post('type',2);
-        if($is_soubu == false || empty($days) || empty($type)){
-            $code = 0;
-            $result = [];
-            $msg = '非法操作';
-        }else{
-            $config = \Swoft::getBean('config');
-            $supplier_recall_msg = $config->get('activateSms.supplier_recall');
-            $short_url = get_shot_url($days);
-            $supplier_recall = $supplier_recall_msg . $short_url;
-            $supplier_recall .= ' 退订回T';
-            $code = 1;
-            $result = [
-                'msg_content' => $supplier_recall
-            ];
-            $msg = '执行成功';
-        }
-        return compact("code","result","msg");
-    }
 }
