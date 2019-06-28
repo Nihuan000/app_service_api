@@ -294,7 +294,18 @@ class RobotPurchaseTask{
                                     $data['update_time'] = time();
                                     $walletRes = Query::table('sb_order_wallet')->where('user_id',$order_info['user_id'])->update($data)->getResult();
                                     //记录退回
-                                    $recordRes = Query::table('sb_order_record')->where('order_num',$order_info['order_num'])->where('order_uid',$order_info['user_id'])->update(['status' => 3])->getResult();
+                                    $ref['order_num'] = $order_info['order_num'];
+                                    $ref['user_id'] = $order_info['user_id'];
+                                    $ref['re_price'] = $appreciation_order['pay_total_amount'];
+                                    $ref['reason_name'] = '拼团失败退回';
+                                    $ref['type'] = 1;
+                                    $ref['re_type'] = 7;
+                                    $ref['remark'] = '实商拼团失败，退回钱包余额';
+                                    $ref['total_price'] = $appreciation_order['pay_total_amount'];
+                                    $ref['status'] = 2;
+                                    $ref['add_time'] = time();
+                                    $ref['finish_time'] = time();
+                                    $recordRes = Query::table('sb_order_refund')->insert($ref)->getResult();
                                     //钱包记录添加
                                     $rec['user_id'] = $order_info['user_id'];
                                     $rec['money'] = $appreciation_order['pay_total_amount'];
