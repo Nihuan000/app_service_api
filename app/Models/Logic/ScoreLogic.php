@@ -248,7 +248,7 @@ class ScoreLogic
                     if($strength_Score['is_passed'] != 1){
                         $illegal_record = 0;
                     }
-                    $score_get_record_data['new_score'] = $current_score + $now_score;
+                    $score_get_record_data['new_score'] = $current_score + $now_score > 0 ? $current_score + $now_score : 0;
                     $score_get_record_data = array_merge($score_get_record_data,$strength_Score['score_get_record_data']);
                     break;
 
