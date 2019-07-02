@@ -95,7 +95,7 @@ class RobotPurchaseTask{
      */
     public function robotOpenTask()
     {
-        Log::info('机器人参团任务开启');
+        Log::info('机器人开团任务开启');
         $hour = date('H');
         $now_time = time();
         $start_cache = 'robot_open_time';
@@ -103,11 +103,13 @@ class RobotPurchaseTask{
         $original_list = Query::table('sb_group_purchase_order')->where('is_leader',1)->where('status',1)->count()->getResult();
         $has_defer = 0; //是否晚间顺延
         if($original_list < 6){
+            Log::info('团个数:' . $original_list);
             $robot_user_list = 'robot_user_list';
             $start_time = 0;
             if($this->appRedis->exists($start_cache)){
                 $start_time = $this->appRedis->get($start_cache);
             }
+            Log::info('执行时间:' . date('Y-m-d H:i:s',$start_time));
 
             if($start_time > 0 && $start_time <= $now_time){
                 if($hour < 8 || $hour > 21){
@@ -151,8 +153,8 @@ class RobotPurchaseTask{
             $random_time = time() + $random * 60;
             $this->appRedis->set($start_cache,$random_time);
         }
-        Log::info('机器人参团任务结束');
-        return ['机器人参团任务'];
+        Log::info('机器人开团任务结束');
+        return ['机器人开团任务'];
     }
 
     /**

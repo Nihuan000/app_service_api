@@ -73,9 +73,11 @@ class ScoreLogic
 
                //获取用户当前积分
                 $current_score = 0;
+                $current_level = 0;
                 $user_score = $this->scoreData->getUserScore($user_id);
                if(!empty($user_score)){
                    $current_score = $user_score['scoreValue'];
+                   $current_level = (int)$user_score['levelId'];
                }
 
                 //实力值记录
@@ -107,7 +109,7 @@ class ScoreLogic
                        }
 
                        //实商加速
-                       if($isUserStrength){
+                       if($isUserStrength || $current_level >= 4){
                            $ratio = $this->userData->getSetting('4888_strength_seller_product_score_ratio');
                            $ratio = $ratio ? $ratio : 1;
                            $month_limit = $month_limit * $ratio;
@@ -125,7 +127,7 @@ class ScoreLogic
                    //有效售出订单
                    case 'seller_take_order':
                        //实商加速
-                       if($isUserStrength){
+                       if($isUserStrength || $current_level >= 4){
                            $ratio = $this->userData->getSetting('4888_strength_seller_product_score_ratio');
                            $ratio = $ratio ? $ratio : 1;
                        }
@@ -166,7 +168,7 @@ class ScoreLogic
                    case 'seller_offer':
                        $offer_score = $this->scoreData->getOfferScoreRecord($user_id,$attr['offer_id'],$rule_info['id']);
                        if($rule_info['month_limit'] > $offer_score['offer_count'] && $offer_score['is_passed'] == 1) {
-                           $score_get_record_data['product_id'] = (int)$attr['offer_id'];
+                           $score_get_record_data['product_id'] = 0;
                            $score_get_record_data['new_score'] = $current_score + $now_score;
                            $score_get_record_data['is_valid'] = 1;
                            $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取" . $now_score . '分' . ',报价id:' . $attr['offer_id'];
