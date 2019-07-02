@@ -210,6 +210,9 @@ class RobotPurchaseTask{
                                                     try {
                                                         $strengthRes = $this->userStrengthLogic->user_strength_open($original['user_id'], $original['order_num'], '', 1);
                                                         if($strengthRes == 1){
+                                                            $upPurchase['is_strength_sync'] = 1;
+                                                            $upPurchase['finish_time'] = time();
+                                                            Query::table('sb_group_purchase_order')->where('gpo_id',$original['gpo_id'])->update($upPurchase)->getResult();
                                                             $this->send_purchase_notice($original['user_id'],3);
                                                         }
                                                         write_log(2,"实商开通结果:" . $original['order_num'] . '=>' . $strengthRes);
