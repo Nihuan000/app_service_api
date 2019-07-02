@@ -101,7 +101,7 @@ class RobotPurchaseTask{
         $start_cache = 'robot_open_time';
         $robot_purchase_cache = 'robot_purchase_cache';
         $original_list = Query::table('sb_group_purchase_order')->where('is_leader',1)->where('status',1)->count()->getResult();
-        $has_defer = 0; //是否晚间顺延
+        $has_defer = -1; //是否晚间顺延
         if($original_list < 6){
             Log::info('团个数:' . $original_list);
             $robot_user_list = 'robot_user_list';
@@ -142,6 +142,7 @@ class RobotPurchaseTask{
                                 $random = rand(60,180);
                                 $random_time = time() + $random * 60;
                                 $this->appRedis->hSet('group_purchase_robot_list',$original_num,$random_time);
+                                $has_defer = 0;
                             }
                         }
                     }
