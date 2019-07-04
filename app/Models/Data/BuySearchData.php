@@ -52,7 +52,6 @@ class BuySearchData
         $page = $params['page'] == 0 ? $params['page'] : $params['page'] - 1;
         $size = $params['psize'];
         $from = $page * $size;
-        $tag_index = '@RECOMMEND_HOT_TAG_';
         $last_days = env('ES_RECOMMEND_DAYS');
         $last_time = strtotime("-{$last_days} day");
 
@@ -66,24 +65,13 @@ class BuySearchData
                 $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
             }
         }
-        $parent_terms = [];
         $product_terms = [];
         $type_terms = [];
         $label_ids = [];
         if($params['type'] == 0){
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag){
-                    if($this->redis->exists($tag_index . $tag['top_id'])){
-                        $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
-                        $tag_list = json_decode($tag_list_cache,true);
-                        if(!in_array($tag['parent_name'],$tag_list)){
-                            $parent_terms[] = $tag['parent_id'];
-                        }else{
-                            $product_terms[] = $tag['tag_name'];
-                        }
-                    }else{
-                        $product_terms[] = $tag['tag_name'];
-                    }
+                    $product_terms[] = $tag['tag_name'];
                     $type_terms[] = $tag['top_id'];
                 }
             }
@@ -99,17 +87,7 @@ class BuySearchData
             if(!empty($user_tag_list)){
                 foreach ($user_tag_list as $tag) {
                     if($tag['top_id'] == $params['type']){
-                        if($this->redis->exists($tag_index . $tag['top_id'])){
-                            $tag_list_cache = $this->redis->get($tag_index . $tag['top_id']);
-                            $tag_list = json_decode($tag_list_cache,true);
-                            if(!in_array($tag['parent_name'],$tag_list)){
-                                $parent_terms[] = $tag['parent_id'];
-                            }else{
-                                $product_terms[] = $tag['tag_name'];
-                            }
-                        }else{
-                            $product_terms[] = $tag['tag_name'];
-                        }
+                        $product_terms[] = $tag['tag_name'];
                         $label_ids[] = $tag['tag_id'];
                     }
                 }
@@ -141,12 +119,6 @@ class BuySearchData
         }
         //二级类过滤
         $parent_terms_list = [];
-        if(!empty($parent_terms)){
-            $new_terms = array_unique($parent_terms);
-            foreach ($new_terms as $term) {
-                $parent_terms_list[] = ['term' => ['proName_ids' => $term]];
-            }
-        }
         //三级类过滤
         if(!empty($product_terms)){
             $new_product = array_unique($product_terms);

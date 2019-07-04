@@ -318,6 +318,9 @@ class UserStrengthLogic
         $service_fee_rate = $appreciation_product['service_fee_rate'];//服务费比例
         $level = 10;
 
+        //当前实商信息
+        $user_strength_info = $this->userData->getUserStrengthInfo($user_id);
+
         if (!empty($user_strength_info) && !empty($user_strength_info['end_time'])) {
             //已开通续费
             $add_user_strength_data = [

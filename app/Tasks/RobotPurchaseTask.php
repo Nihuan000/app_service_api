@@ -95,19 +95,21 @@ class RobotPurchaseTask{
      */
     public function robotOpenTask()
     {
-        Log::info('机器人参团任务开启');
+        Log::info('机器人开团任务开启');
         $hour = date('H');
         $now_time = time();
         $start_cache = 'robot_open_time';
         $robot_purchase_cache = 'robot_purchase_cache';
         $original_list = Query::table('sb_group_purchase_order')->where('is_leader',1)->where('status',1)->count()->getResult();
-        $has_defer = 0; //是否晚间顺延
+        $has_defer = -1; //是否晚间顺延
         if($original_list < 6){
+            Log::info('团个数:' . $original_list);
             $robot_user_list = 'robot_user_list';
             $start_time = 0;
             if($this->appRedis->exists($start_cache)){
                 $start_time = $this->appRedis->get($start_cache);
             }
+            Log::info('执行时间:' . date('Y-m-d H:i:s',$start_time));
 
             if($start_time > 0 && $start_time <= $now_time){
                 if($hour < 8 || $hour > 21){
@@ -140,6 +142,7 @@ class RobotPurchaseTask{
                                 $random = rand(60,180);
                                 $random_time = time() + $random * 60;
                                 $this->appRedis->hSet('group_purchase_robot_list',$original_num,$random_time);
+                                $has_defer = 0;
                             }
                         }
                     }
@@ -151,8 +154,8 @@ class RobotPurchaseTask{
             $random_time = time() + $random * 60;
             $this->appRedis->set($start_cache,$random_time);
         }
-        Log::info('机器人参团任务结束');
-        return ['机器人参团任务'];
+        Log::info('机器人开团任务结束');
+        return ['机器人开团任务'];
     }
 
     /**
@@ -210,6 +213,9 @@ class RobotPurchaseTask{
                                                     try {
                                                         $strengthRes = $this->userStrengthLogic->user_strength_open($original['user_id'], $original['order_num'], '', 1);
                                                         if($strengthRes == 1){
+                                                            $upPurchase['is_strength_sync'] = 1;
+                                                            $upPurchase['finish_time'] = time();
+                                                            Query::table('sb_group_purchase_order')->where('gpo_id',$original['gpo_id'])->update($upPurchase)->getResult();
                                                             $this->send_purchase_notice($original['user_id'],3);
                                                         }
                                                         write_log(2,"实商开通结果:" . $original['order_num'] . '=>' . $strengthRes);

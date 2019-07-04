@@ -13,6 +13,7 @@ use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Query;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -115,7 +116,7 @@ class ScoreDao
      */
     public function getScoreRecordByParams(array $params)
     {
-        return UserScoreGetRecord::findOne($params)->getResult();
+        return UserScoreGetRecord::findOne($params,['orderby' => ['id' => 'desc']])->getResult();
     }
 
     /**
@@ -190,6 +191,11 @@ class ScoreDao
             }
         }
 
+        Log::info('recordRes:' . $recordRes);
+        Log::info('userScoreRes:' . $userScoreRes);
+        Log::info('updateScoreRes:' . $updateScoreRes);
+        Log::info('updateUserRes:' . $updateUserRes);
+        Log::info('UserLevelRec:' . $UserLevelRec);
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
             Db::commit();
             return $level_id;
@@ -255,6 +261,11 @@ class ScoreDao
             $level_id = $levelUpRes['level_id'];
         }
 
+        Log::info('recordRes:' . $recordRes);
+        Log::info('userScoreRes:' . $userScoreRes);
+        Log::info('updateScoreRes:' . $updateScoreRes);
+        Log::info('updateUserRes:' . $updateUserRes);
+        Log::info('UserLevelRec:' . $UserLevelRec);
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
             Db::commit();
             return $level_id;
