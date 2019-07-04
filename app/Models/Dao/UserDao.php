@@ -63,7 +63,7 @@ class UserDao
      */
     public function getUserTagByUid(int $user_id)
     {
-        $list = Db::query("select user_id, tag_id,tag_name, parent_id, parent_name, top_name, top_id from sb_user_subscription_tag where user_id= {$user_id}")->getResult();
+        $list = Db::query("select user_id, tag_id,tag_name, parent_id, parent_name, top_name, top_id from sb_user_subscription_tag where user_id= {$user_id} AND top_id > 100")->getResult();
         return $list;
     }
 
