@@ -367,6 +367,7 @@ class UserController{
             $code = 1;
             $result = [];
         }
+
         return compact('code','msg','result');
     }
 
