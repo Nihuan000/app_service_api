@@ -10,15 +10,10 @@
 
 namespace App\Controllers;
 
-use App\Models\Logic\ScoreLogic;
-use Swoft\App;
-use Swoft\Bean\Annotation\Inject;
-use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use App\Middlewares\ActionVerifyMiddleware;
-use Swoft\Redis\Redis;
 use Swoft\Task\Exception\TaskException;
 use Swoft\Task\Task;
 
@@ -29,17 +24,6 @@ use Swoft\Task\Task;
  * @package App\Controllers
  */
 class ScoreController{
-
-    /**
-     * @Inject("searchRedis")
-     * @var Redis
-     */
-    private $redis;
-
-    /**
-     * @var string
-     */
-    private $score_queue_key = 'score_queue_list';
 
     /**
      * 加分操作
