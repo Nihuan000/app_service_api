@@ -45,9 +45,8 @@ class UserScoreTask{
 
     /**
      * 用户积分变更操作
-     * 每两秒执行一次
-     *
-     * @Scheduled(cron="*\/2 * * * * *")
+     * 每分钟26秒执行一次
+     * @Scheduled(cron="26 * * * * *")
      * @throws DbException
      */
     public function cronTask()
@@ -76,6 +75,35 @@ class UserScoreTask{
                     $this->redis->rPush($this->score_queue_key,$queue);
                 }
             }
+        }
+//        Log::info('用户积分变更任务结束');
+    }
+
+    /**
+     * 用户积分变更操作
+     * @param array $score_info
+     * @throws DbException
+     */
+    public function scoreSyncTask(array $score_info)
+    {
+//        Log::info('用户积分变更任务开启');
+        $queue = json_encode($score_info);
+        Log::info('用户积分任务信息:' . $queue);
+        $scoreRes = 0;
+        switch ($score_info['score_type']){
+            //加分
+            case 'increase':
+                $scoreRes = $this->scoreLogic->user_score_increase($score_info['user_id'],$score_info['scenes'],$score_info['extended']);
+                break;
+
+            //减分
+            case 'deduction':
+                $scoreRes = $this->scoreLogic->user_score_deduction($score_info['user_id'],$score_info['scenes'],$score_info['extended']);
+                break;
+        }
+        Log::info('用户积分执行结果:' . $scoreRes);
+        if($scoreRes == 0){
+            $this->redis->rPush($this->score_queue_key,$queue);
         }
 //        Log::info('用户积分变更任务结束');
     }
