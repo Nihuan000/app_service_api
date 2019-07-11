@@ -10,15 +10,12 @@
 
 namespace App\Controllers;
 
-use App\Models\Logic\ScoreLogic;
-use Swoft\App;
-use Swoft\Bean\Annotation\Inject;
-use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use App\Middlewares\ActionVerifyMiddleware;
-use Swoft\Redis\Redis;
+use Swoft\Task\Exception\TaskException;
+use Swoft\Task\Task;
 
 /**
  * Class ScoreController
@@ -43,6 +40,7 @@ class ScoreController{
      * 加分操作
      * @param Request $request
      * @return array
+     * @throws TaskException
      */
     public function increase(Request $request)
     {
@@ -56,8 +54,9 @@ class ScoreController{
         }else{
             $pushRes = 0;
             $attr = json_decode($extended,true);
-            $data = json_encode(['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr,'score_type' => 'increase']);
-            $cacheRes = $this->redis->rPush($this->score_queue_key,$data);
+            $data = ['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr,'score_type' => 'increase'];
+            //实力值执行任务投递
+            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',[$data], Task::TYPE_ASYNC);
             if($cacheRes){
                 $pushRes = 1;
             }
@@ -101,6 +100,7 @@ class ScoreController{
      * 减分操作
      * @param Request $request
      * @return array
+     * @throws TaskException
      */
     public function deduction(Request $request)
     {
@@ -114,8 +114,9 @@ class ScoreController{
         }else{
             $pushRes = 0;
             $attr = json_decode($extended,true);
-            $data = json_encode(['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr, 'score_type' => 'deduction']);
-            $cacheRes = $this->redis->rPush($this->score_queue_key,$data);
+            $data = ['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr, 'score_type' => 'deduction'];
+            //实力值执行任务投递
+            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',[$data], Task::TYPE_ASYNC);
             if($cacheRes){
                 $pushRes = 1;
             }
