@@ -12,6 +12,7 @@ use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
+use Swoft\Log\Log;
 
 /**
  * 积分类Data
@@ -202,15 +203,19 @@ class ScoreData
     {
         $is_passed = 1;
         $user_info = $this->userDao->getUserInfoByUid($user_id);
+        Log::info(json_encode($user_info));
         if(!empty($user_info) && $user_info['safePrice'] >0){
             if($is_deduction == 0){
-                $safe_price += $user_info['safePrice'];
+                $total_price = $user_info['safePrice'] + $safe_price;
             }else{
-                $safe_price = $user_info['safePrice'] - $safe_price;
+                $total_price = $user_info['safePrice'] - $safe_price;
             }
+        }else{
+            $total_price = $safe_price;
         }
+        Log::info($total_price);
 
-        return ['is_passed' => $is_passed, 'total_price' => $safe_price];
+        return ['is_passed' => $is_passed, 'total_price' => $total_price];
     }
 
     /**

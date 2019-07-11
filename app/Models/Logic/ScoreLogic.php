@@ -347,13 +347,14 @@ class ScoreLogic
     private function safe_price_score_calculate($user_id,$attr,$rule_info)
     {
         $record_check = $this->scoreData->getSafePriceScoreRecord($user_id,$attr['safe_price']);
+        Log::info(json_encode($record_check));
         $order_price = $record_check['total_price'] > 0 ? $record_check['total_price'] : $attr['safe_price'];
         $min_safe_price = $this->userData->getSetting('MIN_SAFE_PRICE');
         if($order_price == 0){
             //无保证金
             $rule_score_value = 0;
         }elseif($rule_info['is_have_ext_score'] && $rule_info['every_order_price'] && $rule_info['ext_value']){
-            if($order_price >= $min_safe_price){
+            if($order_price > $min_safe_price){
                 //超过指定金额,每超出x元额外加y分
                 $ext_score_number = floor(($order_price - $min_safe_price)/$rule_info['every_order_price']);
                 $ext_score = $ext_score_number*$rule_info['ext_value'];
@@ -379,6 +380,7 @@ class ScoreLogic
         $score_get_record_data['score_value'] = $rule_score_value;
         $score_get_record_data['new_score'] = 0;
         $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取".$rule_score_value.'分';
+        Log::info(json_encode($score_get_record_data));
         return ['is_passed' => $record_check['is_passed'], 'score_get_record_data' => $score_get_record_data];
     }
 
