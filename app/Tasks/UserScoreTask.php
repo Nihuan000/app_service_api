@@ -52,12 +52,12 @@ class UserScoreTask{
      */
     public function cronTask()
     {
-        Log::info('用户积分变更任务开启');
+//        Log::info('用户积分变更任务开启');
         $queue_len = $this->redis->lLen($this->score_queue_key);
         if($queue_len > 0){
             $queue = $this->redis->lPop($this->score_queue_key);
             if(!empty($queue)){
-                Log::info('任务信息:' . $queue);
+                Log::info('用户积分任务信息:' . $queue);
                 $scoreRes = 0;
                 $score_info = json_decode($queue,true);
                 switch ($score_info['score_type']){
@@ -71,12 +71,12 @@ class UserScoreTask{
                         $scoreRes = $this->scoreLogic->user_score_deduction($score_info['user_id'],$score_info['scenes'],$score_info['extended']);
                         break;
                 }
-                Log::info('执行结果:' . $scoreRes);
+                Log::info('用户积分执行结果:' . $scoreRes);
                 if($scoreRes == 0){
                     $this->redis->rPush($this->score_queue_key,$queue);
                 }
             }
         }
-        Log::info('用户积分变更任务结束');
+//        Log::info('用户积分变更任务结束');
     }
 }
