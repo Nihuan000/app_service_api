@@ -97,6 +97,7 @@ class ScoreController{
     {
         $user_id = $request->post('user_id');
         $scenes = $request->post('scenes');
+        Log::info('score_scenes:' . $scenes);
         $extended = $request->post('extended');
         if(empty($user_id) || empty($scenes)){
             $code = 0;
