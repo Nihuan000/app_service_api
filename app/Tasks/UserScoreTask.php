@@ -71,9 +71,6 @@ class UserScoreTask{
                         break;
                 }
                 Log::info('用户积分执行结果:' . $scoreRes);
-                if($scoreRes == 0){
-                    $this->redis->rPush($this->score_queue_key,$queue);
-                }
             }
         }
 //        Log::info('用户积分变更任务结束');

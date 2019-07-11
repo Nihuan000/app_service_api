@@ -26,17 +26,6 @@ use Swoft\Task\Task;
 class ScoreController{
 
     /**
-     * @Inject("searchRedis")
-     * @var Redis
-     */
-    private $redis;
-
-    /**
-     * @var string
-     */
-    private $score_queue_key = 'score_queue_list';
-
-    /**
      * 加分操作
      * @param Request $request
      * @return array
