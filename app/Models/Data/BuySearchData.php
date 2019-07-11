@@ -59,10 +59,12 @@ class BuySearchData
         $filter = $this->baseFilter();
         $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
         $user_tag_list = json_decode($user_tag_string,true);
-        if(empty($user_tag_list)){
+        $ttl = $this->redis->ttl('user_subscription_tag:' . $params['user_id']);
+        if(empty($user_tag_list) || (!empty($user_tag_list) && $ttl == -1)){
             $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
             if(!empty($user_tag_list)){
-                $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list));
+                //设置过期时间
+                $this->redis->setex('user_subscription_tag:' . $params['user_id'],30*24*3600,json_encode($user_tag_list));
             }
         }
         $product_terms = [];
