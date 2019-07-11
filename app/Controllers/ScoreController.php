@@ -12,11 +12,13 @@ namespace App\Controllers;
 
 use App\Models\Logic\ScoreLogic;
 use Swoft\App;
+use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use App\Middlewares\ActionVerifyMiddleware;
+use Swoft\Redis\Redis;
 
 /**
  * Class ScoreController
@@ -27,10 +29,20 @@ use App\Middlewares\ActionVerifyMiddleware;
 class ScoreController{
 
     /**
+     * @Inject("searchRedis")
+     * @var Redis
+     */
+    private $redis;
+
+    /**
+     * @var string
+     */
+    private $score_queue_key = 'score_queue_list';
+
+    /**
      * 加分操作
      * @param Request $request
      * @return array
-     * @throws DbException
      */
     public function increase(Request $request)
     {
@@ -42,10 +54,13 @@ class ScoreController{
             $result = [];
             $msg = '参数错误';
         }else{
+            $pushRes = 0;
             $attr = json_decode($extended,true);
-            /* @var ScoreLogic $score_logic */
-            $score_logic = App::getBean(ScoreLogic::class);
-            $pushRes = $score_logic->user_score_increase($user_id,$scenes,$attr);
+            $data = json_encode(['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr,'score_type' => 'increase']);
+            $cacheRes = $this->redis->rPush($this->score_queue_key,$data);
+            if($cacheRes){
+                $pushRes = 1;
+            }
             $code = 0;
             switch ($pushRes){
                 case 0:
@@ -86,7 +101,6 @@ class ScoreController{
      * 减分操作
      * @param Request $request
      * @return array
-     * @throws DbException
      */
     public function deduction(Request $request)
     {
@@ -98,10 +112,13 @@ class ScoreController{
             $result = [];
             $msg = '参数错误';
         }else{
+            $pushRes = 0;
             $attr = json_decode($extended,true);
-            /* @var ScoreLogic $score_logic */
-            $score_logic = App::getBean(ScoreLogic::class);
-            $pushRes = $score_logic->user_score_deduction($user_id,$scenes,$attr);
+            $data = json_encode(['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr, 'score_type' => 'deduction']);
+            $cacheRes = $this->redis->rPush($this->score_queue_key,$data);
+            if($cacheRes){
+                $pushRes = 1;
+            }
             $code = 0;
             switch ($pushRes){
                 case 0:
