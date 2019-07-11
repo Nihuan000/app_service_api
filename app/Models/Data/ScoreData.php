@@ -206,7 +206,7 @@ class ScoreData
         Log::info(json_encode($user_info));
         if(!empty($user_info) && $user_info['safePrice'] >0){
             if($is_deduction == 0){
-                $total_price = $user_info['safePrice'] + $safe_price;
+                $total_price = $user_info['safePrice'];
             }else{
                 $total_price = $user_info['safePrice'] - $safe_price;
             }

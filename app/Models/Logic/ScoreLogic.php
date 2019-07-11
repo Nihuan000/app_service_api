@@ -256,7 +256,7 @@ class ScoreLogic
 
                 //提取保证金
                 case 'seller_safe_price':
-                    $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info);
+                    $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info,$user_score);
                     if(isset($attr['send_notice'])){
                         $is_send_notice = $attr['send_notice'];
                     }
@@ -422,13 +422,15 @@ class ScoreLogic
      * 提取保证金对应积分计算
      * @param $attr
      * @param $rule_info
+     * @param $user_score
      * @return array
      */
-    private function user_safe_price_score_deduction($attr,$rule_info)
+    private function user_safe_price_score_deduction($attr,$rule_info,$user_score)
     {
         $is_passed = 1;
         $order_price = $attr['safe_price'];
         $min_safe_price = $this->userData->getSetting('MIN_SAFE_PRICE');
+        $record_check = $this->scoreData->getSafePriceScoreRecord($user_score['user_id'],$attr['safe_price']);
 
         if($order_price == 0){
             //无保证金
@@ -453,6 +455,10 @@ class ScoreLogic
         $max_safe_price_score = $this->userData->getSetting('max_safe_price_score');
         if($rule_score_value > $max_safe_price_score){
             $rule_score_value = $max_safe_price_score;
+        }
+        //如果保证金全提，基础分扣除
+        if($user_score['baseScoreValue'] - $rule_score_value > 0 && $record_check['total_price'] <= 0){
+            $rule_score_value = $user_score['baseScoreValue'];
         }
 
         return ['is_passed' => $is_passed, 'score' => $rule_score_value];
