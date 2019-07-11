@@ -61,7 +61,7 @@ class ScoreController{
             $attr = json_decode($extended,true);
             $data = ['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr,'score_type' => 'increase'];
             //实力值执行任务投递
-            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',$data, Task::TYPE_ASYNC);
+            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',[$data], Task::TYPE_ASYNC);
             if($cacheRes){
                 $pushRes = 1;
             }
@@ -121,7 +121,7 @@ class ScoreController{
             $attr = json_decode($extended,true);
             $data = ['user_id' => $user_id, 'scenes' => $scenes, 'extended' => $attr, 'score_type' => 'deduction'];
             //实力值执行任务投递
-            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',$data, Task::TYPE_ASYNC);
+            $cacheRes = Task::deliver('UserScore', 'scoreSyncTask',[$data], Task::TYPE_ASYNC);
             if($cacheRes){
                 $pushRes = 1;
             }
