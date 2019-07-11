@@ -256,7 +256,7 @@ class ScoreLogic
 
                 //提取保证金
                 case 'seller_safe_price':
-                    $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info);
+                    $safe_price_score = $this->user_safe_price_score_deduction($attr,$rule_info,$user_score);
                     if(isset($attr['send_notice'])){
                         $is_send_notice = $attr['send_notice'];
                     }
@@ -422,9 +422,10 @@ class ScoreLogic
      * 提取保证金对应积分计算
      * @param $attr
      * @param $rule_info
+     * @param $user_score
      * @return array
      */
-    private function user_safe_price_score_deduction($attr,$rule_info)
+    private function user_safe_price_score_deduction($attr,$rule_info,$user_score)
     {
         $is_passed = 1;
         $order_price = $attr['safe_price'];
@@ -448,6 +449,9 @@ class ScoreLogic
             $rule_score_value = $rule_info['value'];
         }
 
+        if($user_score['baseScoreValue'] > $rule_score_value){
+            $rule_score_value = $user_score['baseScoreValue'];
+        }
 
         //积分最多300
         $max_safe_price_score = $this->userData->getSetting('max_safe_price_score');
