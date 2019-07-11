@@ -449,12 +449,11 @@ class ScoreLogic
             $rule_score_value = $rule_info['value'];
         }
 
-        if($user_score['baseScoreValue'] > $rule_score_value){
-            $rule_score_value = $user_score['baseScoreValue'];
-        }
-
         //积分最多300
         $max_safe_price_score = $this->userData->getSetting('max_safe_price_score');
+        if($user_score['baseScoreValue'] == $max_safe_price_score && $order_price == $min_safe_price){
+            $rule_score_value = $user_score['baseScoreValue'];
+        }
         if($rule_score_value > $max_safe_price_score){
             $rule_score_value = $max_safe_price_score;
         }
