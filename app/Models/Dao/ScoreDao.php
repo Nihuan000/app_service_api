@@ -325,11 +325,11 @@ class ScoreDao
                 'score_get_record_id' => $recordRes,
                 'user_id' => $data['user_id'],
                 'old_score' => $old_score,
-                'old_level_id'=>$current_score['levelId'],
-                'old_level_name'=>$current_score['levelName'],
+                'old_level_id'=>(int)$current_score['levelId'],
+                'old_level_name'=>(string)$current_score['levelName'],
                 'new_score'=> $total_score,
-                'new_level_id'=>$levelData['level_id'],
-                'new_level_name'=>$levelData['level_name'],
+                'new_level_id'=>(int)$levelData['level_id'],
+                'new_level_name'=>(string)$levelData['level_name'],
                 'opt_user_id'=>$data['opt_user_id'],
                 'opt_user_type'=>$data['opt_user_type'],
                 'is_auto'=>1,
@@ -384,7 +384,7 @@ class ScoreDao
                 $d = [["keyword"=>"#".$notice_href_keyword."#","type"=>20,"id"=>0,"url"=>""]];//跳转到会员中心
                 $info['data'] = $d;
                 $info['showData'] = array();
-                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
+//                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
 
                 ###### 发送等级变动通知结束 ######
             }

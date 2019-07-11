@@ -90,7 +90,7 @@ class RobotPurchaseTask{
     /**
      * 判断拼团个数&自动开团
      * 7.2-7.4 每分钟第16秒执行
-     * @Scheduled(cron="0 0 * 2-4 7 *")
+     * @Scheduled(cron="5 * * 2-4 7 *")
      * @throws MysqlException
      */
     public function robotOpenTask()

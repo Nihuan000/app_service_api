@@ -125,7 +125,7 @@ class BuySearchData
         if(!empty($product_terms)){
             $new_product = array_unique($product_terms);
             foreach ($new_product as $item) {
-                $parent_terms_list[] = ['term' => ['labels_normalized' => $item]];
+                $parent_terms_list[] = ['term' => ['labels' => $item]];
             }
         }
 

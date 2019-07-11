@@ -183,7 +183,7 @@ class ScoreLogic
                     $scoreRes = $this->scoreData->saveUserScoreTask($score_get_record_data,$record_id,$isUserStrength,$isSafePrice);
                     if($scoreRes > 0){
                         //存储新的等级排序
-                        $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
+//                        $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
                     }
                     $code = 1;
                 }elseif($code == 0){
@@ -285,7 +285,7 @@ class ScoreLogic
                 $scoreRes = $this->scoreData->userScoreDeduction($score_get_record_data,$isUserStrength,$isSafePrice,$is_send_notice);
                 if($scoreRes > 0){
                     //存储新的等级排序
-                    $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
+//                    $this->appRedis->set('user_' . $user_id . '_up_level',$scoreRes);
                 }
                 $code = 1;
             }elseif($code == 0){
