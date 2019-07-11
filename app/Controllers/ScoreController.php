@@ -14,6 +14,7 @@ use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use App\Middlewares\ActionVerifyMiddleware;
+use Swoft\Log\Log;
 use Swoft\Task\Exception\TaskException;
 use Swoft\Task\Task;
 
@@ -35,6 +36,7 @@ class ScoreController{
     {
         $user_id = $request->post('user_id');
         $scenes = $request->post('scenes');
+        Log::info('score_scenes:' . $scenes);
         $extended = $request->post('extended');
         if(empty($user_id) || empty($scenes)){
             $code = 0;
@@ -95,6 +97,7 @@ class ScoreController{
     {
         $user_id = $request->post('user_id');
         $scenes = $request->post('scenes');
+        Log::info('score_scenes:' . $scenes);
         $extended = $request->post('extended');
         if(empty($user_id) || empty($scenes)){
             $code = 0;
