@@ -9,6 +9,7 @@ use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -119,6 +120,8 @@ class UserStrengthLogic
                     Db::rollback();
                     $code = -3;
                 }
+                Log::info($code);
+                Log::info($strength_info['id']);
 
                 if($code == 1){
                     //用户积分扣除
