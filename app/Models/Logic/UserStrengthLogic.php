@@ -9,7 +9,6 @@ use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
-use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
 /**
@@ -112,6 +111,9 @@ class UserStrengthLogic
                     'remark' => $remark
                 ];
                 $strengthRes = $this->userData->userStrengthPlus($strength_info['user_id'],$strength_info['id'],$strengthParams);
+                write_log(2,'用户id:' . $strength_info['user_id']);
+                write_log(2,'体验过期状态:' . $experienceRes);
+                write_log(2,'实商过期状态:' . json_encode($strengthRes));
                 if($experienceRes && $strengthRes)
                 {
                     Db::commit();
@@ -120,8 +122,8 @@ class UserStrengthLogic
                     Db::rollback();
                     $code = -3;
                 }
-                Log::info($code);
-                Log::info($strength_info['id']);
+                write_log(2,'实商过期返回状态:' . $code);
+                write_log(2,'实商记录id:' . $strength_info['id']);
 
                 if($code == 1){
                     //用户积分扣除

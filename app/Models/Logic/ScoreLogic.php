@@ -222,7 +222,7 @@ class ScoreLogic
             }
             //是否实力商家
             $isUserStrength = $this->userData->getIsUserStrength($user_id);
-            Log::info($isUserStrength);
+            Log::info('实商状态:' . $isUserStrength);
 
             //实力值记录
             $score_get_record_data = [

@@ -384,7 +384,7 @@ class ScoreDao
                 $d = [["keyword"=>"#".$notice_href_keyword."#","type"=>20,"id"=>0,"url"=>""]];//跳转到会员中心
                 $info['data'] = $d;
                 $info['showData'] = array();
-//                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
+                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
 
                 ###### 发送等级变动通知结束 ######
             }
