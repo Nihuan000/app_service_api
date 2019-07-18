@@ -36,4 +36,16 @@ class CollectionBuriedDao
         $buried->setCollectType($buried_data['collect_type']);
         return $buried->save()->getResult();
     }
+
+    /**
+     * 获取信息
+     * @author yang
+     * @date 19-7-18
+     * @param array
+     * @return array
+     */
+    public function getOrderList(array $params,array $fields)
+    {
+        return CollectionBuried::findAll($params,['fields' => $fields])->getResult();
+    }
 }

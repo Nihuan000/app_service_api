@@ -36,6 +36,18 @@ class BuyDao
     }
 
     /**
+     * 获取信息
+     * @author yang
+     * @date 19-7-18
+     * @param array
+     * @return array
+     */
+    public function getOrderList(array $params,array $fields)
+    {
+        return Buy::findAll($params,['fields' => $fields])->getResult();
+    }
+
+    /**
      * @param array $condition
      * @param array $data
      * @return \Swoft\Core\ResultInterface

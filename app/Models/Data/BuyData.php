@@ -65,6 +65,17 @@ class BuyData
         return $this->buyDao->findById($bid);
     }
 
+    /**
+     * 获取采购信息列表
+     * @author yang
+     * @param $params
+     * @param $fields
+     * @return array
+     */
+    public function getBuyList(array $params,array $fields)
+    {
+        return $this->buyDao->getOrderList($params, $fields);
+    }
 
     /**
      * 0报价采购信息获取
