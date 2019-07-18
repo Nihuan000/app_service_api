@@ -21,7 +21,6 @@ class OrderCartDao
     /**
      * 获取购物车信息
      * @author yang
-     * @date 19-7-18
      * @param array
      * @return array
      */

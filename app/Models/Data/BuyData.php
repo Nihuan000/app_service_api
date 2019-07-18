@@ -74,7 +74,7 @@ class BuyData
      */
     public function getBuyList(array $params,array $fields)
     {
-        return $this->buyDao->getOrderList($params, $fields);
+        return $this->buyDao->getBuyList($params, $fields);
     }
 
     /**

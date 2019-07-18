@@ -40,7 +40,6 @@ class CollectionBuriedDao
     /**
      * 获取信息
      * @author yang
-     * @date 19-7-18
      * @param array
      * @return array
      */
