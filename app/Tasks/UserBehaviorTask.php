@@ -145,7 +145,7 @@ class UserBehaviorTask{
                 'collect_status'=>1,
                 ['record_time','>',$start_time],
             ];
-            $result = $this->collectionBuriedData->getBuyList($where,['public_id','add_time']);
+            $result = $this->collectionBuriedData->getBuyList($where,['public_id','record_time']);
             if (!empty($result)){
                 write_log(2,'计算收藏过产品');
                 $where = ['pro_id'=>array_column($result,'public_id')];
@@ -153,7 +153,7 @@ class UserBehaviorTask{
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$names[$it['public_id']],
-                        'time'=>$it['add_time'],
+                        'time'=>$it['record_time'],
                         'score'=>$this->collection_score,
                     ];
                     $this->cache_score($user_id,$param);
