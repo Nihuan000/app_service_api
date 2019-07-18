@@ -81,6 +81,7 @@ class UserBehaviorTask{
      */
     public function Behavior()
     {
+        Log::info('计算用户行为分数开始');
         //昨天有登录记录的采购商
         $where = [
             //['last_time','>',strtotime('-1 day')],
@@ -97,12 +98,14 @@ class UserBehaviorTask{
 
             //查询一月内的行为
             //1.加购过产品
+            Log::info('1');
             $where = [
                 'user_id'=>$user_id,
                 ['add_time','>',$start_time]
             ];
             $result = $this->orderCartData->getList($where,['pro_id','add_time']);
             if (!empty($result)){
+                Log::info('计算加购过产品');
                 $where = ['pro_id'=>array_column($result,'pro_id')];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
@@ -116,12 +119,14 @@ class UserBehaviorTask{
             }
 
             //2.发布过采购
+            Log::info('2');
             $where = [
                 'user_id'=>$user_id,
                 ['add_time','>',$start_time]
             ];
             $result = $this->buyData->getBuyList($where,['remark','add_time']);
             if (!empty($result)){
+                Log::info('计算发布过采购');
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$it['remark'],
@@ -133,6 +138,7 @@ class UserBehaviorTask{
             }
 
             //3.收藏过产品
+            Log::info('3');
             $where = [
                 'user_id'=>$user_id,
                 'collect_type'=>1,
@@ -141,10 +147,9 @@ class UserBehaviorTask{
             ];
             $result = $this->collectionBuriedData->getBuyList($where,['public_id','add_time']);
             if (!empty($result)){
-                
+                Log::info('计算收藏过产品');
                 $where = ['pro_id'=>array_column($result,'public_id')];
                 $names = $this->proData->getUserProductNames($where);
-
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$names[$it['public_id']],
@@ -156,6 +161,7 @@ class UserBehaviorTask{
             }
 
             //4.搜索过关键词
+            Log::info('4');
             $where = [
                 'user_id'=>$user_id,
                 'page_num'=>1,
@@ -164,6 +170,7 @@ class UserBehaviorTask{
             ];
             $this->proData->getProductSearchLogList($where,['keyword','search_time']);
             if (!empty($result)){
+                Log::info('计算搜索过关键词');
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$it['keyword'],
@@ -174,14 +181,15 @@ class UserBehaviorTask{
                 }
             }
 
-            //5.浏览过详情
+            //5.浏览过的产品详情
+            Log::info('5');
             $where = [
                 'user_id'=>$user_id,
                 ['r_time','>',$start_time],
             ];
             $this->proData->getProductRecordsList($where,['pro_id','r_time']);
             if (!empty($result)){
-
+                Log::info('计算浏览过的产品详情');
                 $where = ['pro_id'=>array_column($result,'pro_id')];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
@@ -194,6 +202,8 @@ class UserBehaviorTask{
                 }
             }
         }
+
+        Log::info('计算用户行为分数结束');
     }
     /**
      * 分词并缓存分数
