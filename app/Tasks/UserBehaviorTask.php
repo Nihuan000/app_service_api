@@ -236,7 +236,7 @@ class UserBehaviorTask{
      */
     private function cache_score($user_id,$param)
     {
-        write_log(2,'用户:'.$user_id.'分词缓存分数');
+        write_log(2,'用户:'.$user_id.'分词:'.$param['keyword']);
         $participle = $this->participle($param['keyword']);
         write_log(2,'分词结果:'.json_encode($participle));
         if (!empty($participle)){
