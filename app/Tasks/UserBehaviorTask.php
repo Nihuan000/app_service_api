@@ -106,7 +106,7 @@ class UserBehaviorTask{
 
             //过期一月前的行为
             $start_time = $this->del_expire_tag($user_id,strtotime('-1 month'));
-
+            write_log(2,'计算用户行为开始时间:'.$start_time);
             //查询一月内的行为
             //1.加购过产品
             write_log(2,'1');
@@ -257,7 +257,6 @@ class UserBehaviorTask{
                 write_log(2,'tag查询记录:'.json_encode($tags));
             }
             write_log(2,'tag记录:'.json_encode($tags));
-
             //缓存关键词
             foreach ($participle as $item) {
                 if (array_search($item,$tags)){
@@ -304,18 +303,20 @@ class UserBehaviorTask{
         $redis_key = $this->behavior_keyword_key.$user_id;
 
         if ($this->redis->exists($redis_key)){
+            write_log(2,'分数缓存存在');
             //有行为标签,删除过期标签
             $tags = $this->redis->hgetall($redis_key);
             if (!empty($tags)){
                 foreach ($tags as $key=>$tag) {
                     $info = json_decode($tag,true);
+                    write_log(2,'循环标签:'.$key.'&'.$tag);
                     if ($info['time'] < $start_time){
                         //删除过期redis
                         $this->redis->hdel($redis_key,$key);
-                        //记录最近的时间
-                        if ($info['time'] > $new_start_time){
-                            $new_start_time = $info['time'];
-                        }
+                    }
+                    //记录最近的时间
+                    if ($info['time'] > $new_start_time){
+                        $new_start_time = $info['time'];
                     }
                 }
             }
