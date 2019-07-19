@@ -74,6 +74,9 @@ class UserBehaviorTask{
      */
     private $collectionBuriedData;
 
+
+    private $behavior_keyword_key = 'behavior_keyword:';
+
     private $cart_score = 3;//1.加购过产品      行为权重：3
     private $buy_score = 3;//2.发布过采购    行为权重：3
     private $collection_score = 2;//3.收藏过产品      行为权重：2
@@ -240,7 +243,7 @@ class UserBehaviorTask{
         $participle = $this->participle($param['keyword']);
         write_log(2,'分词结果:'.json_encode($participle));
         if (!empty($participle)){
-            $redis_key = 'behavior_keyword:'.$user_id;
+            $redis_key = $this->behavior_keyword_key.$user_id;
             $tag_key = 'tag_names';
 
             //tag表缓存
@@ -257,7 +260,7 @@ class UserBehaviorTask{
 
             //缓存关键词
             foreach ($participle as $item) {
-                if (array_search($tags,$item)){
+                if (array_search($item,$tags)){
                     write_log(2,'关键词缓存:'.$item);
                     $value = json_encode(['time'=>$param['time'],'score'=>$param['score']]);
                     $this->redis->hset($redis_key,$item,$value);
@@ -298,7 +301,7 @@ class UserBehaviorTask{
     {
         //过期一月前的行为
         $new_start_time = $start_time;
-        $redis_key = 'behavior_keyword:'.$user_id;
+        $redis_key = $this->behavior_keyword_key.$user_id;
 
         if ($this->redis->exists($redis_key)){
             //有行为标签,删除过期标签
