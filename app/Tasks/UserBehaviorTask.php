@@ -11,6 +11,7 @@
 namespace App\Tasks;
 
 use App\Models\Data\BuyData;
+use App\Models\Data\TagData;
 use App\Models\Data\OrderCartData;
 use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
@@ -48,6 +49,13 @@ class UserBehaviorTask{
      */
     private $buyData;
 
+
+    /**
+     * @Inject()
+     * @var TagData
+     */
+    private $tagData;
+
     /**
      * @Inject()
      * @var ProductData
@@ -75,7 +83,7 @@ class UserBehaviorTask{
     /**
      * 记录用户行为分数,每天1点执行
      * @author yang
-     * @Scheduled(cron="0 1 * * * *")
+     * @Scheduled(cron="1 * * * * *")
      * @throws \Swoft\Db\Exception\DbException
      * @throws \Swoft\Db\Exception\MysqlException
      */
@@ -106,12 +114,12 @@ class UserBehaviorTask{
             $result = $this->orderCartData->getList($where,['pro_id','add_time']);
             if (!empty($result)){
                 write_log(2,'计算加购过产品');
-                $where = ['pro_id'=>array_column($result,'pro_id')];
+                $where = ['pro_id'=>array_column($result,'proId')];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
                     $param = [
-                        'keyword'=>$names[$it['pro_id']],
-                        'time'=>$it['add_time'],
+                        'keyword'=>$names[$it['proId']],
+                        'time'=>$it['addTime'],
                         'score'=>$this->cart_score,
                     ];
                     $this->cache_score($user_id,$param);
@@ -130,7 +138,7 @@ class UserBehaviorTask{
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$it['remark'],
-                        'time'=>$it['add_time'],
+                        'time'=>$it['addTime'],
                         'score'=>$this->buy_score,
                     ];
                     $this->cache_score($user_id,$param);
@@ -148,12 +156,13 @@ class UserBehaviorTask{
             $result = $this->collectionBuriedData->getBuyList($where,['public_id','record_time']);
             if (!empty($result)){
                 write_log(2,'计算收藏过产品');
-                $where = ['pro_id'=>array_column($result,'public_id')];
+                $where = ['pro_id'=>array_column($result,'publicId')];
+                write_log(2,json_encode($where));
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
                     $param = [
-                        'keyword'=>$names[$it['public_id']],
-                        'time'=>$it['record_time'],
+                        'keyword'=>$names[$it['publicId']],
+                        'time'=>$it['recordTime'],
                         'score'=>$this->collection_score,
                     ];
                     $this->cache_score($user_id,$param);
@@ -174,7 +183,7 @@ class UserBehaviorTask{
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$it['keyword'],
-                        'time'=>$it['search_time'],
+                        'time'=>$it['searchTime'],
                         'score'=>$this->search_score,
                     ];
                     $this->cache_score($user_id,$param);
@@ -190,12 +199,12 @@ class UserBehaviorTask{
             $this->proData->getProductRecordsList($where,['pro_id','r_time']);
             if (!empty($result)){
                 write_log(2,'计算浏览过的产品详情');
-                $where = ['pro_id'=>array_column($result,'pro_id')];
+                $where = ['pro_id'=>array_column($result,'proId')];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
                     $param = [
-                        'keyword'=>$names[$it['pro_id']],
-                        'time'=>$it['r_time'],
+                        'keyword'=>$names[$it['proId']],
+                        'time'=>$it['rTime'],
                         'score'=>$this->records_score,
                     ];
                     $this->cache_score($user_id,$param);
@@ -223,7 +232,7 @@ class UserBehaviorTask{
             if ($this->redis->exist($tag_key)){
                 $tags = json_decode($this->redis->get($tag_key),true);
             }else{
-                $tags = M('tag')->getField('name',true);
+                $tags = $this->tagData->getTagNames();
                 $this->redis->set($tag_key,json_encode($tags));
                 $this->redis->expire($tag_key,86300);
             }

@@ -354,7 +354,7 @@ class ProductData
         if (!empty($result)){
             $names = [];
             foreach ($result as $it) {
-                $names[$it['pro_id']] = $it['name'];
+                $names[$it['proId']] = $it['name'];
             }
         }
         return $names;
