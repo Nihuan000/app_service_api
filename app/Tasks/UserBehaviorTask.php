@@ -32,7 +32,7 @@ use Swoft\Task\Bean\Annotation\Task;
  */
 class UserBehaviorTask{
     /**
-     * @Inject("searchRedis")
+     * @Inject("demoRedis")
      * @var Redis
      */
     private $redis;
@@ -246,10 +246,12 @@ class UserBehaviorTask{
             //tag表缓存
             if ($this->redis->exists($tag_key)){
                 $tags = json_decode($this->redis->get($tag_key),true);
+                write_log(2,'tag缓存记录:'.json_encode($tags));
             }else{
                 $tags = $this->tagData->getTagNames();
                 $this->redis->set($tag_key,json_encode($tags));
                 $this->redis->expire($tag_key,86300);
+                write_log(2,'tag查询记录:'.json_encode($tags));
             }
             write_log(2,'tag记录:'.json_encode($tags));
 
