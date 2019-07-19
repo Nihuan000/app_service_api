@@ -35,7 +35,7 @@ class UserBehaviorTask{
      * @Inject("searchRedis")
      * @var Redis
      */
-    private $searchRedis;
+    private $redis;
 
     /**
      * @Inject()
@@ -244,7 +244,7 @@ class UserBehaviorTask{
             $tag_key = 'tag_names';
 
             //tag表缓存
-            if ($this->redis->exist($tag_key)){
+            if ($this->redis->exists($tag_key)){
                 $tags = json_decode($this->redis->get($tag_key),true);
             }else{
                 $tags = $this->tagData->getTagNames();
@@ -296,15 +296,15 @@ class UserBehaviorTask{
         $new_start_time = $start_time;
         $redis_key = 'behavior_keyword:'.$user_id;
 
-        if ($this->searchRedis->exists($redis_key)){
+        if ($this->redis->exists($redis_key)){
             //有行为标签,删除过期标签
-            $tags = $this->searchRedis->hgetall($redis_key);
+            $tags = $this->redis->hgetall($redis_key);
             if (!empty($tags)){
                 foreach ($tags as $key=>$tag) {
                     $info = json_decode($tag,true);
                     if ($info['time'] < $start_time){
                         //删除过期redis
-                        $this->searchRedis->hdel($redis_key,$key);
+                        $this->redis->hdel($redis_key,$key);
                         //记录最近的时间
                         if ($info['time'] > $new_start_time){
                             $new_start_time = $info['time'];
