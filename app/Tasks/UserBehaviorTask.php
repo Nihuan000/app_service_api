@@ -257,14 +257,19 @@ class UserBehaviorTask{
                 write_log(2,'tag查询记录:'.json_encode($tags));
             }
             write_log(2,'tag记录:'.json_encode($tags));
+
             //缓存关键词
+            $behaviors = [];
+            if ($this->redis->get($redis_key)){
+                $behaviors = json_decode($this->redis->get($redis_key),true);
+            }
             foreach ($participle as $item) {
                 if (array_search($item,$tags)){
-                    write_log(2,'关键词缓存:'.$item);
-                    $value = json_encode(['time'=>$param['time'],'score'=>$param['score']]);
-                    $this->redis->hset($redis_key,$item,$value);
+                    $behaviors[] = ['keyword'=>$item,'time'=>$param['time'],'score'=>$param['score']];
                 }
             }
+            write_log(2,'最终写入:'.json_encode($behaviors));
+            $this->redis->set($redis_key,empty($behaviors) ? '' :json_encode($behaviors));
         }
     }
 
@@ -305,20 +310,24 @@ class UserBehaviorTask{
         if ($this->redis->exists($redis_key)){
             write_log(2,'分数缓存存在');
             //有行为标签,删除过期标签
-            $tags = $this->redis->hgetall($redis_key);
+            $tags = $this->redis->get($redis_key);
+            $behaviors = [];
             if (!empty($tags)){
-                foreach ($tags as $key=>$tag) {
-                    $info = json_decode($tag,true);
-                    write_log(2,'循环标签:'.$key.'&'.$tag);
+                $tags = json_decode($tags,true);
+                foreach ($tags as $key=>$info) {
+                    write_log(2,'循环标签:'.json_encode($info));
                     if ($info['time'] < $start_time){
-                        //删除过期redis
-                        $this->redis->hdel($redis_key,$key);
+                        $behaviors[] = $info;
                     }
                     //记录最近的时间
                     if ($info['time'] > $new_start_time){
                         $new_start_time = $info['time'];
                     }
                 }
+            }
+
+            if (!empty($behaviors)){
+                $this->redis->set($redis_key, empty($behaviors) ? '' :json_encode($behaviors));
             }
         }
         return $new_start_time;
