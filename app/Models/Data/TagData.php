@@ -92,7 +92,9 @@ class TagData
         $tag_names = [];
         $result = $this->tagDao->getTagListAll(100);
         if (!empty($result)){
-            $tag_names = array_column($result,'name');
+            foreach ($result as $item) {
+                $tag_names = $item['name'];
+            }
         }
         return $tag_names;
     }

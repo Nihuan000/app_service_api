@@ -114,7 +114,11 @@ class UserBehaviorTask{
             $result = $this->orderCartData->getList($where,['pro_id','add_time']);
             if (!empty($result)){
                 write_log(2,'计算加购过产品');
-                $where = ['pro_id'=>array_column($result,'proId')];
+                $pro_ids = [];
+                foreach ($result as $it) {
+                    $pro_ids[] = $it['proId'];
+                }
+                $where = ['pro_id'=>$pro_ids];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
                     $param = [
@@ -156,9 +160,14 @@ class UserBehaviorTask{
             $result = $this->collectionBuriedData->getBuyList($where,['public_id','record_time']);
             if (!empty($result)){
                 write_log(2,'计算收藏过产品');
-                $where = ['pro_id'=>array_column($result,'publicId')];
+                $pro_ids = [];
+                foreach ($result as $it) {
+                    $pro_ids[] = $it['publicId'];
+                }
+                $where = ['pro_id'=>$pro_ids];
                 write_log(2,json_encode($where));
                 $names = $this->proData->getUserProductNames($where);
+                write_log(2,json_encode($names));
                 foreach ($result as $it) {
                     $param = [
                         'keyword'=>$names[$it['publicId']],
@@ -199,7 +208,11 @@ class UserBehaviorTask{
             $this->proData->getProductRecordsList($where,['pro_id','r_time']);
             if (!empty($result)){
                 write_log(2,'计算浏览过的产品详情');
-                $where = ['pro_id'=>array_column($result,'proId')];
+                $pro_ids = [];
+                foreach ($result as $it) {
+                    $pro_ids[] = $it['proId'];
+                }
+                $where = ['pro_id'=>$pro_ids];
                 $names = $this->proData->getUserProductNames($where);
                 foreach ($result as $it) {
                     $param = [
@@ -223,6 +236,7 @@ class UserBehaviorTask{
      */
     private function cache_score($user_id,$param)
     {
+        write_log(2,'用户:'.$user_id.'分词缓存分数');
         $participle = $this->participle($param['keyword']);
         if (!empty($participle)){
             $redis_key = 'behavior_keyword:'.$user_id;
