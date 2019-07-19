@@ -238,6 +238,7 @@ class UserBehaviorTask{
     {
         write_log(2,'用户:'.$user_id.'分词缓存分数');
         $participle = $this->participle($param['keyword']);
+        write_log(2,'分词结果:'.json_encode($participle));
         if (!empty($participle)){
             $redis_key = 'behavior_keyword:'.$user_id;
             $tag_key = 'tag_names';
@@ -250,10 +251,12 @@ class UserBehaviorTask{
                 $this->redis->set($tag_key,json_encode($tags));
                 $this->redis->expire($tag_key,86300);
             }
+            write_log(2,'tag记录:'.json_encode($tags));
 
             //缓存关键词
             foreach ($participle as $item) {
                 if (array_search($tags,$item)){
+                    write_log(2,'关键词缓存:'.$item);
                     $value = json_encode(['time'=>$param['time'],'score'=>$param['score']]);
                     $this->redis->hset($redis_key,$item,$value);
                 }
