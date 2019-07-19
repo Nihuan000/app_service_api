@@ -76,13 +76,12 @@ class TagDao
 
     /**
      * 获取标签列表
-     * @param $tag_id
      * @return mixed
      */
-    public function getTagListAll(int $tag_id)
+    public function getTagListAll()
     {
         return Tag::findAll([
-            ['tag_id','>',$tag_id]
+            ['tag_id','!=',0]
         ],[
             ['fields'=>['name']]
         ])->getResult();

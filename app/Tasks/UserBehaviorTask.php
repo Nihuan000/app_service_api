@@ -272,14 +272,16 @@ class UserBehaviorTask{
     private function participle($keyword)
     {
         $arr = [];
-        /* @var ElasticsearchLogic $elastic_logic */
-        $elastic_logic = App::getBean(ElasticsearchLogic::class);
-        $tag_list_analyzer = $elastic_logic->tokenAnalyzer($keyword);
-        if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
-            foreach ($tag_list_analyzer['tokens'] as $analyzer) {
-                $tag_list[] = $analyzer['token'];
+        if (!empty($keyword)){
+            /* @var ElasticsearchLogic $elastic_logic */
+            $elastic_logic = App::getBean(ElasticsearchLogic::class);
+            $tag_list_analyzer = $elastic_logic->tokenAnalyzer($keyword);
+            if(isset($tag_list_analyzer['tokens']) && !empty($tag_list_analyzer['tokens'])){
+                foreach ($tag_list_analyzer['tokens'] as $analyzer) {
+                    $tag_list[] = $analyzer['token'];
+                }
+                $arr = array_column($tag_list_analyzer['tokens'],'token');
             }
-            $arr = array_column($tag_list_analyzer['tokens'],'token');
         }
         return $arr;
     }
