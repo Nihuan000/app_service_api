@@ -189,7 +189,7 @@ class UserBehaviorTask{
                 ['search_time','>',$start_time],
                 ['keyword','!=',''],
             ];
-            $this->proData->getProductSearchLogList($where,['keyword','search_time']);
+            $result = $this->proData->getProductSearchLogList($where,['keyword','search_time']);
             if (!empty($result)){
                 write_log(2,'计算搜索过关键词');
                 foreach ($result as $it) {
@@ -208,7 +208,7 @@ class UserBehaviorTask{
                 'user_id'=>$user_id,
                 ['r_time','>',$start_time],
             ];
-            $this->proData->getProductRecordsList($where,['pro_id','r_time']);
+            $result = $this->proData->getProductRecordsList($where,['pro_id','r_time']);
             if (!empty($result)){
                 write_log(2,'计算浏览过的产品详情');
                 $pro_ids = [];
