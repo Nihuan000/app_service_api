@@ -86,7 +86,7 @@ class UserBehaviorTask{
     /**
      * 记录用户行为分数,每天1点执行
      * @author yang
-     * @Scheduled(cron="1 * * * * *")
+     * @Scheduled(cron="0 21 * * * *")
      * @throws \Swoft\Db\Exception\DbException
      * @throws \Swoft\Db\Exception\MysqlException
      */
@@ -95,9 +95,9 @@ class UserBehaviorTask{
         write_log(2,'计算用户行为分数开始');
         //昨天有登录记录的采购商
         $where = [
-            //['last_time','>',strtotime('-1 day')],
-            //'role'=>[2,3,4],
-            'user_id'=>173010,
+            ['last_time','>',strtotime('-1 day')],
+            'role'=>[2,3,4],
+            //'user_id'=>173010,
         ];
         $user_ids = $this->userData->getUserDataByParams($where,100000);
 
