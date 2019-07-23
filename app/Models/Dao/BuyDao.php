@@ -36,6 +36,17 @@ class BuyDao
     }
 
     /**
+     * 获取信息
+     * @author yang
+     * @param array
+     * @return array
+     */
+    public function getBuyList(array $params,array $fields)
+    {
+        return Buy::findAll($params,['fields' => $fields])->getResult();
+    }
+
+    /**
      * @param array $condition
      * @param array $data
      * @return \Swoft\Core\ResultInterface

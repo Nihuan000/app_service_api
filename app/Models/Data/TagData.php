@@ -82,4 +82,20 @@ class TagData
     {
         return $this->tagDao->getAutoOfferProTag($pro_id);
     }
+
+    /**
+     * 获取所有标签名
+     * @return array
+     */
+    public function getTagNames()
+    {
+        $tag_names = [];
+        $result = $this->tagDao->getTagListAll();
+        if (!empty($result)){
+            foreach ($result as $item) {
+                $tag_names[] = $item['name'];
+            }
+        }
+        return $tag_names;
+    }
 }

@@ -9,6 +9,8 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\Product;
+use App\Models\Entity\ProductSearchLog;
+use App\Models\Entity\ProductRecords;
 use App\Models\Entity\Tag;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
@@ -155,5 +157,27 @@ class ProductDao
     public function updateExpireSearchStatus($params, $data)
     {
         return Query::table('sb_operate_search_keyword')->whereIn('id',$params['ids'])->where('status',$params['status'])->update($data)->getResult();
+    }
+
+    /**
+     * 获取信息
+     * @author yang
+     * @param array
+     * @return array
+     */
+    public function getProductSearchLogList(array $params,array $fields)
+    {
+        return ProductSearchLog::findAll($params,['fields' => $fields])->getResult();
+    }
+
+    /**
+     * 获取信息
+     * @author yang
+     * @param array
+     * @return array
+     */
+    public function getProductRecordsList(array $params,array $fields)
+    {
+        return ProductRecords::findAll($params,['fields' => $fields])->getResult();
     }
 }
