@@ -249,12 +249,10 @@ class UserBehaviorTask{
             //tag表缓存
             if ($this->redis->exists($tag_key)){
                 $tags = json_decode($this->redis->get($tag_key),true);
-                write_log(2,'tag缓存记录:'.json_encode($tags));
             }else{
                 $tags = $this->tagData->getTagNames();
                 $this->redis->set($tag_key,json_encode($tags));
                 $this->redis->expire($tag_key,86300);
-                write_log(2,'tag查询记录:'.json_encode($tags));
             }
             write_log(2,'tag记录:'.json_encode($tags));
 
@@ -269,7 +267,11 @@ class UserBehaviorTask{
                 }
             }
             write_log(2,'最终写入:'.json_encode($behaviors));
-            $this->redis->set($redis_key,empty($behaviors) ? '' :json_encode($behaviors));
+            if (empty($behaviors)){
+                $this->redis->del($redis_key);
+            }else{
+                $this->redis->set($redis_key,json_encode($behaviors));
+            }
         }
     }
 
