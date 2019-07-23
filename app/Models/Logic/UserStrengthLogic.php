@@ -72,7 +72,6 @@ class UserStrengthLogic
                     $code = -2;
                     return $code;
                 }
-                Db::beginTransaction();
                 $remark = '实商到期';
                 $experienceRes = true;
                 //判断是否体验实商
@@ -105,7 +104,6 @@ class UserStrengthLogic
 
                 //实商记录过期
                 $strengthParams = [
-                    'end_time' => $now_time,
                     'is_expire' => 1,
                     'update_time' => $now_time,
                     'remark' => $remark
@@ -116,16 +114,6 @@ class UserStrengthLogic
                 write_log(2,'实商过期状态:' . json_encode($strengthRes));
                 if($experienceRes && $strengthRes)
                 {
-                    Db::commit();
-                    $code = 1;
-                }else{
-                    Db::rollback();
-                    $code = -3;
-                }
-                write_log(2,'实商过期返回状态:' . $code);
-                write_log(2,'实商记录id:' . $strength_info['id']);
-
-                if($code == 1){
                     //用户积分扣除
                     /* @var ScoreLogic $score_logic */
                     $score_logic = App::getBean(ScoreLogic::class);
@@ -136,7 +124,12 @@ class UserStrengthLogic
                     if($strength_info['pay_for_open'] == 1){
                         $this->strength_expire_notice($strength_info['user_id']);
                     }
+                    $code = 1;
+                }else{
+                    $code = -3;
                 }
+                write_log(2,'实商过期返回状态:' . $code);
+                write_log(2,'实商记录id:' . $strength_info['id']);
             }
         }
         return $code;
