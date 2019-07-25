@@ -53,7 +53,7 @@ class UserDao
      */
     public function getInfoByUids(array $user_ids, array $fields)
     {
-        return User::findAll(['user_id' => $user_ids],['field' => $fields])->getResult();
+        return User::findAll(['user_id' => $user_ids],['fields' => $fields])->getResult();
     }
 
     /**
