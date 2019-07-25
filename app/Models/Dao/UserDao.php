@@ -833,4 +833,24 @@ class UserDao
     {
         return Query::table('sb_user_strength_experience_receive')->insert($receive_data)->getResult();
     }
+
+    /**
+     * 符合条件的保证金用户列表
+     * @param array $params
+     * @return mixed
+     */
+    public function getSafePriceList(array $params)
+    {
+        return Query::table('sb_safe_price')->condition($params)->get(['user_id','pay_time'])->getResult();
+    }
+
+    /**
+     * 缴纳次数
+     * @param array $user_ids
+     * @return mixed
+     */
+    public function getSafePriceTimes(array $user_ids)
+    {
+        return Query::table('sb_safe_price_log')->whereIn('user_id',$user_ids)->where('price_type',1)->groupBy('user_id')->get(['user_id',"count(*) AS count"])->getResult();
+    }
 }

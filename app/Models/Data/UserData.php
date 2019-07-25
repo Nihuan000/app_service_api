@@ -875,4 +875,24 @@ class UserData
     {
         return $this->userDao->saveExperienceReceiveRecord($data);
     }
+
+    /**
+     * 保证金用户列表
+     * @param array $params
+     * @return mixed
+     */
+    public function get_safe_price_uid_list(array $params)
+    {
+        return $this->userDao->getSafePriceList($params);
+    }
+
+    /**
+     * 多用户保证金缴纳次数获取
+     * @param array $user_ids
+     * @return mixed
+     */
+    public function get_safe_price_ulist_times(array $user_ids)
+    {
+        return $this->userDao->getSafePriceTimes($user_ids);
+    }
 }
