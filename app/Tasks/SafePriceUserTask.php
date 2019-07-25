@@ -59,6 +59,10 @@ class SafePriceUserTask{
         ];
         $user_list = $this->userData->get_safe_price_uid_list($params);
         if(!empty($user_list)){
+            if($this->redis->exists($cache_queue_list))
+            {
+                $this->redis->delete($cache_queue_list);
+            }
             $safe_user_list = [];
             foreach ($user_list as $item) {
                 $safe_user_list[$item['user_id']] = $safe_user_list['pay_time'];
@@ -68,9 +72,14 @@ class SafePriceUserTask{
                 //判断保证金是否还在账户内
                 $safe_price_user_ids = $this->userData->getUserByUids($safe_price_user_list,['user_id']);
                 if(!empty($safe_price_user_ids)){
-                    $uids = array_column($safe_price_user_ids,'userId');
+                    $user_ids = [];
+                    foreach ($safe_price_user_ids as $safe_price_user_id) {
+                        $user_ids[] = $safe_price_user_id['userId'];
+                    }
                     //判断保证金缴纳次数
-                    $safe_price_times = $this->userData->get_safe_price_ulist_times($uids);
+                    if(empty($user_ids))
+                        return ['没有要执行的保证金判断'];
+                    $safe_price_times = $this->userData->get_safe_price_ulist_times($user_ids);
                     if(!empty($safe_price_times)){
                         foreach ($safe_price_times as $safe) {
                             if($safe['count'] == 1){
@@ -78,9 +87,11 @@ class SafePriceUserTask{
                             }
                         }
                     }
+                    $this->redis->expire($cache_queue_list,10*60);
                 }
             }
         }
         Log::info('首次缴纳保证金统计任务结束');
+        return ['首次缴纳保证金任务执行完成'];
     }
 }
