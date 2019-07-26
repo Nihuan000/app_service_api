@@ -28,7 +28,7 @@ use Swoft\Task\Bean\Annotation\Task;
 class UserTask{
 
     /**
-     * @Inject("searchRedis")
+     * @Inject("appRedis")
      * @var Redis
      */
     private $redis;
@@ -59,18 +59,26 @@ class UserTask{
     public function safePriceTask()
     {
         $end_time = time();
-        $start_time = time()-60;
+        $start_time = time()-3600*5;
         $safe_price_list = $this->redis->zRangeByScore($this->safe_price_msg_queue, $start_time, $end_time);
         if(!empty($safe_price_list)){
             foreach ($safe_price_list as $key => $value) {
-                $this->redis->zDelete($this->safe_price_msg_queue, $value);
+                if(is_serialized($value)){
+                    $this->redis->zDelete($this->safe_price_msg_queue, unserialize($value));
+                }else{
+                    $this->redis->zDelete($this->safe_price_msg_queue, $value);
+                }
             }
             $time = date('Y-m-d H:i:s', time());
             foreach ($safe_price_list as $key => $value) {
-                $user_id = $value;
+                if(is_serialized($value)){
+                    $user_id = (int)unserialize($value);
+                }else{
+                    $user_id = (int)$value;
+                }
                 Log::info("用户id:{$user_id}在{$time}开始提取保证金");
                 write_log(3,"用户id:{$user_id}在{$time}开始提取保证金");
-                $res = $this->UserLogic->pick_up_safe_price($score_info['user_id'],$score_info['scenes'],$score_info['extended']);
+                $res = $this->UserLogic->pick_up_safe_price($user_id);
                 if($res['status'] == 1){
                     $msg = "尊敬的供应商您好，恭喜您保证金成功提现到余额，点击我的钱包即可查看。";
                     $res = []; 
@@ -91,7 +99,7 @@ class UserTask{
                     Log::info("用户id:{$user_id}提取保证金失败,原因:{$reason}");
                     write_log(3,"用户id:{$user_id}提取保证金失败,原因:{$reason}");
                     //　再次将用户放入对列
-                    $next_time = $time + 3600*3;
+                    $next_time = $time;
                     $this->redis->zAdd($this->safe_price_msg_queue, $next_time, $user_id);
                 }
             }
