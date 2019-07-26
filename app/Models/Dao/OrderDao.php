@@ -152,6 +152,6 @@ class OrderDao
      */
     public function addOrderRecord(array $data)
     {
-        return Query::table('sb_order_wallet_record')->insert($data)->getResult();
+        return Query::table('sb_order_record')->insert($data)->getResult();
     }
 }
