@@ -88,4 +88,14 @@ class OrderData
     {
         return $this->orderDao->getOrderAllPrice($user_id);
     }
+
+    /**
+     * 增加订单日志日志
+     * @param array $data
+     * @return mixed
+     */
+    public function addOrderRecord(array $data)
+    {
+        return $this->orderDao->addOrderRecord($user_id);
+    }
 }

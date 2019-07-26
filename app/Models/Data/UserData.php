@@ -875,4 +875,27 @@ class UserData
     {
         return $this->userDao->saveExperienceReceiveRecord($data);
     }
+
+    /**
+     * 修改用户钱包余额
+     * @param int $user_id
+     * @param float $balance_price
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function updateUserWallet(int $user_id, float $balance_price)
+    {
+        return $this->userDao->updateUserWallet($user_id, $balance_price);
+    }
+
+    /**
+     * 修改用户钱包余额
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function addUserWalletRecord(array $data)
+    {
+        return $this->userDao->addUserWalletRecord($data);
+    }
 }
