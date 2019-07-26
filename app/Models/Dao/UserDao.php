@@ -853,4 +853,30 @@ class UserDao
     {
         return Query::table('sb_safe_price_log')->whereIn('user_id',$user_ids)->where('price_type',1)->groupBy('user_id')->get(['user_id',"count(*) AS count"])->getResult();
     }
+
+    /**
+     * 修改用户钱包余额
+     * @param int $user_id
+     * @param float $balance_price
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function updateUserWallet(int $user_id, float $balance_price)
+    {
+        $data['balance'] = $balance_price;
+        $data['update_time'] = time();
+        $walletRes = Query::table('sb_order_wallet')->where('user_id',$user_id)->update($data)->getResult();
+        return $walletRes;
+    }
+
+    /**
+     * 修改用户钱包余额
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function addUserWalletRecord(array $data)
+    {
+        return Query::table('sb_order_wallet_record')->insert($data)->getResult();
+    }
 }

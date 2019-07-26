@@ -142,4 +142,16 @@ class OrderDao
     {
         return Query::table('sb_order')->where('del_status', 1)->where('status', 4)->where('buyer_id',$user_id)->sum('total_order_price')->getResult();
     }
+
+    /**
+     * 添加记录
+     * @param array $data
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function addOrderRecord(array $data)
+    {
+        return Query::table('sb_order_wallet_record')->insert($data)->getResult();
+    }
 }
