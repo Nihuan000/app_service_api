@@ -64,23 +64,18 @@ class UserTask{
         if(!empty($safe_price_list)){
             write_log(3,"保证金提取的用户数组".json_encode($safe_price_list));
             foreach ($safe_price_list as $key => $value) {
-                // if(is_serialized($value)){
-                //     $this->redis->zDelete($this->safe_price_msg_queue, unserialize($value));
-                // }else{
-                // }
                 $this->redis->zDelete($this->safe_price_msg_queue, $value);
             }
             $time = date('Y-m-d H:i:s', time());
             foreach ($safe_price_list as $key => $value) {
-                // if(is_serialized($value)){
-                //     $user_id = (int)unserialize($value);
-                // }else{
-                // }
                 $user_id = (int)$value;
                 Log::info("用户id:{$user_id}在{$time}开始提取保证金");
                 write_log(3,"用户id:{$user_id}在{$time}开始提取保证金");
                 $res = $this->UserLogic->pick_up_safe_price($user_id);
                 if($res['status'] == 1){
+                    $time = time();
+                    Log::info("用户id:{$user_id}在{$time}保证金Log完成");
+                    write_log(3,"用户id:{$user_id}在{$time}保证金Log完成");
                     $msg = "尊敬的供应商您好，恭喜您保证金成功提现到余额，进入我的钱包即可查看。";
                     $res = []; 
                     $res['extra']['title'] = '温馨提示';
