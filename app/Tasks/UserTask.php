@@ -91,7 +91,7 @@ class UserTask{
                     if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
                         $user_info = $this->userData->getUserInfo($user_id);
                         if(!empty($user_info)){
-                            $msg .= " 退订回T";
+                            $msg .= "【搜布】".$msg." 退订回T";
                             //sendSms($user_info['phone'],$msg,2,2);
                         }
                     }
