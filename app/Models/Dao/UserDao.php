@@ -53,7 +53,7 @@ class UserDao
      */
     public function getInfoByUids(array $user_ids, array $fields)
     {
-        return User::findAll(['user_id' => $user_ids],['field' => $fields])->getResult();
+        return User::findAll(['user_id' => $user_ids],['fields' => $fields])->getResult();
     }
 
     /**
@@ -832,5 +832,50 @@ class UserDao
     public function saveExperienceReceiveRecord(array $receive_data)
     {
         return Query::table('sb_user_strength_experience_receive')->insert($receive_data)->getResult();
+    }
+
+    /**
+     * 符合条件的保证金用户列表
+     * @param array $params
+     * @return mixed
+     */
+    public function getSafePriceList(array $params)
+    {
+        return Query::table('sb_safe_price')->condition($params)->get(['user_id','pay_time'])->getResult();
+    }
+
+    /**
+     * 缴纳次数
+     * @param array $user_ids
+     * @return mixed
+     */
+    public function getSafePriceTimes(array $user_ids)
+    {
+        return Query::table('sb_safe_price_log')->whereIn('user_id',$user_ids)->where('price_type',1)->groupBy('user_id')->get(['user_id',"count(*) AS count"])->getResult();
+    }
+
+    /**
+     * 修改用户钱包余额
+     * @param int $user_id
+     * @param float $balance_price
+     * @return mixed
+     */
+    public function updateUserWallet(int $user_id, float $balance_price)
+    {
+        $data['balance'] = $balance_price;
+        $data['update_time'] = time();
+        $walletRes = Query::table('sb_order_wallet')->where('user_id',$user_id)->update($data)->getResult();
+        return $walletRes;
+    }
+
+    /**
+     * 修改用户钱包余额
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function addUserWalletRecord(array $data)
+    {
+        return Query::table('sb_order_wallet_record')->insert($data)->getResult();
     }
 }

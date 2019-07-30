@@ -13,7 +13,9 @@ use App\Models\Entity\BuyRecords;
 use App\Models\Entity\BuyRelationTag;
 use Elasticsearch\Endpoints\DeleteByQuery;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
+use Swoft\Db\Exception\DbException;
 use Swoft\Db\Query;
 
 /**
@@ -36,9 +38,21 @@ class BuyDao
     }
 
     /**
+     * 获取信息
+     * @param array $params
+     * @param array $fields
+     * @return array
+     * @author yang
+     */
+    public function getBuyList(array $params,array $fields)
+    {
+        return Buy::findAll($params,['fields' => $fields])->getResult();
+    }
+
+    /**
      * @param array $condition
      * @param array $data
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function updateById(array $condition, array $data){
         return Buy::updateOne($data,$condition)->getResult();
@@ -47,7 +61,7 @@ class BuyDao
     /**
      * @author Nihuan
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getNoQuoteBuyDao()
     {
@@ -58,7 +72,7 @@ class BuyDao
     /**
      * 获取浏览过的采购列表
      * @param $params
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getVisitBuyRecord($params)
     {
@@ -68,7 +82,7 @@ class BuyDao
     /**
      * 获取用户采购id列表
      * @param $params
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getUserBuyIds($params)
     {
@@ -81,7 +95,7 @@ class BuyDao
      * @param $user_id
      * @param $last_time
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserSearchLog($user_id, $last_time)
     {
@@ -93,7 +107,7 @@ class BuyDao
      * @param $tag_id
      * @param array $current_ids
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getBuyInfoByTagId($tag_id,array $current_ids)
     {
@@ -110,8 +124,8 @@ class BuyDao
      * 订阅采购数获取
      * @param $tag_ids
      * @param $day_list
-     * @return \Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\DbException
+     * @return ResultInterface
+     * @throws DbException
      */
     public function getBuyListByTagList($tag_ids, $day_list)
     {
@@ -122,7 +136,7 @@ class BuyDao
     /**
      * 发布成功采购数
      * @param $user_id
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getBuyCount($user_id)
     {
@@ -133,8 +147,8 @@ class BuyDao
     /**
      * 采纳报价数
      * @param $user_id
-     * @return \Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\DbException
+     * @return ResultInterface
+     * @throws DbException
      */
     public function getOfferCount($user_id)
     {

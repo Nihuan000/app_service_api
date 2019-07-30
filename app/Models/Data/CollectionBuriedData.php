@@ -53,4 +53,16 @@ class CollectionBuriedData
         ];
         return $this->CollectionBuriedDao->saveCollectionBuried($data);
     }
+
+    /**
+     * 获取收藏信息列表
+     * @author yang
+     * @param $params
+     * @param $fields
+     * @return array
+     */
+    public function getBuyList(array $params,array $fields)
+    {
+        return $this->CollectionBuriedDao->getOrderList($params, $fields);
+    }
 }

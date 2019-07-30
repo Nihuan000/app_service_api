@@ -9,9 +9,14 @@
 namespace App\Models\Dao;
 
 use App\Models\Entity\Product;
+use App\Models\Entity\ProductSearchLog;
+use App\Models\Entity\ProductRecords;
 use App\Models\Entity\Tag;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Core\ResultInterface;
 use Swoft\Db\Db;
+use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 
 /**
@@ -28,7 +33,7 @@ class ProductDao
      * @param $user_id
      * @param $last_time
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserProductVisitLog($user_id,$last_time)
     {
@@ -39,7 +44,7 @@ class ProductDao
      * 获取指定产品数据
      * @param array $pro_ids
      * @param array $fields
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getProductTypeList(array $pro_ids,array $fields)
     {
@@ -56,7 +61,7 @@ class ProductDao
     /**
      * 获取最新一条产品数据
      * @param $add_time
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getProductByLastTime($add_time)
     {
@@ -118,7 +123,7 @@ class ProductDao
     /**
      * 获取产品信息
      * @param int $pid
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function getProductInfoByPid(int $pid)
     {
@@ -129,7 +134,7 @@ class ProductDao
      * 采购自动报价匹配记录
      * @param array $record
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function saveOfferMatchProRecord(array $record)
     {
@@ -155,5 +160,29 @@ class ProductDao
     public function updateExpireSearchStatus($params, $data)
     {
         return Query::table('sb_operate_search_keyword')->whereIn('id',$params['ids'])->where('status',$params['status'])->update($data)->getResult();
+    }
+
+    /**
+     * 获取信息
+     * @param array $params
+     * @param array $fields
+     * @return array
+     * @author yang
+     */
+    public function getProductSearchLogList(array $params,array $fields)
+    {
+        return ProductSearchLog::findAll($params,['fields' => $fields])->getResult();
+    }
+
+    /**
+     * 获取信息
+     * @param array $params
+     * @param array $fields
+     * @return array
+     * @author yang
+     */
+    public function getProductRecordsList(array $params,array $fields)
+    {
+        return ProductRecords::findAll($params,['fields' => $fields])->getResult();
     }
 }

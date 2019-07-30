@@ -222,6 +222,7 @@ class ScoreLogic
             }
             //是否实力商家
             $isUserStrength = $this->userData->getIsUserStrength($user_id);
+            Log::info('实商状态:' . $isUserStrength);
 
             //实力值记录
             $score_get_record_data = [
@@ -247,11 +248,13 @@ class ScoreLogic
                 //实力商家到期
                 case 'seller_user_strength_experience_expire':
                     $strength_Score = $this->user_strength_score_deduction($attr);
+                    Log::info(json_encode($strength_Score));
                     if($strength_Score['is_passed'] != 1){
                         $illegal_record = 0;
                     }
                     $score_get_record_data['new_score'] = $current_score + $now_score > 0 ? $current_score + $now_score : 0;
                     $score_get_record_data = array_merge($score_get_record_data,$strength_Score['score_get_record_data']);
+                    Log::info(json_encode($score_get_record_data));
                     break;
 
                 //提取保证金
@@ -281,6 +284,7 @@ class ScoreLogic
             }
 
             //判断操作是否合法并写入积分记录
+            Log::info($illegal_record);
             if($illegal_record == 1){
                 $scoreRes = $this->scoreData->userScoreDeduction($score_get_record_data,$isUserStrength,$isSafePrice,$is_send_notice);
                 if($scoreRes > 0){

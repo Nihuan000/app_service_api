@@ -135,7 +135,7 @@ class ScoreDao
      * @param int $record_id 记录id,目前仅用于判断是否续费实商
      * @param int $is_strength
      * @param int $is_safe_price
-     * @return bool
+     * @return int
      * @throws DbException
      */
     public function userScoreTask(array $data,int $record_id, int $is_strength,int $is_safe_price)
@@ -198,11 +198,10 @@ class ScoreDao
         Log::info('UserLevelRec:' . $UserLevelRec);
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
             Db::commit();
-            return $level_id;
         }else{
             Db::rollback();
-            return false;
         }
+        return $level_id;
     }
 
     /**
@@ -268,11 +267,10 @@ class ScoreDao
         Log::info('UserLevelRec:' . $UserLevelRec);
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
             Db::commit();
-            return $level_id;
         }else{
             Db::rollback();
-            return false;
         }
+        return $level_id;
     }
 
     /**
@@ -384,7 +382,7 @@ class ScoreDao
                 $d = [["keyword"=>"#".$notice_href_keyword."#","type"=>20,"id"=>0,"url"=>""]];//跳转到会员中心
                 $info['data'] = $d;
                 $info['showData'] = array();
-//                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
+                sendInstantMessaging("1", (string)$data['user_id'], json_encode($info));
 
                 ###### 发送等级变动通知结束 ######
             }

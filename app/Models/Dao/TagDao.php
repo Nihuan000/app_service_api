@@ -75,6 +75,20 @@ class TagDao
     }
 
     /**
+     * 获取标签列表
+     * @return mixed
+     */
+    public function getTagListAll()
+    {
+        return Tag::findAll([
+            ['tag_id','!=',0]
+        ],[
+            ['fields'=>['name']]
+        ])->getResult();
+    }
+
+
+    /**
      * 自动报价产品标签匹配
      * @param $pro_id
      * @return mixed

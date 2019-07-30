@@ -315,4 +315,47 @@ class ProductData
     {
         return $this->productDao->updateExpireSearchStatus($params,$data);
     }
+
+    /**
+     * 获取搜索产品列表
+     * @author yang
+     * @param $params
+     * @param $fields
+     * @return array
+     */
+    public function getProductSearchLogList(array $params,array $fields)
+    {
+        return $this->productDao->getProductSearchLogList($params, $fields);
+    }
+
+    /**
+     * 获取浏览产品信息列表
+     * @author yang
+     * @param $params
+     * @param $fields
+     * @return array
+     */
+    public function getProductRecordsList(array $params,array $fields)
+    {
+        return $this->productDao->getProductRecordsList($params, $fields);
+    }
+
+    /**
+     * 获取以产品id为key的数组
+     * @param array $params
+     * @return array
+     * @author yang
+     */
+    public function getUserProductNames(array $params)
+    {
+        $names = [];
+        $result = $this->productDao->getUserProductListByParams($params,['field'=>['pro_id','name']]);
+        if (!empty($result)){
+            $names = [];
+            foreach ($result as $it) {
+                $names[$it['proId']] = $it['name'];
+            }
+        }
+        return $names;
+    }
 }

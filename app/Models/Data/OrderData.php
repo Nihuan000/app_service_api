@@ -11,6 +11,8 @@ namespace App\Models\Data;
 use App\Models\Dao\OrderDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 
 /**
  *
@@ -63,8 +65,8 @@ class OrderData
     /**
      * @param $order_info
      * @return bool
-     * @throws \Swoft\Db\Exception\MysqlException
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws MysqlException
+     * @throws DbException
      */
     public function returnCashBack($order_info)
     {
@@ -87,5 +89,16 @@ class OrderData
     public function getOrderAllPrice($user_id)
     {
         return $this->orderDao->getOrderAllPrice($user_id);
+    }
+
+    /**
+     * 增加订单日志日志
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function addOrderRecord(array $data)
+    {
+        return $this->orderDao->addOrderRecord($data);
     }
 }
