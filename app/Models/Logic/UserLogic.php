@@ -679,7 +679,6 @@ class UserLogic
         $safe_price_log_info = $this->SafePriceData->getLastLogInfo($user_id);
         $user_wallet_info = $this->orderData->getUserBalance($user_id);
         if(!empty($safe_price_log_info) && $safe_price_log_info['price_type'] == 21 && !empty($user_wallet_info)){
-            $commit_success = 0;
             //开启事务
             Db::beginTransaction();
             try {
@@ -715,21 +714,27 @@ class UserLogic
                 $order_record_data['status'] = 2;
                 $order_record_result = $this->orderData->addOrderRecord($order_record_data);
                 if($safe_price_log_result && $order_wallet_result && $order_wallet_record_result && $order_record_result){
+                    write_log(3,"事务开始提交");
                     Db::commit();
-                    $commit_success = 1;
+                    write_log(3,"事务提交结束");
+                    //$commit_success = 1;
                 }else{
+                    write_log(3,"异常抛出");
                     throw new Exception("PDO　FAILED");
                 }
             } catch (Exception $e) {
+                write_log(3,"异常捕获");
+                write_log(3,"异常内容".$e->getMessage());
                 Db::rollback();
             }
+            $safe_price_log_info = $this->SafePriceData->getLastLogInfo($user_id);
             // // write_log(3,json_encode([$safe_price_log_result, $order_wallet_result, $order_wallet_record_result, $order_record_result]));
             // // write_log(3,json_encode([$safe_price_log_data, ['user_id' => $user_id, 'balance_price' => $balance_price], $order_wallet_record_data, $order_record_data]));
-            if($commit_success == 1){
+            if(!empty($safe_price_log_info)  && $safe_price_log_info['price_type'] == 2){
                 write_log(3,"完成Model操作，返回Task主任务");
                 return ['status' => 1, 'reason' => "成功"];
             }else{
-                write_log(3,"数据库操作失败：{$commit_success}");
+                write_log(3,"数据库内容是符合".json_encode($safe_price_log_info));
                 $reason_data = [];
                 if(!$safe_price_log_result){
                     $reason_data['safe_price_log'] = $safe_price_log_data;
