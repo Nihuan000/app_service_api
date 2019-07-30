@@ -55,7 +55,7 @@ class UserTask{
      * 用户保证金提取操作
      * 每分钟26秒执行一次
      * @Scheduled(cron="26 * * * * *")
-     * @throws MysqlException
+     * @throws DbException
      */
     public function safePriceTask()
     {

@@ -17,6 +17,7 @@ use App\Models\Data\OrderData;
 use App\Models\Data\SafePriceData;
 use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserSubscriptionTagData;
+use Exception;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
@@ -671,7 +672,7 @@ class UserLogic
      * 提取延时保证金
      * @param int $user_id
      * @return mixed
-     * @throws MysqlException
+     * @throws DbException
      */
     public function pick_up_safe_price(int $user_id)
     {
@@ -717,7 +718,7 @@ class UserLogic
                     Db::commit();
                     $commit_success = 1;
                 }else{
-                    throw new Exception("PDO　FAILED"); 
+                    throw new Exception("PDO　FAILED");
                 }
             } catch (Exception $e) {
                 Db::rollback();
