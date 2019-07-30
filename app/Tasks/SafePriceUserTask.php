@@ -32,7 +32,7 @@ class SafePriceUserTask{
      */
     private $userData;
     /**
-     * @Inject("searchRedis")
+     * @Inject("demoRedis")
      * @var Redis
      */
     private $redis;
