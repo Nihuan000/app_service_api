@@ -91,9 +91,14 @@ class UserTask{
                     if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
                         $user_info = $this->userData->getUserInfo($user_id);
                         if(!empty($user_info)){
-                            $msg .= " 退订回T";
-                            //sendSms($user_info['phone'],$msg,2,2);
+                            $msg .= "【搜布】".$msg." 退订回T";
+                            sendSms($user_info['phone'],$msg,2,2);
+                        }else{
+                            write_log(3,"用户id:{$user_id}获取不到用户信息");
                         }
+                    }else{
+                        $send_sms_tag = $this->userData->getSetting('SEND_SMS');
+                        write_log(3,"不发送短信的原因是{$send_sms_tag}&&{$msg}");
                     }
                     Log::info("用户id:{$user_id}完成提取保证金");
                     write_log(3,"用户id:{$user_id}完成提取保证金");

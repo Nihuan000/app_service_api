@@ -723,47 +723,13 @@ class UserLogic
             } catch (Exception $e) {
                 Db::rollback();
             }
-            // $money = $safe_price_log_info['price'];
-            // $total_price = $safe_price_log_info['total_price'];
-            // $safe_price_log_data['user_id'] = $user_id;
-            // $safe_price_log_data['add_time'] = time();
-            // $safe_price_log_data['price'] = $money;
-            // $safe_price_log_data['total_price'] = $total_price;
-            // $safe_price_log_data['price_type'] = 2;
-            // $safe_price_log_data['reason'] = "用户提现";
-            // $safe_price_log_result = $this->SafePriceData->addSafePriceLog($safe_price_log_data);
-            // write_log(3,"事务中,safe_price_log finish");
-            // //添加用户金额
-            // $user_price = $user_wallet_info["balance"];
-            // $balance_price = $user_price + $money;
-            // $order_wallet_result = $this->userData->updateUserWallet($user_id, $balance_price); 
-            // write_log(3,"事务中,order_wallet finish");
-            // //$order_wallet->where(['user_id'=>$user_id])->save(['update_time'=>time(), 'balance'=>$balance_price]);
-            // //添加钱包变动日志
-            // $order_wallet_record_data['user_id'] = $user_id;
-            // $order_wallet_record_data['money'] = $money;
-            // $order_wallet_record_data['record_from'] = 9;
-            // $order_wallet_record_data['record_type'] = 1;
-            // $order_wallet_record_data['record_time'] = time();
-            // $order_wallet_record_result = $this->userData->addUserWalletRecord($order_wallet_record_data);
-            // write_log(3,"事务中,order_wallet_record finish");
-            // //todo 添加order_record
-            // $order_record_data['re_type'] = 7;
-            // $order_record_data['order_uid'] = $user_id;
-            // $order_record_data['buy_count'] = 1;
-            // $order_record_data['order_num'] = "";
-            // $order_record_data['type'] = 2;
-            // $order_record_data['price'] = $money;
-            // $order_record_data['addtime'] = time();
-            // $order_record_data['status'] = 2;
-            // $order_record_result = $this->orderData->addOrderRecord($order_record_data);
-            // write_log(3,"事务中,order_record finish");
             // // write_log(3,json_encode([$safe_price_log_result, $order_wallet_result, $order_wallet_record_result, $order_record_result]));
             // // write_log(3,json_encode([$safe_price_log_data, ['user_id' => $user_id, 'balance_price' => $balance_price], $order_wallet_record_data, $order_record_data]));
             if($commit_success == 1){
                 write_log(3,"完成Model操作，返回Task主任务");
                 return ['status' => 1, 'reason' => "成功"];
             }else{
+                write_log(3,"数据库操作失败：{$commit_success}");
                 $reason_data = [];
                 if(!$safe_price_log_result){
                     $reason_data['safe_price_log'] = $safe_price_log_data;
