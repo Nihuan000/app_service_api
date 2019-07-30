@@ -70,11 +70,13 @@ class SafePriceUserTask{
             $safe_price_user_list = array_keys($safe_user_list);
             if(!empty($safe_price_user_list)){
                 //判断保证金是否还在账户内
-                $safe_price_user_ids = $this->userData->getUserByUids($safe_price_user_list,['user_id']);
+                $safe_price_user_ids = $this->userData->getUserByUids($safe_price_user_list,['user_id','safe_price']);
                 if(!empty($safe_price_user_ids)){
                     $user_ids = [];
                     foreach ($safe_price_user_ids as $safe_price_user_id) {
-                        $user_ids[] = $safe_price_user_id['userId'];
+                        if($safe_price_user_id['safe_price'] > 0){
+                            $user_ids[] = $safe_price_user_id['userId'];
+                        }
                     }
                     //判断保证金缴纳次数
                     if(empty($user_ids))
