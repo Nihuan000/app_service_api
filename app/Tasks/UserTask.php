@@ -14,6 +14,7 @@ use App\Models\Data\UserData;
 use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
@@ -54,7 +55,7 @@ class UserTask{
      * 用户保证金提取操作
      * 每分钟26秒执行一次
      * @Scheduled(cron="26 * * * * *")
-     * @throws DbException
+     * @throws MysqlException
      */
     public function safePriceTask()
     {

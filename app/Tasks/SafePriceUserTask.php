@@ -65,7 +65,7 @@ class SafePriceUserTask{
             }
             $safe_user_list = [];
             foreach ($user_list as $item) {
-                $safe_user_list[$item['user_id']] = $safe_user_list['pay_time'];
+                $safe_user_list[$item['user_id']] = $item['pay_time'];
             }
             $safe_price_user_list = array_keys($safe_user_list);
             if(!empty($safe_price_user_list)){
