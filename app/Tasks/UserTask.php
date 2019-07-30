@@ -65,51 +65,55 @@ class UserTask{
     public function safePriceTask()
     {
         $end_time = time();
-        $start_time = time()-60;
+        $start_time = time()-600;
         $safe_price_list = $this->redis->zRangeByScore($this->safe_price_msg_queue, $start_time, $end_time);
         if(!empty($safe_price_list)){
-            write_log(3,"保证金提取的用户数组".json_encode($safe_price_list));
+            $user_id = 0;
             foreach ($safe_price_list as $key => $value) {
-                $this->redis->zDelete($this->safe_price_msg_queue, $value);
-            }
-            $time = date('Y-m-d H:i:s', time());
-            foreach ($safe_price_list as $key => $value) {
-                $user_id = (int)$value;
-                Log::info("用户id:{$user_id}在{$time}开始提取保证金");
-                write_log(3,"用户id:{$user_id}在{$time}开始提取保证金");
-                $res = $this->UserLogic->pick_up_safe_price($user_id);
-                if($res['status'] == 1){
-                    $time = time();
-                    Log::info("用户id:{$user_id}在{$time}保证金Log完成");
-                    write_log(3,"用户id:{$user_id}在{$time}保证金Log完成");
-                    $msg = "尊敬的供应商您好，恭喜您保证金成功提现到余额，进入我的钱包即可查看。";
-                    $res = []; 
-                    $res['extra']['title'] = '温馨提示';
-                    $res['extra']['content'] = $msg;
-                    $res['extra']['msgContent'] = $msg;
-                    sendInstantMessaging('1',(string)$user_id,json_encode($res['extra']));
-                    if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
-                        $user_info = $this->userData->getUserInfo($user_id);
-                        if(!empty($user_info)){
-                            $msg .= "【搜布】".$msg." 退订回T";
-                            sendSms($user_info['phone'],$msg,2,2);
-                        }else{
-                            write_log(3,"用户id:{$user_id}获取不到用户信息");
-                        }
-                    }else{
-                        $send_sms_tag = $this->userData->getSetting('SEND_SMS');
-                        write_log(3,"不发送短信的原因是{$send_sms_tag}&&{$msg}");
-                    }
-                    Log::info("用户id:{$user_id}完成提取保证金");
-                    write_log(3,"用户id:{$user_id}完成提取保证金");
+                if($key == 0){
+                    $user_id = $value;
+                    $this->redis->zDelete($this->safe_price_msg_queue, $value);
                 }else{
-                    $reason = $res['reason'];
-                    Log::info("用户id:{$user_id}提取保证金失败,原因:{$reason}");
-                    write_log(3,"用户id:{$user_id}提取保证金失败,原因:{$reason}");
-                    //　再次将用户放入对列
-                    $next_time = $time;
-                    $this->redis->zAdd($this->safe_price_msg_queue, $next_time, $user_id);
+                    $this->redis->zAdd($this->safe_price_msg_queue, time(),$value);
                 }
+            }
+            $user_id = (int)$user_id;
+            $time = date('Y-m-d H:i:s', time());
+            write_log(3,"保证金提取的用户".$user_id);
+            Log::info("用户id:{$user_id}在{$time}开始提取保证金");
+            write_log(3,"用户id:{$user_id}在{$time}开始提取保证金");
+            $res = $this->UserLogic->pick_up_safe_price($user_id);
+            if($res['status'] == 1){
+                $time = time();
+                Log::info("用户id:{$user_id}在{$time}保证金Log完成");
+                write_log(3,"用户id:{$user_id}在{$time}保证金Log完成");
+                $msg = "尊敬的供应商您好，恭喜您保证金成功提现到余额，进入我的钱包即可查看。";
+                $res = []; 
+                $res['extra']['title'] = '温馨提示';
+                $res['extra']['content'] = $msg;
+                $res['extra']['msgContent'] = $msg;
+                sendInstantMessaging('1',(string)$user_id,json_encode($res['extra']));
+                if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
+                    $user_info = $this->userData->getUserInfo($user_id);
+                    if(!empty($user_info)){
+                        $msg .= "【搜布】".$msg." 退订回T";
+                        sendSms($user_info['phone'],$msg,2,2);
+                    }else{
+                        write_log(3,"用户id:{$user_id}获取不到用户信息");
+                    }
+                }else{
+                    $send_sms_tag = $this->userData->getSetting('SEND_SMS');
+                    write_log(3,"不发送短信的原因是{$send_sms_tag}&&{$msg}");
+                }
+                Log::info("用户id:{$user_id}完成提取保证金");
+                write_log(3,"用户id:{$user_id}完成提取保证金");
+            }else{
+                $reason = $res['reason'];
+                Log::info("用户id:{$user_id}提取保证金失败,原因:{$reason}");
+                write_log(3,"用户id:{$user_id}提取保证金失败,原因:{$reason}");
+                //　再次将用户放入对列
+                $next_time = $time;
+                $this->redis->zAdd($this->safe_price_msg_queue, $next_time, $user_id);
             }
         }
     }
