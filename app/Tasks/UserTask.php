@@ -55,11 +55,16 @@ class UserTask{
      * @var string
      */
     private $safe_price_send_msg_msg_queue = 'safe_price_send_msg_msg_queue';
-    
-     /**
+
+    /**
      * @var string
      */
     private $safe_price_finish_user_list_queue = 'safe_price_finish_user_list_queue';
+
+     /**
+     * @var string
+     */
+    private $safe_price_finish_user_sms_queue = 'safe_price_finish_user_sms_queue';
 
     /**
      * 用户保证金提取操作
@@ -82,6 +87,7 @@ class UserTask{
                     $delay_time = empty($delay_time) ? 180 : $delay_time;
                     $use_time = $delay_time + time();
                     $this->redis->zAdd($this->safe_price_finish_user_list_queue, $use_time, $value);
+                    $this->redis->zAdd($this->safe_price_finish_user_sms_queue, $use_time, $value);
                 }else{
                     $this->redis->zAdd($this->safe_price_msg_queue, time(),$value);
                 }
@@ -154,7 +160,7 @@ class UserTask{
         if(!empty($safe_price_msg_list)){
             write_log(3,"保证金提取完成,消息发送的用户数组".json_encode($safe_price_msg_list));
             foreach ($safe_price_msg_list as $key => $value) {
-                $this->redis->zDelete($this->safe_price_send_msg_msg_queue, $value);
+                $this->redis->zDelete($this->safe_price_finish_user_list_queue, $value);
             }
             $time = date('Y-m-d H:i:s', time());
             foreach ($safe_price_msg_list as $key => $value) {
@@ -167,18 +173,6 @@ class UserTask{
                 $res['extra']['content'] = $msg;
                 $res['extra']['msgContent'] = $msg;
                 sendInstantMessaging('1',(string)$user_id,json_encode($res['extra']));
-                if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
-                    $user_info = $this->userData->getUserInfo($user_id);
-                    if(!empty($user_info)){
-                        $msg .= "【搜布】".$msg." 退订回T";
-                        sendSms($user_info['phone'],$msg,2,2);
-                    }else{
-                        write_log(3,"用户id:{$user_id}获取不到用户信息");
-                    }
-                }else{
-                    $send_sms_tag = $this->userData->getSetting('SEND_SMS');
-                    write_log(3,"不发送短信的原因是{$send_sms_tag}&&{$msg}");
-                }
                 Log::info("用户id:{$user_id}提取保证金消息推送完成");
                 write_log(3,"用户id:{$user_id}提取保证金消息推送完成");
             }
