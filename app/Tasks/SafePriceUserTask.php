@@ -10,7 +10,9 @@
 
 namespace App\Tasks;
 
+use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
+use App\Models\Logic\ElasticsearchLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
 use Swoft\Log\Log;
@@ -31,6 +33,19 @@ class SafePriceUserTask{
      * @var UserData
      */
     private $userData;
+
+    /**
+     * @Inject()
+     * @var ProductData
+     */
+    private $productData;
+
+    /**
+     * @Inject()
+     * @var ElasticsearchLogic
+     */
+    private $esLogic;
+
     /**
      * @Inject("demoRedis")
      * @var Redis
@@ -47,6 +62,8 @@ class SafePriceUserTask{
     public function firstTask()
     {
         $cache_queue_list = 'safe_price_user_list';
+        $cache_user_queue = 'safe_price_user_';
+        $cache_product_queue = 'safe_price_pro_';
         Log::info('首次缴纳保证金统计任务开始');
         //内部账号获取
         $agent_user = $this->userData->getTesters();
@@ -86,6 +103,26 @@ class SafePriceUserTask{
                         foreach ($safe_price_times as $safe) {
                             if($safe['count'] == 1){
                                 $this->redis->zAdd($cache_queue_list,$safe_user_list[$safe['user_id']],$safe['user_id']);
+                                //统计当前用户产品
+                                $product_list = $this->productData->getUserPopularProduct($safe['user_id']);
+                                if(!empty($product_list)){
+                                    foreach ($product_list as $product) {
+                                        //分词处理
+                                        $token_analyzer = $this->esLogic->tokenAnalyzer($product['name']);
+                                        if(isset($token_analyzer['tokens']) && !empty($token_analyzer['tokens'])){
+                                            foreach ($token_analyzer['tokens'] as $analyzer) {
+                                                //分词结果缓存
+                                                $token_key = $cache_product_queue . md5($analyzer['token']);
+                                                if($this->redis->hGet($cache_user_queue .$safe['user_id'],$token_key) == false){
+                                                    $this->redis->zAdd($token_key,$product['proId'],$safe['user_id']);
+                                                    $this->redis->hSet($cache_user_queue . $safe['user_id'],$token_key,$product['proId']);
+                                                    $this->redis->expire($token_key,10*60);
+                                                    $this->redis->expire($cache_user_queue . $safe['user_id'],10*60);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

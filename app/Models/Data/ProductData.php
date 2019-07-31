@@ -358,4 +358,14 @@ class ProductData
         }
         return $names;
     }
+
+    /**
+     * 我的热门产品
+     * @param $user_id
+     * @return mixed
+     */
+    public function getUserPopularProduct($user_id)
+    {
+        return $this->productDao->getPopularProduct($user_id);
+    }
 }
