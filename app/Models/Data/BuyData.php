@@ -13,6 +13,8 @@ use App\Models\Dao\BuyRelationTagDao;
 use App\Models\Dao\OfferDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Core\ResultInterface;
+use Swoft\Db\Exception\DbException;
 
 /**
  *
@@ -65,12 +67,23 @@ class BuyData
         return $this->buyDao->findById($bid);
     }
 
+    /**
+     * 获取采购信息列表
+     * @author yang
+     * @param $params
+     * @param $fields
+     * @return array
+     */
+    public function getBuyList(array $params,array $fields)
+    {
+        return $this->buyDao->getBuyList($params, $fields);
+    }
 
     /**
      * 0报价采购信息获取
      * @author Nihuan
      * @return mixed
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getNoQuoteBuy()
     {
@@ -81,7 +94,7 @@ class BuyData
      * 根据采购id修改信息
      * @param int $bid
      * @param array $params
-     * @return \Swoft\Core\ResultInterface
+     * @return ResultInterface
      */
     public function updateBuyInfo(int $bid, array $params)
     {
@@ -209,7 +222,7 @@ class BuyData
     /**
      * @param $user_id
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function getUserSearchKeyword($user_id)
     {
@@ -236,9 +249,9 @@ class BuyData
 
     /**
      * 获取发布采购成功数
-     * @author yang
      * @param $user_id
-     * @return int
+     * @return int|ResultInterface
+     * @author yang
      */
     public function getBuyCount($user_id)
     {
@@ -253,10 +266,10 @@ class BuyData
 
     /**
      * 获取发布采购成功数
-     * @author yang
      * @param $user_id
-     * @throws \Swoft\Db\Exception\DbException
-     * @return int
+     * @return int|ResultInterface
+     *@throws DbException
+     * @author yang
      */
     public function getOfferCount($user_id)
     {
