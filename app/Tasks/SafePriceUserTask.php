@@ -112,7 +112,7 @@ class SafePriceUserTask{
                                         if(isset($token_analyzer['tokens']) && !empty($token_analyzer['tokens'])){
                                             foreach ($token_analyzer['tokens'] as $analyzer) {
                                                 //分词结果缓存
-                                                $token_key = $cache_product_queue . md5($analyzer);
+                                                $token_key = $cache_product_queue . md5($analyzer['token']);
                                                 if($this->redis->hGet($cache_user_queue .$safe['user_id'],$token_key) == false){
                                                     $this->redis->zAdd($token_key,$product['proId'],$safe['user_id']);
                                                     $this->redis->hSet($cache_user_queue . $safe['user_id'],$token_key,$product['proId']);
