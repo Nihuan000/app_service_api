@@ -185,4 +185,14 @@ class ProductDao
     {
         return ProductRecords::findAll($params,['fields' => $fields])->getResult();
     }
+
+    /**
+     * 用户热门产品获取
+     * @param $user_id
+     * @return mixed
+     */
+    public function getPopularProduct($user_id)
+    {
+        return Product::findAll(['user_id' => $user_id, 'del_status' => 1, 'is_up' => 1],['fields' => ['pro_id','name'],'orderby' => ['clicks' => 'desc'], 'limit' => 10])->getResult();
+    }
 }
