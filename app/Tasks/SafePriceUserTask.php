@@ -74,7 +74,7 @@ class SafePriceUserTask{
                 if(!empty($safe_price_user_ids)){
                     $user_ids = [];
                     foreach ($safe_price_user_ids as $safe_price_user_id) {
-                        if($safe_price_user_id['safe_price'] > 0){
+                        if($safe_price_user_id['safePrice'] > 0){
                             $user_ids[] = $safe_price_user_id['userId'];
                         }
                     }
