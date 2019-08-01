@@ -408,6 +408,7 @@ class ScoreLogic
         if($deposit_score['record_id'] > 0){
             $score_get_record_data = [
                 'user_id' => $user_id,
+                'order_num' => '66666666',
                 'opt_user_id' => isset($attr['opt_id']) ? $attr['opt_id'] : $user_id,
                 'opt_user_type' => isset($attr['from_type']) ? $attr['from_type'] : 1,//1:app用户 2:后台用户
                 'expire_time'=> isset($attr['end_time']) ? $attr['end_time'] : $deposit_score['expire_time'],
