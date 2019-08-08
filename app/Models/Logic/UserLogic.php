@@ -690,7 +690,7 @@ class UserLogic
                 $safe_price_log_data['price'] = $money;
                 $safe_price_log_data['total_price'] = $total_price;
                 $safe_price_log_data['price_type'] = 2;
-                $safe_price_log_data['reason'] = "用户提现";
+                $safe_price_log_data['reason'] = "用户提现-由延时保证金提现";
                 $safe_price_log_result = $this->SafePriceData->addSafePriceLog($safe_price_log_data);
                 //添加用户金额
                 $user_price = $user_wallet_info["balance"];
