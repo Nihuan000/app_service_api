@@ -93,7 +93,7 @@ class UserBehaviorTask{
     /**
      * 记录用户行为分数,每天1点执行
      * @author yang
-     * @Scheduled(cron="0 15 01 * * *")
+     * @Scheduled(cron="0 25 14 * * *")
      */
     public function Behavior()
     {
@@ -250,7 +250,7 @@ class UserBehaviorTask{
         $days = floor(($now_time - $param['time']) / 24 * 3600);
         $score = similar_acquisition($days, $this->time_weight);
         if(!empty($score)){
-            $param['score'] += $score;
+            $param['score'] *= $score;
         }
         write_log(2,'用户:'.$user_id.'分词:'.$param['keyword']);
         $participle = $this->participle($param['keyword']);
@@ -271,11 +271,20 @@ class UserBehaviorTask{
 
             //缓存关键词
             $behaviors = [];
+            $tmp_key_list = [];
             if ($this->redis->get($redis_key)){
                 $behaviors = json_decode($this->redis->get($redis_key),true);
+                if(!empty($behaviors)){
+                    foreach ($behaviors as $behavior) {
+                        $tmp_key_list[$behavior['keyword']] = $behavior['score'];
+                    }
+                }
             }
             foreach ($participle as $item) {
                 if (array_search($item,$tags)){
+                    if(isset($tmp_key_list[$item])){
+                        $param['score'] += $tmp_key_list[$item];
+                    }
                     $behaviors[] = ['keyword'=>$item,'time'=>$param['time'],'score'=>$param['score']];
                 }
             }
