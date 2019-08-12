@@ -83,12 +83,17 @@ class UserBehaviorTask{
     private $search_score = 1;//4.搜索过关键词     行为权重：1
     private $records_score = 1;//5.浏览过详情      行为权重：1
 
+    //时间权重
+    private $time_weight = [
+        1 => 1.5,
+        8 => 1.3,
+        15 => 1,
+    ];
+
     /**
      * 记录用户行为分数,每天1点执行
      * @author yang
      * @Scheduled(cron="0 15 01 * * *")
-     * @throws \Swoft\Db\Exception\DbException
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function Behavior()
     {
@@ -109,7 +114,7 @@ class UserBehaviorTask{
             write_log(2,'计算用户行为开始时间:'.$start_time);
             //查询一月内的行为
             //1.加购过产品
-            write_log(2,'1');
+            write_log(2,'加购产品标签统计');
             $where = [
                 'user_id'=>$user_id,
                 ['add_time','>',$start_time]
@@ -134,7 +139,7 @@ class UserBehaviorTask{
             }
 
             //2.发布过采购
-            write_log(2,'2');
+            write_log(2,'发布采购标签统计');
             $where = [
                 'user_id'=>$user_id,
                 ['add_time','>',$start_time]
@@ -153,7 +158,7 @@ class UserBehaviorTask{
             }
 
             //3.收藏过产品
-            write_log(2,'3');
+            write_log(2,'收藏产品标签统计');
             $where = [
                 'user_id'=>$user_id,
                 'collect_type'=>1,
@@ -182,7 +187,7 @@ class UserBehaviorTask{
             }
 
             //4.搜索过关键词
-            write_log(2,'4');
+            write_log(2,'搜索关键词统计');
             $where = [
                 'user_id'=>$user_id,
                 'page_num'=>1,
@@ -203,7 +208,7 @@ class UserBehaviorTask{
             }
 
             //5.浏览过的产品详情
-            write_log(2,'5');
+            write_log(2,'浏览产品标签统计');
             $where = [
                 'user_id'=>$user_id,
                 ['r_time','>',$start_time],
@@ -229,6 +234,7 @@ class UserBehaviorTask{
         }
 
         write_log(2,'计算用户行为分数结束');
+        return ['用户行为标签统计'];
     }
     /**
      * 分词并缓存分数
@@ -239,6 +245,13 @@ class UserBehaviorTask{
      */
     private function cache_score($user_id,$param)
     {
+        //时间维度权重
+        $now_time = time();
+        $days = floor(($now_time - $param['time']) / 24 * 3600);
+        $score = similar_acquisition($days, $this->time_weight);
+        if(!empty($score)){
+            $param['score'] += $score;
+        }
         write_log(2,'用户:'.$user_id.'分词:'.$param['keyword']);
         $participle = $this->participle($param['keyword']);
         write_log(2,'分词结果:'.json_encode($participle));
