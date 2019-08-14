@@ -107,7 +107,7 @@ class TagDao
      */
     public function getTagByCateList(array $cate_ids)
     {
-        return Tag::findAll(['cate_id' => ['IN',$cate_ids], ['id', '>', 100], 'status' => 1],['fields' => ['tag_id','name']])->getResult();
+        return Tag::findAll(['cate_id' => $cate_ids, ['tag_id', '>', 100], 'status' => 1],['fields' => ['tag_id','name']])->getResult();
     }
 
     /**
