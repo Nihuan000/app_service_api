@@ -93,7 +93,7 @@ class UserBehaviorTask{
     /**
      * 记录用户行为分数,每天1点执行
      * @author yang
-     * @Scheduled(cron="0 25 14 * * *")
+     * @Scheduled(cron="0 25 01 * * *")
      */
     public function Behavior()
     {
@@ -247,7 +247,7 @@ class UserBehaviorTask{
     {
         //时间维度权重
         $now_time = time();
-        $days = floor(($now_time - $param['time']) / 24 * 3600);
+        $days = round(($now_time - $param['time']) / 24 / 3600);
         $score = similar_acquisition($days, $this->time_weight);
         if(!empty($score)){
             $param['score'] *= $score;

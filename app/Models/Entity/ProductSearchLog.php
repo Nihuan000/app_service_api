@@ -49,7 +49,7 @@ class ProductSearchLog extends Model
     private $areaId;
 
     /**
-     * @var int $isNew 0:智能排序 1:新发布 2:热门产品
+     * @var int $isNew  0:智能排序 1:新发布 2:热门产品 4:首页推荐
      * @Column(name="is_new", type="tinyint", default=0)
      */
     private $isNew;
@@ -95,6 +95,24 @@ class ProductSearchLog extends Model
      * @Column(name="search_time", type="integer", default=0)
      */
     private $searchTime;
+
+    /**
+     * @var int $matchNum 匹配数
+     * @Column(name="match_num", type="integer", default=0)
+     */
+    private $matchNum;
+
+    /**
+     * @var string $matchIds 匹配产品列表
+     * @Column(name="match_ids", type="string", length=455, default="")
+     */
+    private $matchIds;
+
+    /**
+     * @var string $requestId 请求唯一标识
+     * @Column(name="request_id", type="string", length=32, default="")
+     */
+    private $requestId;
 
     /**
      * @param int $value
@@ -156,7 +174,7 @@ class ProductSearchLog extends Model
     }
 
     /**
-     * 0:智能排序 1:新发布 2:热门产品
+     *  0:智能排序 1:新发布 2:热门产品 4:首页推荐
      * @param int $value
      * @return $this
      */
@@ -252,6 +270,42 @@ class ProductSearchLog extends Model
     }
 
     /**
+     * 匹配数
+     * @param int $value
+     * @return $this
+     */
+    public function setMatchNum(int $value): self
+    {
+        $this->matchNum = $value;
+
+        return $this;
+    }
+
+    /**
+     * 匹配产品列表
+     * @param string $value
+     * @return $this
+     */
+    public function setMatchIds(string $value): self
+    {
+        $this->matchIds = $value;
+
+        return $this;
+    }
+
+    /**
+     * 请求唯一标识
+     * @param string $value
+     * @return $this
+     */
+    public function setRequestId(string $value): self
+    {
+        $this->requestId = $value;
+
+        return $this;
+    }
+
+    /**
      * @return mixed
      */
     public function getLogId()
@@ -296,7 +350,7 @@ class ProductSearchLog extends Model
     }
 
     /**
-     * 0:智能排序 1:新发布 2:热门产品
+     *  0:智能排序 1:新发布 2:热门产品 4:首页推荐
      * @return int
      */
     public function getIsNew()
@@ -365,6 +419,33 @@ class ProductSearchLog extends Model
     public function getSearchTime()
     {
         return $this->searchTime;
+    }
+
+    /**
+     * 匹配数
+     * @return int
+     */
+    public function getMatchNum()
+    {
+        return $this->matchNum;
+    }
+
+    /**
+     * 匹配产品列表
+     * @return string
+     */
+    public function getMatchIds()
+    {
+        return $this->matchIds;
+    }
+
+    /**
+     * 请求唯一标识
+     * @return string
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 
 }
