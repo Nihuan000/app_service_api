@@ -172,7 +172,7 @@ class BuyExpireUpdateTask
     /**
      * 即将到期采购信息提醒
      * @return string
-     * @Scheduled(cron="36 * * * * *")
+     * @Scheduled(cron="0 * * * * *")
      */
     public function willExpireBuyTask()
     {

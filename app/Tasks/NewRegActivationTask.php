@@ -52,7 +52,7 @@ class NewRegActivationTask{
      * 供应商注册激活消息
      * per minute 每分钟执行
      *
-     * @Scheduled(cron="40 * * * * *")
+     * @Scheduled(cron="0 * * * * *")
      */
     public function SupplierTask()
     {
@@ -90,7 +90,7 @@ class NewRegActivationTask{
     /**
      * 采购商注册次日激活消息
      * 每分钟执行
-     * @Scheduled(cron="50 * * * * *")
+     * @Scheduled(cron="0 * * * * *")
      */
     public function buyersTask()
     {
