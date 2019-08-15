@@ -52,7 +52,7 @@ class NewRegActivationTask{
      * 供应商注册激活消息
      * per minute 每分钟执行
      *
-     * @Scheduled(cron="55 * * * * *")
+     * @Scheduled(cron="40 * * * * *")
      */
     public function SupplierTask()
     {
@@ -97,7 +97,7 @@ class NewRegActivationTask{
         $hour = date('H');
         $start_time = strtotime('-1 day');
         $end_time = $start_time + 59;
-        Log::info('供应商注册激活任务开始');
+        Log::info('采购商注册激活任务开始');
         $params = [
             ['reg_time', 'between', $end_time, $start_time],
             ['role','IN',[1,5]],
@@ -121,8 +121,8 @@ class NewRegActivationTask{
                 }
             }
         }
-        Log::info('供应商注册激活任务结束');
-        return '供应商注册激活';
+        Log::info('采购商注册激活任务结束');
+        return '采购商注册激活';
     }
 
     /**
