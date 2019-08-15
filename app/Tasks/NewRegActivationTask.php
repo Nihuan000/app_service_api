@@ -52,12 +52,12 @@ class NewRegActivationTask{
      * 供应商注册激活消息
      * per minute 每分钟执行
      *
-     * @Scheduled(cron="0 * * * * *")
+     * @Scheduled(cron="32 * * * * *")
      */
     public function SupplierTask()
     {
         $hour = date('H');
-        $start_time = strtotime('-30 minute');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-30 minute')));
         $end_time = $start_time + 59;
         Log::info('供应商注册激活任务开始');
         $params = [
@@ -66,8 +66,11 @@ class NewRegActivationTask{
             'status' => 1
         ];
         $new_reg = $this->userData->getUserDataByParams($params,500);
+        Log::info(json_encode($new_reg));
         if(!empty($new_reg)){
-            $user_list = array_column($new_reg,'userId');
+            foreach ($new_reg as $item) {
+                $user_list[] = $item['userId'];
+            }
             if(!empty($user_list)){
                 $reg_date = date('Y-m-d H:i:s',$start_time);
                 write_log(2,"供应商激活，注册时间：{$reg_date}, 用户列表:" . json_encode($user_list));
@@ -90,12 +93,12 @@ class NewRegActivationTask{
     /**
      * 采购商注册次日激活消息
      * 每分钟执行
-     * @Scheduled(cron="0 * * * * *")
+     * @Scheduled(cron="36 * * * * *")
      */
     public function buyersTask()
     {
         $hour = date('H');
-        $start_time = strtotime('-1 day');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-1 day')));
         $end_time = $start_time + 59;
         Log::info('采购商注册激活任务开始');
         $params = [
@@ -105,7 +108,9 @@ class NewRegActivationTask{
         ];
         $new_reg = $this->userData->getUserDataByParams($params,500);
         if(!empty($new_reg)){
-            $user_list = array_column($new_reg,'userId');
+            foreach ($new_reg as $item) {
+                $user_list[] = $item['userId'];
+            }
             if(!empty($user_list)){
                 $reg_date = date('Y-m-d H:i',$start_time);
                 write_log(2,"采购商次日激活，注册时间：{$reg_date}, 用户列表:" . json_encode($user_list));

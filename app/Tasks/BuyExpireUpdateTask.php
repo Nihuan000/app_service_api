@@ -187,6 +187,7 @@ class BuyExpireUpdateTask
             'status' => 0
         ],
             ['fields' => ['buy_id','user_id','expire_time']])->getResult();
+        Log::info(json_encode($buyRes));
         if(!empty($buyRes)){
             $buy_ids = $cache_list = [];
             $push_cache_key = 'buy_expire_push_history_';
