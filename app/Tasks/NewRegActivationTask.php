@@ -61,7 +61,7 @@ class NewRegActivationTask{
         $end_time = $start_time + 59;
         Log::info('供应商注册激活任务开始');
         $params = [
-            ['reg_time', 'between', $end_time, $start_time],
+            ['reg_time', 'between', $start_time, $end_time],
             ['role','IN',[2,3,4]],
             'status' => 1
         ];
@@ -99,7 +99,7 @@ class NewRegActivationTask{
         $end_time = $start_time + 59;
         Log::info('采购商注册激活任务开始');
         $params = [
-            ['reg_time', 'between', $end_time, $start_time],
+            ['reg_time', 'between', $start_time, $end_time],
             ['role','IN',[1,5]],
             'status' => 1
         ];
