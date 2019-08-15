@@ -179,9 +179,9 @@ class NewRegActivationTask{
         $config = \Swoft::getBean('config');
         $extra =  $config->get('sysMsg');
         $extra['isRich'] = 0;
-        $extra['title'] =  $extra['msgTitle'] = "想知道近期大家都在找什么面料吗？";
-        $extra['msgContent'] = "想知道近期大家都在找什么面料吗？ 点击查看";
-        $extra['content'] = "你好，请问店铺能上传点别的布料看看吗？#点击查看#";
+        $extra['title'] =  $extra['msgTitle'] = "热搜报告";
+        $extra['msgContent'] = "想知道近期大家都在找什么面料吗？ \n点击查看";
+        $extra['content'] = "想知道近期大家都在找什么面料吗？ #点击查看#";
         $d = [["keyword"=>"#点击查看#","type"=>18,"id"=>0,"url"=> $url]];
         $data_show = array();
         $extra['data'] = $d;
