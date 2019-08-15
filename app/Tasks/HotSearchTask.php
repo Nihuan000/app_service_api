@@ -82,9 +82,9 @@ class HotSearchTask{
 
     /**
      * 热度报告生成
-     * 每周二3点生成
+     * 每周二0点生成
      *
-     * @Scheduled(cron="0 0 03 * * 2")
+     * @Scheduled(cron="0 0 0 * * 3")
      */
     public function purchaseReportTask()
     {
