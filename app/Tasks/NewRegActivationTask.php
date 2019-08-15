@@ -69,7 +69,7 @@ class NewRegActivationTask{
         Log::info(json_encode($new_reg));
         if(!empty($new_reg)){
             foreach ($new_reg as $item) {
-                $user_list[] = $item['userId'];
+                $user_list[] = (string)$item['userId'];
             }
             if(!empty($user_list)){
                 $reg_date = date('Y-m-d H:i:s',$start_time);
@@ -107,9 +107,10 @@ class NewRegActivationTask{
             'status' => 1
         ];
         $new_reg = $this->userData->getUserDataByParams($params,500);
+        Log::info(json_encode($new_reg));
         if(!empty($new_reg)){
             foreach ($new_reg as $item) {
-                $user_list[] = $item['userId'];
+                $user_list[] = (string)$item['userId'];
             }
             if(!empty($user_list)){
                 $reg_date = date('Y-m-d H:i',$start_time);

@@ -215,8 +215,9 @@ class BuyExpireUpdateTask
                 }
 
                 if($can_send == 1){
-                    $buy_ids[] = $buy['userId'];
-                    $cache_list[] = $buy['userId'] . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'];
+                    $to_account = (string)$buy['userId'];
+                    $buy_ids[] = $to_account;
+                    $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'];
                 }
             }
 
@@ -261,7 +262,7 @@ class BuyExpireUpdateTask
                                     foreach ($buy_ids as $cache) {
                                         $push_info = explode('@',$cache);
                                         if(count($push_info) > 1){
-                                            $user_id = (int)$push_info[0];
+                                            $user_id = (string)$push_info[0];
                                             //获取采购信息
                                             $buy_info = Buy::findOne(['buy_id' => $push_info[1]],['status'])->getResult();
                                             $has_offer = (int)$push_info[2] > 0 ? 1 : 0;
