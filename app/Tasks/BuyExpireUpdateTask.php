@@ -181,8 +181,7 @@ class BuyExpireUpdateTask
         $end_time = $start_time - 59;
         Log::info('即将到期采购任务开始');
         $buyRes = Buy::findAll([
-            ['expire_time','<=',$start_time],
-            ['expire_time','>',$end_time],
+            ['expire_time', 'between', $end_time, $start_time],
             'is_audit' => 0,
             'del_status' => 1,
             'status' => 0
