@@ -161,7 +161,7 @@ class NewRegActivationTask{
                                 break;
                         }
                     }
-                    $this->redis->zRem($this->wait_push_list . $date,$push);
+                    $this->redis->lPop($this->wait_push_list . $date);
                 }
             }
         }

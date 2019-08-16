@@ -887,6 +887,6 @@ class UserDao
     public function getUserLastLogin(int $user_id)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->get(['version'])->getResult();
+        return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->limit(1)->get(['version'])->getResult();
     }
 }
