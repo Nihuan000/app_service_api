@@ -206,6 +206,10 @@ class BuyExpireUpdateTask
                     if($time_differ < 2 * 3600 && $time_differ > -2 * 3600){
                         write_log(2,"采购" . $buy['buyId'] . "2小时内已存在推送记录");
                         $can_send = 0;
+                    }else{
+                        //修改提醒时间
+                        $score_incr = $buy['expireTime'] - $push_list[$buy['userId']];
+                        $this->redis->zIncrBy($push_cache_key . date('Y-m-d'),$score_incr, $buy['userId']);
                     }
                 }else{
                     $this->redis->zAdd($push_cache_key . date('Y-m-d'),$buy['expireTime'],$buy['userId']);
@@ -215,7 +219,8 @@ class BuyExpireUpdateTask
                 }
 
                 if($can_send == 1){
-                    $user_version = $this->userData->getUserLoginVersion($buy['userId']);
+                    $user_version_list = $this->userData->getUserLoginVersion($buy['userId']);
+                    $user_version = current($user_version_list);
                     $version = is_null($user_version['version']) ? '' : $user_version['version'];
                     $to_account = (string)$buy['userId'];
                     $buy_ids[] = ['account' => $to_account, 'version' => $version];
