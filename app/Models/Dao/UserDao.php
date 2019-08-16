@@ -878,4 +878,15 @@ class UserDao
     {
         return Query::table('sb_order_wallet_record')->insert($data)->getResult();
     }
+
+    /**
+     * 最新登录版本获取
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getUserLastLogin(int $user_id)
+    {
+        $table = 'sb_login_log_' . date('Y');
+        return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->get(['version'])->getResult();
+    }
 }

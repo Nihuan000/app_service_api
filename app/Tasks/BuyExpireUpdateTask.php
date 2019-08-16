@@ -215,9 +215,11 @@ class BuyExpireUpdateTask
                 }
 
                 if($can_send == 1){
+                    $user_version = $this->userData->getUserLoginVersion($buy['userId']);
+                    $version = is_null($user_version['version']) ? '' : $user_version['version'];
                     $to_account = (string)$buy['userId'];
-                    $buy_ids[] = $to_account;
-                    $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'];
+                    $buy_ids[] = ['account' => $to_account, 'version' => $version];
+                    $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'] . '@' . $version;
                 }
             }
 
@@ -229,9 +231,11 @@ class BuyExpireUpdateTask
                     $this->redis->rPush($this->wait_push_list . $next_day, 'buy_expire#' . json_encode($cache_list));
                     write_log(2,'不在可发送时间内，写入采购待推送队列');
                 }else{
-                    //发送推送
-                    $msg = $this->buy_info_msg();
-                    sendInstantMessaging('1',$buy_ids,$msg,1);
+                    foreach ($buy_ids as $wait) {
+                        //发送推送
+                        $msg = $this->buy_info_msg(0,0,$wait['version']);
+                        sendInstantMessaging('1',$wait['account'],$msg);
+                    }
                 }
             }
         }
@@ -261,13 +265,15 @@ class BuyExpireUpdateTask
                                 if(!empty($buy_ids)){
                                     foreach ($buy_ids as $cache) {
                                         $push_info = explode('@',$cache);
+                                        Log::info(json_encode($push_info));
                                         if(count($push_info) > 1){
                                             $user_id = (string)$push_info[0];
                                             //获取采购信息
                                             $buy_info = Buy::findOne(['buy_id' => $push_info[1]],['status'])->getResult();
                                             $has_offer = (int)$push_info[2] > 0 ? 1 : 0;
                                             $is_expire = $buy_info['status'] == 2 ? 1 : 0;
-                                            $msg = $this->buy_info_msg($is_expire, $has_offer);
+                                            $version = isset($push_info[3]) ? $push_info[3] : '';
+                                            $msg = $this->buy_info_msg($is_expire, $has_offer, $version);
                                             sendInstantMessaging('1',$user_id,$msg,0);
                                         }
                                     }
@@ -287,9 +293,10 @@ class BuyExpireUpdateTask
      * 采购商消息
      * @param int $is_expire
      * @param int $has_offer
+     * @param string $version
      * @return false|string
      */
-    private function buy_info_msg($is_expire = 0, $has_offer = 0)
+    private function buy_info_msg($is_expire = 0, $has_offer = 0, $version = '')
     {
         $config = \Swoft::getBean('config');
         $extra =  $config->get('sysMsg');
@@ -304,9 +311,19 @@ class BuyExpireUpdateTask
             $keyword = '再次找布';
         }
         $extra['title'] =  $extra['msgTitle'] = $title;
+        if(version_compare($version,'8.8.0','<')){
+            if($is_expire == 0){
+                $keyword = '您可以点击我的采购->寻找中进行操作。';
+            }else{
+                $keyword = '我的采购->一键找布';
+            }
+            $extra['content'] = $msg . $keyword;
+            $d = [];
+        }else{
+            $extra['content'] = $msg . "#{$keyword}#";
+            $d = [["keyword"=>"#{$keyword}#","type"=>29,"id"=>0,"url"=> '', 'showOffer' => $has_offer]];
+        }
         $extra['msgContent'] = $msg . $keyword;
-        $extra['content'] = $msg . "#{$keyword}#";
-        $d = [["keyword"=>"#{$keyword}#","type"=>29,"id"=>0,"url"=> '', 'showOffer' => $has_offer]];
         $data_show = array();
         $extra['data'] = $d;
         $extra['commendUser'] = array();
