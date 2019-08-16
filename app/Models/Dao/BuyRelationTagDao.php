@@ -8,13 +8,10 @@
 
 namespace App\Models\Dao;
 
-use App\Models\Data\BuyData;
-use App\Models\Data\BuyRelationTagData;
 use App\Models\Entity\BuyRelationTag;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Core\ResultInterface;
-use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Query;
 

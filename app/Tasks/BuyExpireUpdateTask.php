@@ -173,6 +173,7 @@ class BuyExpireUpdateTask
      * 即将到期采购信息提醒
      * @return string
      * @Scheduled(cron="0 * * * * *")
+     * @throws \Swoft\Db\Exception\DbException
      */
     public function willExpireBuyTask()
     {
@@ -191,6 +192,8 @@ class BuyExpireUpdateTask
         if(!empty($buyRes)){
             $buy_ids = $cache_list = [];
             $push_cache_key = 'buy_expire_push_history_';
+            $grayscale = getenv('IS_GRAYSCALE');
+            $test_list = $this->userData->getTesters();
             foreach ($buyRes as $buy) {
                 $can_send = 1;
                 //报价数获取
@@ -199,32 +202,36 @@ class BuyExpireUpdateTask
                     write_log(2,"采购" . $buy['buyId'] . "报价数大于5条");
                     $can_send = 0;
                 }
-                $has_pushed = $this->redis->exists($push_cache_key . date('Y-m-d'));
-                $push_list = $this->redis->zRevRange($push_cache_key . date('Y-m-d'),0, -1,true);
-                if(isset($push_list[$buy['userId']])){
-                    $time_differ = $push_list[$buy['userId']] - $buy['expireTime'];
-                    if($time_differ < 2 * 3600 && $time_differ > -2 * 3600){
-                        write_log(2,"采购" . $buy['buyId'] . "2小时内已存在推送记录");
-                        $can_send = 0;
-                    }else{
-                        //修改提醒时间
-                        $score_incr = $buy['expireTime'] - $push_list[$buy['userId']];
-                        $this->redis->zIncrBy($push_cache_key . date('Y-m-d'),$score_incr, $buy['userId']);
-                    }
-                }else{
-                    $this->redis->zAdd($push_cache_key . date('Y-m-d'),$buy['expireTime'],$buy['userId']);
-                    if($has_pushed == false){
-                        $this->redis->expire($push_cache_key . date('Y-m-d'), 24 * 3600);
-                    }
+                if(($grayscale == 1 && !in_array($buy['userId'], $test_list))){
+                    $can_send = 0;
                 }
-
                 if($can_send == 1){
-                    $user_version_list = $this->userData->getUserLoginVersion($buy['userId']);
-                    $user_version = current($user_version_list);
-                    $version = is_null($user_version['version']) ? '' : $user_version['version'];
-                    $to_account = (string)$buy['userId'];
-                    $buy_ids[] = ['account' => $to_account, 'version' => $version];
-                    $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'] . '@' . $version;
+                    $has_pushed = $this->redis->exists($push_cache_key . date('Y-m-d'));
+                    $push_list = $this->redis->zRevRange($push_cache_key . date('Y-m-d'),0, -1,true);
+                    if(isset($push_list[$buy['userId']])){
+                        $time_differ = $push_list[$buy['userId']] - $buy['expireTime'];
+                        if($time_differ < 2 * 3600 && $time_differ > -2 * 3600){
+                            write_log(2,"采购" . $buy['buyId'] . "2小时内已存在推送记录");
+                            $can_send = 0;
+                        }else{
+                            //修改提醒时间
+                            $score_incr = $buy['expireTime'] - $push_list[$buy['userId']];
+                            $this->redis->zIncrBy($push_cache_key . date('Y-m-d'),$score_incr, $buy['userId']);
+                        }
+                    }else{
+                        $this->redis->zAdd($push_cache_key . date('Y-m-d'),$buy['expireTime'],$buy['userId']);
+                        if($has_pushed == false){
+                            $this->redis->expire($push_cache_key . date('Y-m-d'), 24 * 3600);
+                        }
+                    }
+                    if($can_send == 1) {
+                        $user_version_list = $this->userData->getUserLoginVersion($buy['userId']);
+                        $user_version = current($user_version_list);
+                        $version = is_null($user_version['version']) ? '' : $user_version['version'];
+                        $to_account = (string)$buy['userId'];
+                        $buy_ids[] = ['account' => $to_account, 'version' => $version];
+                        $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'] . '@' . $version;
+                    }
                 }
             }
 
