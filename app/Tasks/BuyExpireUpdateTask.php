@@ -11,7 +11,9 @@ namespace App\Tasks;
 use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
 use App\Models\Entity\Buy;
+use App\Models\Entity\BuyAttribute;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -42,13 +44,12 @@ class BuyExpireUpdateTask
      */
     protected $redis;
 
-    private $queue_key = 'msg_queue_list';
-
     /**
-     * @Inject("demoRedis")
-     * @var Redis
+     * 待推送队列
+     * @var string
      */
-    private $msgRedis;
+    private $wait_push_list = 'wait_push_buy_list_';
+
 
     /**
      * 过期采购状态修改
@@ -166,5 +167,181 @@ class BuyExpireUpdateTask
             }
         }
         return ['实商续费提醒已发送'];
+    }
+
+    /**
+     * 即将到期采购信息提醒
+     * @return string
+     * @Scheduled(cron="0 * * * * *")
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function willExpireBuyTask()
+    {
+        $hour = date('H');
+        $start_time = strtotime('+6 hour');
+        $end_time = $start_time - 59;
+        Log::info('即将到期采购任务开始');
+        $buyRes = Buy::findAll([
+            ['expire_time', 'between', $end_time, $start_time],
+            'is_audit' => 0,
+            'del_status' => 1,
+            'status' => 0
+        ],
+            ['fields' => ['buy_id','user_id','expire_time']])->getResult();
+        Log::info(json_encode($buyRes));
+        if(!empty($buyRes)){
+            $buy_ids = $cache_list = [];
+            $push_cache_key = 'buy_expire_push_history_';
+            $grayscale = getenv('IS_GRAYSCALE');
+            $test_list = $this->userData->getTesters();
+            foreach ($buyRes as $buy) {
+                $can_send = 1;
+                //报价数获取
+                $buy_attr = BuyAttribute::findOne(['buy_id' => $buy['buyId']],['fields' => ['offer_count']])->getResult();
+                if(isset($buy_attr) && $buy_attr['offerCount'] > 5){
+                    write_log(2,"采购" . $buy['buyId'] . "报价数大于5条");
+                    $can_send = 0;
+                }
+                if(($grayscale == 1 && !in_array($buy['userId'], $test_list))){
+                    $can_send = 0;
+                }
+                if($can_send == 1){
+                    $has_pushed = $this->redis->exists($push_cache_key . date('Y-m-d'));
+                    $push_list = $this->redis->zRevRange($push_cache_key . date('Y-m-d'),0, -1,true);
+                    if(isset($push_list[$buy['userId']])){
+                        $time_differ = $push_list[$buy['userId']] - $buy['expireTime'];
+                        if($time_differ < 2 * 3600 && $time_differ > -2 * 3600){
+                            write_log(2,"采购" . $buy['buyId'] . "2小时内已存在推送记录");
+                            $can_send = 0;
+                        }else{
+                            //修改提醒时间
+                            $score_incr = $buy['expireTime'] - $push_list[$buy['userId']];
+                            $this->redis->zIncrBy($push_cache_key . date('Y-m-d'),$score_incr, $buy['userId']);
+                        }
+                    }else{
+                        $this->redis->zAdd($push_cache_key . date('Y-m-d'),$buy['expireTime'],$buy['userId']);
+                        if($has_pushed == false){
+                            $this->redis->expire($push_cache_key . date('Y-m-d'), 24 * 3600);
+                        }
+                    }
+                    if($can_send == 1) {
+                        $user_version_list = $this->userData->getUserLoginVersion($buy['userId']);
+                        $user_version = current($user_version_list);
+                        $version = is_null($user_version['version']) ? '' : $user_version['version'];
+                        $to_account = (string)$buy['userId'];
+                        $buy_ids[] = ['account' => $to_account, 'version' => $version];
+                        $cache_list[] = $to_account . '@' . $buy['buyId'] . '@' . $buy_attr['offerCount'] . '@' . $version;
+                    }
+                }
+            }
+
+            if(!empty($buy_ids)){
+                write_log(2,"采购" . json_encode($buy_ids) . "即将在6小时后过期");
+                if($hour > 21 || $hour < 8){
+                    //写入待推送缓存
+                    $next_day = $hour > 21 ? date('Y_m_d',strtotime('+1 day')) : date('Y_m_d');
+                    $this->redis->rPush($this->wait_push_list . $next_day, 'buy_expire#' . json_encode($cache_list));
+                    write_log(2,'不在可发送时间内，写入采购待推送队列');
+                }else{
+                    foreach ($buy_ids as $wait) {
+                        //发送推送
+                        $msg = $this->buy_info_msg(0,0,$wait['version']);
+                        sendInstantMessaging('1',$wait['account'],$msg);
+                    }
+                }
+            }
+        }
+        Log::info('即将到期采购任务结束');
+        return '即将到期采购执行';
+    }
+
+    /**
+     * 缓存队列消息发送
+     * 每天上午10点执行
+     *
+     * @Scheduled(cron="0 0 10 * * *")
+     */
+    public function BuyCacheQueueTask()
+    {
+        $date = date('Y_m_d');
+        Log::info('采购过期缓存队列任务开始');
+        if($this->redis->exists($this->wait_push_list . $date)){
+            $push_list = $this->redis->lRange($this->wait_push_list . $date,0,-1);
+            if(!empty($push_list)){
+                foreach ($push_list as $push) {
+                    $msg_info = explode('#',$push);
+                    if(is_array($msg_info)){
+                        switch ($msg_info[0]){
+                            case 'buy_expire':
+                                $buy_ids = json_decode($msg_info[1],true);
+                                if(!empty($buy_ids)){
+                                    foreach ($buy_ids as $cache) {
+                                        $push_info = explode('@',$cache);
+                                        Log::info(json_encode($push_info));
+                                        if(count($push_info) > 1){
+                                            $user_id = (string)$push_info[0];
+                                            //获取采购信息
+                                            $buy_info = Buy::findOne(['buy_id' => $push_info[1]],['status'])->getResult();
+                                            $has_offer = (int)$push_info[2] > 0 ? 1 : 0;
+                                            $is_expire = $buy_info['status'] == 2 ? 1 : 0;
+                                            $version = isset($push_info[3]) ? $push_info[3] : '';
+                                            $msg = $this->buy_info_msg($is_expire, $has_offer, $version);
+                                            sendInstantMessaging('1',$user_id,$msg,0);
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    $this->redis->lPop($this->wait_push_list . $date);
+                }
+            }
+        }
+        Log::info('采购过期缓存队列任务结束');
+        return '采购过期缓存队列任务';
+    }
+
+    /**
+     * 采购商消息
+     * @param int $is_expire
+     * @param int $has_offer
+     * @param string $version
+     * @return false|string
+     */
+    private function buy_info_msg($is_expire = 0, $has_offer = 0, $version = '')
+    {
+        $config = \Swoft::getBean('config');
+        $extra =  $config->get('sysMsg');
+        $extra['isRich'] = 0;
+        if($is_expire == 0){
+            $title = '采购即将到期';
+            $msg = '您发布的采购信息即将到期，请前往刷新或修改有效期。';
+            $keyword = '点击前往';
+        }else{
+            $title = '采购已到期';
+            $msg = '您发布的采购信息已到期，如需继续找布，请前往';
+            $keyword = '再次找布';
+        }
+        $extra['title'] =  $extra['msgTitle'] = $title;
+        if(version_compare($version,'8.8.0','<')){
+            if($is_expire == 0){
+                $keyword = '您可以点击我的采购->寻找中进行操作。';
+            }else{
+                $keyword = '我的采购->一键找布';
+            }
+            $extra['content'] = $msg . $keyword;
+            $d = [];
+        }else{
+            $extra['content'] = $msg . "#{$keyword}#";
+            $d = [["keyword"=>"#{$keyword}#","type"=>29,"id"=>0,"url"=> '', 'showOffer' => $has_offer]];
+        }
+        $extra['msgContent'] = $msg . $keyword;
+        $data_show = array();
+        $extra['data'] = $d;
+        $extra['commendUser'] = array();
+        $extra['showData'] = $data_show;
+        $data['extra'] = $extra;
+
+        return json_encode($data['extra']);
     }
 }

@@ -11,6 +11,7 @@ namespace App\Models\Data;
 use App\Models\Dao\TagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\MysqlException;
 
 /**
  * 标签数据类
@@ -97,5 +98,26 @@ class TagData
             }
         }
         return $tag_names;
+    }
+
+    /**
+     * 指定类标签
+     * @param $cate_ids
+     * @return mixed
+     */
+    public function getTagByCateList($cate_ids)
+    {
+        return $this->tagDao->getTagByCateList($cate_ids);
+    }
+
+    /**
+     * 保存热搜
+     * @param $hot_list
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function hotSearchInsert($hot_list)
+    {
+        return $this->tagDao->saveHotSearch($hot_list);
     }
 }

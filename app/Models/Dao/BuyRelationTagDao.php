@@ -8,11 +8,11 @@
 
 namespace App\Models\Dao;
 
-use App\Models\Data\BuyData;
 use App\Models\Entity\BuyRelationTag;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
-use Swoft\Db\Db;
+use Swoft\Core\ResultInterface;
+use Swoft\Db\Exception\DbException;
 use Swoft\Db\Query;
 
 /**
@@ -54,8 +54,8 @@ class BuyRelationTagDao
      * 用户订阅采购数
      * @param int $user_id
      * @param array $buy_days
-     * @return int|\Swoft\Core\ResultInterface
-     * @throws \Swoft\Db\Exception\DbException
+     * @return int|ResultInterface
+     * @throws DbException
      */
     public function getUserSubscriptBuy(int $user_id, array $buy_days)
     {
@@ -77,5 +77,16 @@ class BuyRelationTagDao
             $buy_count = count($count_list);
         }
         return $buy_count;
+    }
+
+    /**
+     * 采购标签列表
+     * @param $params
+     * @param array $fields
+     * @return ResultInterface
+     */
+    public function getBuyRelationTagByParams($params,$fields = ['*'])
+    {
+        return BuyRelationTag::findAll($params,['fields' => $fields])->getResult();
     }
 }

@@ -126,8 +126,51 @@ function get_img_url($pic)
     $curl_result = CURL($curl_params, 'post');
 
     $reStatus = json_decode($curl_result);
+    write_log(3,$paramsString . '->' . $curl_result);
     if($reStatus->ErrorCode == 0) {
-        write_log(3,$paramsString);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+/**
+ * C2C聊天消息发送
+ * @param $fromId
+ * @param $uid
+ * @param $content
+ * @param int $is_batch
+ * @return bool
+ */
+function sendC2CMessaging($fromId,$uid,$content,$is_batch = 0)
+{
+    $offline_apns = apns_info($fromId);
+    $android_info = android_info();
+    $params = [
+        'SyncOtherMachine' => 2,
+        'MsgRandom' => rand(1, 65535),
+        'MsgTimeStamp' => time(),
+        'From_Account'=> (string)$fromId,
+        'To_Account' => $is_batch == 0 ? (string)$uid : (array)$uid,
+        'MsgBody' => [['MsgType'=>'TIMTextElem','MsgContent'=> ['Text' => $content]]],
+        'OfflinePushInfo' => ['PushFlag' => 0, 'Ext' => is_null($content) ? '' : $content , 'ApnsInfo'=> $offline_apns ,'AndroidInfo'=> $android_info ]
+    ];
+    $paramsString = json_encode($params,JSON_UNESCAPED_UNICODE);
+    $parameter = IMService();
+
+    if($is_batch == 1){
+        $url = 'https://console.tim.qq.com/v4/openim/batchsendmsg?';
+    }else{
+        $url = 'https://console.tim.qq.com/v4/openim/sendmsg?';
+    }
+    $curl_params = ['url'=> $url . $parameter, 'timeout'=>15];
+    $curl_params['post_params'] = $paramsString;
+    $curl_result = CURL($curl_params, 'post');
+
+    $reStatus = json_decode($curl_result);
+    write_log(3,$paramsString . '->' . $curl_result);
+    if($reStatus->ErrorCode == 0) {
         return true;
     }
     else {

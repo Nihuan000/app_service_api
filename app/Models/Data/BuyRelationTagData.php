@@ -11,6 +11,7 @@ namespace App\Models\Data;
 use App\Models\Dao\BuyRelationTagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Core\ResultInterface;
 
 /**
  * 采购标签数据类
@@ -38,6 +39,17 @@ class BuyRelationTagData
     public function getRealtionTagByIds($buy_ids, $fields)
     {
         return $this->buyRelationTagDao->getRelationTagList($buy_ids, $fields);
+    }
+
+    /**
+     * 采购标签数据列表
+     * @param $params
+     * @param $fields
+     * @return ResultInterface
+     */
+    public function getBuyTagByParams($params,$fields)
+    {
+        return $this->buyRelationTagDao->getBuyRelationTagByParams($params,$fields);
     }
 
 

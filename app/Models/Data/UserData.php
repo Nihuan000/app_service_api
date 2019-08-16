@@ -918,4 +918,14 @@ class UserData
     {
         return $this->userDao->addUserWalletRecord($data);
     }
+
+    /**
+     * 最新登录版本号获取
+     * @param $user_id
+     * @return mixed
+     */
+    public function getUserLoginVersion($user_id)
+    {
+        return $this->userDao->getUserLastLogin($user_id);
+    }
 }

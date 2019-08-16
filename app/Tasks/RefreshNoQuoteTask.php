@@ -74,7 +74,7 @@ class RefreshNoQuoteTask
     private $buriedLogic;
 
     /**
-     * 3小时无报价采购刷新
+     * 30分钟无报价采购刷新
      * @author Nihuan
      * @Scheduled(cron="0 * * * * *")
      */
@@ -82,7 +82,7 @@ class RefreshNoQuoteTask
     {
         $no_refresh_cache = $this->norefresh_key . '_' . date('Y_m_d');
         $prev_time = strtotime('-3 day');
-        $refresh_prev = strtotime('-3 hour');
+        $refresh_prev = strtotime('-30 minute');
         $now_time = date('Y-m-d H:i:s');
         $buy_res = Db::query("select t.buy_id from sb_buy t left join sb_buy_attribute ba ON ba.buy_id = t.buy_id WHERE t.add_time > {$prev_time} AND t.refresh_time <= {$refresh_prev} AND t.is_audit = 0 AND t.status = 0 AND t.del_status = 1 AND t.clicks < {$this->min_clicks} AND ba.offer_count < {$this->min_offer} ORDER BY t.buy_id ASC")->getResult();
         if(!empty($buy_res)){

@@ -10,6 +10,8 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\Tag;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Db\Db;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 
 /**
@@ -96,6 +98,27 @@ class TagDao
     public function getAutoOfferProTag($pro_id)
     {
         return Query::table('sb_auto_offer_product_tag')->where('pro_id',$pro_id)->get(['tag_id','tag_name'])->getResult();
+    }
+
+    /**
+     * 指定类标签获取
+     * @param array $cate_ids
+     * @return mixed
+     */
+    public function getTagByCateList(array $cate_ids)
+    {
+        return Tag::findAll(['cate_id' => $cate_ids, ['top_id', '>', 100], 'status' => 1, ['name','<>', '']],['fields' => ['tag_id','name']])->getResult();
+    }
+
+    /**
+     * 保存热搜列表
+     * @param array $hot_list
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function saveHotSearch(array $hot_list)
+    {
+        return Query::table('sb_hot_search_report')->batchInsert($hot_list)->getResult();
     }
 
 }
