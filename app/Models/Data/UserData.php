@@ -928,4 +928,14 @@ class UserData
     {
         return $this->userDao->getUserLastLogin($user_id);
     }
+
+    /**
+     * 微信公众号openid获取
+     * @param int $user_id
+     * @return string
+     */
+    public function getUserOpenId(int $user_id)
+    {
+        return $this->userDao->getUserOpenId($user_id);
+    }
 }

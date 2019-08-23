@@ -161,4 +161,13 @@ class BuyDao
             ->count('sb_offer.buy_id')->getResult();
         return $result;
     }
+
+    /**
+     * @param array $params
+     * @return mixed
+     */
+    public function getLastBuyIds(array $params)
+    {
+        return Buy::findAll($params,['groupby' => 'user_id', 'fields' => ["max(buy_id) AS buy_id"]])->getResult();
+    }
 }

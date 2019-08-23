@@ -10,7 +10,10 @@
 
 namespace App\Tasks;
 
+use App\Models\Data\BuyData;
+use App\Models\Data\UserData;
 use App\Models\Logic\OtherLogic;
+use App\Models\Logic\WechatLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
@@ -18,6 +21,7 @@ use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
 
 /**
+ * 激活类任务
  * Class ActivateTask - define some tasks
  *
  * @Task("Activate")
@@ -37,6 +41,25 @@ class ActivateTask{
      * @var Redis
      */
     private $redis;
+
+    /**
+     * @Inject()
+     * @var BuyData
+     */
+    private $buyData;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+    /**
+     * @Inject()
+     * @var WechatLogic
+     */
+    private $wechatLogic;
+
     /**
      * A cronTab task
      * 3-5 seconds per minute 每天10:00:30执行
@@ -119,6 +142,55 @@ class ActivateTask{
         }
         Log::info('短信召回任务结束');
         return ['短信召回任务'];
+    }
+
+    /**
+     * 历史发布采购商激活
+     * 每分钟执行
+     *
+     * @Scheduled(cron="20 * * * * *")
+     */
+    public function historicalBuyTask()
+    {
+        Log::info('历史发布采购商微信激活开启');
+        $start_time = strtotime('-15 day');
+        $end_time = $start_time + 59;
+        $params = [
+            ['add_time', 'between', $start_time, $end_time],
+            'status' => 1
+        ];
+        $buy_list = $this->buyData->getLastBuyIds($params);
+        if(!empty($buy_list)){
+            Log::info("提醒采购id列表:" . json_encode($buy_list));
+            $search_params = [
+                ['buy_id','IN',$buy_list]
+            ];
+            $buy_info_list = $this->buyData->getBuyList($search_params,['buy_id','remark','amount','unit','expire_time','user_id','add_time']);
+            if(!empty($buy_info_list)){
+                $config = \Swoft::getBean('config');
+                $wechat_temp = $config->get('last_buy_msg');
+                $tempId = $wechat_temp['temp_id'];
+                foreach ($buy_info_list as $item) {
+                    //判断是否是最后一条
+                    $user_buy_list = $this->buyData->getUserByIds($item['userId'],$item['addTime']);
+                    if(empty($user_buy_list)){
+                        $openId = $this->userData->getUserOpenId($item['userId']);
+                        if(!empty($openId)){
+                            Log::info("用户{$item['userId']}发送提醒消息");
+                            $msg_temp['keyword1']['value'] = $item['buyId'];
+                            $msg_temp['keyword2']['value'] = (string)$item['remark'];
+                            $msg_temp['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
+                            $msg_temp['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
+                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp);
+                        }
+                    }else{
+                        Log::info("用户{$item['userId']}有发布最新采购，不发送消息");
+                    }
+                }
+            }
+        }
+        Log::info('历史发布采购商微信激活结束');
+        return ['历史发布采购商微信提醒'];
     }
 
     /**

@@ -282,4 +282,36 @@ class BuyData
 
     }
 
+    /**
+     * 符合条件的最大采购id组
+     * @param $params
+     * @return mixed
+     */
+    public function getLastBuyIds($params)
+    {
+        $buy_ids = [];
+        $buy_ids_result = $this->buyDao->getLastBuyIds($params);
+        if(!empty($buy_ids_result)){
+            foreach ($buy_ids_result as $buy) {
+                $buy_ids[] = $buy['buyId'];
+            }
+        }
+        return $buy_ids;
+    }
+
+    /**
+     * 用户某个时间点之后发布的采购
+     * @param $user_id
+     * @param $last_time
+     * @return ResultInterface
+     */
+    public function getUserByIds($user_id,$last_time)
+    {
+        $params = [
+            'user_id' => $user_id,
+            'last_time' => $last_time
+        ];
+        return $this->buyDao->getUserBuyIds($params);
+    }
+
 }
