@@ -168,6 +168,6 @@ class BuyDao
      */
     public function getLastBuyIds(array $params)
     {
-        return Buy::findAll($params,['groupby' => 'user_id', 'fields' => ["max(buy_id) AS buy_id"]])->getResult();
+        return Query::table(Buy::class)->whereBetween('add_time',$params['add_time_start'],$params['add_time_end'])->groupBy('user_id')->max('buy_id','buyId')->getResult();
     }
 }

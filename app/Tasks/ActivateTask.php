@@ -156,8 +156,8 @@ class ActivateTask{
         $start_time = strtotime('-15 day');
         $end_time = $start_time + 59;
         $params = [
-            ['add_time', 'between', $start_time, $end_time],
-            'status' => 1
+            'add_time_start' => $start_time,
+            'add_time_end' => $end_time,
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){
