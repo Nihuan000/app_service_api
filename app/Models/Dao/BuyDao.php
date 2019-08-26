@@ -169,6 +169,6 @@ class BuyDao
      */
     public function getLastBuyIds(array $params)
     {
-        return Buy::query()->whereBetween('add_time',$params['add_time_start'],$params['add_time_end'])->orderBy('add_time','desc')->get(['user_id','buy_id','add_time'])->getResult();
+        return Buy::findAll($params,['fields' => ['user_id','buy_id','add_time'], 'orderby' => ['add_time' => 'desc']])->getResult();
     }
 }

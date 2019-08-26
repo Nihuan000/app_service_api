@@ -481,8 +481,7 @@ class IndexController
         $start_time = strtotime('2019-07-01');
         $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $params = [
-            'add_time_start' => $start_time,
-            'add_time_end' => $end_time,
+            ['add_time','between',[$start_time,$end_time]],
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){
