@@ -54,7 +54,6 @@ class NewRegActivationTask{
      * per minute 每分钟执行
      *
      * @Scheduled(cron="32 * * * * *")
-     * @throws DbException
      */
     public function SupplierTask()
     {
@@ -70,12 +69,7 @@ class NewRegActivationTask{
         $new_reg = $this->userData->getUserDataByParams($params,500);
         Log::info(json_encode($new_reg));
         if(!empty($new_reg)){
-            $grayscale = getenv('IS_GRAYSCALE');
-            $test_list = $this->userData->getTesters();
             foreach ($new_reg as $item) {
-                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
-                    continue;
-                }
                 $user_list[] = (string)$item['userId'];
             }
             if(!empty($user_list)){
@@ -101,7 +95,6 @@ class NewRegActivationTask{
      * 采购商注册次日激活消息
      * 每分钟执行
      * @Scheduled(cron="36 * * * * *")
-     * @throws DbException
      */
     public function buyersTask()
     {
@@ -117,12 +110,7 @@ class NewRegActivationTask{
         $new_reg = $this->userData->getUserDataByParams($params,500);
         Log::info(json_encode($new_reg));
         if(!empty($new_reg)){
-            $grayscale = getenv('IS_GRAYSCALE');
-            $test_list = $this->userData->getTesters();
             foreach ($new_reg as $item) {
-                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
-                    continue;
-                }
                 $user_list[] = (string)$item['userId'];
             }
             if(!empty($user_list)){

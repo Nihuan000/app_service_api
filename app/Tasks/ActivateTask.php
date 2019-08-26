@@ -15,6 +15,7 @@ use App\Models\Data\UserData;
 use App\Models\Logic\OtherLogic;
 use App\Models\Logic\WechatLogic;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\DbException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
@@ -149,6 +150,7 @@ class ActivateTask{
      * 每分钟执行
      *
      * @Scheduled(cron="20 * * * * *")
+     * @throws DbException
      */
     public function historicalBuyTask()
     {
@@ -170,7 +172,12 @@ class ActivateTask{
                 $config = \Swoft::getBean('config');
                 $msg_temp = $config->get('last_buy_msg');
                 $tempId = $msg_temp['temp_id'];
+                $grayscale = getenv('IS_GRAYSCALE');
+                $test_list = $this->userData->getTesters();
                 foreach ($buy_info_list as $item) {
+                    if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                        continue;
+                    }
                     //判断是否是最后一条
                     $add_time = $item['addTime'] + 1;
                     $user_buy_list = $this->buyData->getUserByIds($item['userId'],$add_time);
