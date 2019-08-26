@@ -478,8 +478,8 @@ class IndexController
     public function historicalBuy()
     {
         Log::info('历史发布采购商微信激活开启');
-        $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
-        $end_time = $start_time + 59;
+        $start_time = strtotime('2019-07-01');
+        $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $params = [
             'add_time_start' => $start_time,
             'add_time_end' => $end_time,
@@ -514,11 +514,12 @@ class IndexController
                         $openId = $this->userData->getUserOpenId($item['userId']);
                         if(!empty($openId)){
                             Log::info("用户{$item['userId']}发送提醒消息");
-                            $msg_temp['keyword1']['value'] = $item['buyId'];
-                            $msg_temp['keyword2']['value'] = (string)$item['remark'];
-                            $msg_temp['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
-                            $msg_temp['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
-                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp);
+                            $tmp_data['keyword1']['value'] = $item['buyId'];
+                            $tmp_data['keyword2']['value'] = (string)$item['remark'];
+                            $tmp_data['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
+                            $tmp_data['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
+                            $msg_temp['data'] = $tmp_data;
+                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp,1);
                             $send_count += 1;
                             $send_user_list[] = $item['userId'];
                         }

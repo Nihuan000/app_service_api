@@ -23,7 +23,14 @@ class WechatLogic
      */
     private $redis;
 
-    public function send_wechat_message(string $toUser, string $template_id, array $msg_body, string $url = '')
+    /**
+     * @param string $toUser
+     * @param string $template_id
+     * @param array $msg_body
+     * @param string $url
+     * @param int $has_small_pro
+     */
+    public function send_wechat_message(string $toUser, string $template_id, array $msg_body, string $url = '', int $has_small_pro = 0)
     {
         if($this->redis->exists('access_token')){
             $access_token = $this->redis->get('access_token');
@@ -41,7 +48,7 @@ class WechatLogic
 
         if(!empty($access_token)){
             Log::info('发送给:' . $toUser . ',内容:' . $msg_body['keyword2']['value']);
-            sendTemplet($access_token,$toUser,$msg_body,$template_id, $url);
+            sendTemplet($access_token,$toUser,$msg_body,$template_id, $url, $has_small_pro);
         }
     }
 }
