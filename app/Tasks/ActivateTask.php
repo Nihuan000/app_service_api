@@ -172,7 +172,8 @@ class ActivateTask{
                 $tempId = $wechat_temp['temp_id'];
                 foreach ($buy_info_list as $item) {
                     //判断是否是最后一条
-                    $user_buy_list = $this->buyData->getUserByIds($item['userId'],$item['addTime']);
+                    $add_time = $item['addTime'] + 1;
+                    $user_buy_list = $this->buyData->getUserByIds($item['userId'],$add_time);
                     if(empty($user_buy_list)){
                         $openId = $this->userData->getUserOpenId($item['userId']);
                         if(!empty($openId)){
