@@ -211,7 +211,7 @@ function sendTemplet($access_token, $toUser,$info,$template_id,$url = '') {
     curl_setopt($ud, CURLOPT_RETURNTRANSFER, true);
     $tmp = curl_exec($ud);
     curl_close($ud);
-    write_log(2,$tmp);
+    write_log(3,json_encode($data) . '->' . $tmp);
     if (curl_errno($ud)) {
         echo 'Errno'.curl_error($ud);
     }
