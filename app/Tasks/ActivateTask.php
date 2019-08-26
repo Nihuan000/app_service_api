@@ -153,7 +153,7 @@ class ActivateTask{
     public function historicalBuyTask()
     {
         Log::info('历史发布采购商微信激活开启');
-        $start_time = strtotime('-15 day');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $end_time = $start_time + 59;
         $params = [
             'add_time_start' => $start_time,
