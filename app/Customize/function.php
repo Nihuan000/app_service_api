@@ -180,6 +180,47 @@ function sendC2CMessaging($fromId,$uid,$content,$is_batch = 0)
 
 
 /**
+ * 微信模板消息发送
+ * @param string $access_token 微信token
+ * @param string $toUser 接收人openid
+ * @param array $info 消息主体
+ * @param string $template_id 模板id
+ * @param string $url 跳转地址
+ * @param int $has_small_pro 是否跳转小程序
+ * @return bool|mixed
+ */
+function sendTemplet($access_token, $toUser,$info,$template_id,$url = '', $has_small_pro = 0) {
+    if(empty($toUser))return false;
+    $data['touser'] = $toUser;
+    $data['template_id'] = $template_id;
+    $data['url'] = is_null($url) ? '' : $info['url'];
+    $info['data']['remark']['value'] = "\n" . $info['data']['remark']['value'];
+    unset($info['url']);
+    unset($info['temp_id']);
+    $data['data'] = $info['data'];
+    if($has_small_pro == 1){
+        $data['miniprogram'] = $info['miniprogram'];
+    }
+
+    $ud = curl_init();
+    curl_setopt($ud,CURLOPT_URL,"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=".$access_token);
+    curl_setopt($ud, CURLOPT_CUSTOMREQUEST, strtoupper('POST'));
+    curl_setopt($ud, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ud, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ud, CURLOPT_HTTPHEADER, ["Accept-Charset: utf-8"]);
+    curl_setopt($ud, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+    curl_setopt($ud, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ud, CURLOPT_AUTOREFERER, 1);
+    curl_setopt($ud, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ud, CURLOPT_RETURNTRANSFER, true);
+    $tmp = curl_exec($ud);
+    curl_close($ud);
+    write_log(3,json_encode($data) . '->' . $tmp);
+    return json_decode($tmp,true);
+}
+
+
+/**
  * 公共curl方法
  * @param $params
  * @param string $request_type

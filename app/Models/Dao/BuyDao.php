@@ -161,4 +161,14 @@ class BuyDao
             ->count('sb_offer.buy_id')->getResult();
         return $result;
     }
+
+    /**
+     * 获取用户最新发布的采购信息，group +max 貌似效果不理想，先多取，数组过滤
+     * @param array $params
+     * @return mixed
+     */
+    public function getLastBuyIds(array $params)
+    {
+        return Buy::findAll($params,['fields' => ['user_id','buy_id','add_time'], 'orderby' => ['add_time' => 'desc']])->getResult();
+    }
 }

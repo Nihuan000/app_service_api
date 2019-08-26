@@ -889,4 +889,23 @@ class UserDao
         $table = 'sb_login_log_' . date('Y');
         return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->limit(1)->get(['version'])->getResult();
     }
+
+    /**
+     * 获取用户openid
+     * @param int $user_id
+     * @return string
+     */
+    public function getUserOpenId(int $user_id)
+    {
+        $auth_info = Query::table('sb_auth_authorize')->where('user_id',$user_id)->get(['old_openid'])->getResult();
+        if(!empty($auth_info)){
+            $user_open = current($auth_info);
+            return $user_open['old_openid'];
+        }
+        $user_info = User::findById($user_id,['fields' => ['openid']])->getResult();
+        if(!empty($user_info) && !empty($user_info['openid'])){
+            return $user_info['openid'];
+        }
+        return '';
+    }
 }

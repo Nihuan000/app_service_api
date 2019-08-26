@@ -192,17 +192,12 @@ class BuyExpireUpdateTask
         if(!empty($buyRes)){
             $buy_ids = $cache_list = [];
             $push_cache_key = 'buy_expire_push_history_';
-            $grayscale = getenv('IS_GRAYSCALE');
-            $test_list = $this->userData->getTesters();
             foreach ($buyRes as $buy) {
                 $can_send = 1;
                 //报价数获取
                 $buy_attr = BuyAttribute::findOne(['buy_id' => $buy['buyId']],['fields' => ['offer_count']])->getResult();
                 if(isset($buy_attr) && $buy_attr['offerCount'] > 5){
                     write_log(2,"采购" . $buy['buyId'] . "报价数大于5条");
-                    $can_send = 0;
-                }
-                if(($grayscale == 1 && !in_array($buy['userId'], $test_list))){
                     $can_send = 0;
                 }
                 if($can_send == 1){
