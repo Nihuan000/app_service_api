@@ -168,8 +168,8 @@ class ActivateTask{
             $buy_info_list = $this->buyData->getBuyList($search_params,['buy_id','remark','amount','unit','expire_time','user_id','add_time']);
             if(!empty($buy_info_list)){
                 $config = \Swoft::getBean('config');
-                $wechat_temp = $config->get('last_buy_msg');
-                $tempId = $wechat_temp['temp_id'];
+                $msg_temp = $config->get('last_buy_msg');
+                $tempId = $msg_temp['temp_id'];
                 foreach ($buy_info_list as $item) {
                     //判断是否是最后一条
                     $add_time = $item['addTime'] + 1;
