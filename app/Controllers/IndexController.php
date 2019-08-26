@@ -481,7 +481,7 @@ class IndexController
         $start_time = strtotime('2019-07-01');
         $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $params = [
-            ['add_time','between',[$start_time,$end_time]],
+            ['add_time','between',$start_time,$end_time],
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){
@@ -518,7 +518,7 @@ class IndexController
                             $tmp_data['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
                             $tmp_data['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
                             $msg_temp['data'] = $tmp_data;
-                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp,1);
+                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp,'',1);
                             $send_count += 1;
                             $send_user_list[] = $item['userId'];
                         }

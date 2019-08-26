@@ -194,7 +194,7 @@ function sendTemplet($access_token, $toUser,$info,$template_id,$url = '', $has_s
     $data['touser'] = $toUser;
     $data['template_id'] = $template_id;
     $data['url'] = is_null($url) ? '' : $url;
-    $info['remark']['value'] = "\n" . $info['remark']['value'];
+    $info['data']['remark']['value'] = "\n" . $info['data']['remark']['value'];
     unset($info['url']);
     unset($info['temp_id']);
     $data['data'] = $info['data'];
@@ -216,9 +216,6 @@ function sendTemplet($access_token, $toUser,$info,$template_id,$url = '', $has_s
     $tmp = curl_exec($ud);
     curl_close($ud);
     write_log(3,json_encode($data) . '->' . $tmp);
-    if (curl_errno($ud)) {
-        echo 'Errno'.curl_error($ud);
-    }
     return json_decode($tmp,true);
 }
 

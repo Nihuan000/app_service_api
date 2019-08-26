@@ -47,7 +47,7 @@ class WechatLogic
         }
 
         if(!empty($access_token)){
-            Log::info('发送给:' . $toUser . ',内容:' . $msg_body['keyword2']['value']);
+            Log::info('发送给:' . $toUser . ',内容:' . $msg_body['data']['keyword2']['value']);
             sendTemplet($access_token,$toUser,$msg_body,$template_id, $url, $has_small_pro);
         }
     }
