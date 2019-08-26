@@ -15,6 +15,8 @@ use App\Models\Data\ProductData;
 use App\Models\Data\UserData;
 use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\UserLogic;
+use App\Models\Logic\WechatLogic;
+use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Redis\Redis;
@@ -66,6 +68,12 @@ class IndexController
      * @var ProductData
      */
     private $proData;
+
+    /**
+     * @Inject()
+     * @var WechatLogic
+     */
+    private $wechatLogic;
 
     /**
      * @RequestMapping("/")
@@ -277,7 +285,7 @@ class IndexController
     /**
      * @param Request $request
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function supplier_test(Request $request)
     {
@@ -460,5 +468,68 @@ class IndexController
             $msg = '缓存成功';
         }
         return compact("code","result","msg");
+    }
+
+
+    /**
+     * @return array
+     * @throws DbException
+     */
+    public function historicalBuy()
+    {
+        Log::info('历史发布采购商微信激活开启');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
+        $end_time = $start_time + 59;
+        $params = [
+            'add_time_start' => $start_time,
+            'add_time_end' => $end_time,
+        ];
+        $buy_list = $this->buyData->getLastBuyIds($params);
+        if(!empty($buy_list)){
+            Log::info("提醒采购id列表:" . json_encode($buy_list));
+            $search_params = [
+                ['buy_id','IN',$buy_list]
+            ];
+            $buy_info_list = $this->buyData->getBuyList($search_params,['buy_id','remark','amount','unit','expire_time','user_id','add_time']);
+            if(!empty($buy_info_list)){
+                $config = \Swoft::getBean('config');
+                $msg_temp = $config->get('last_buy_msg');
+                $tempId = $msg_temp['temp_id'];
+                $grayscale = getenv('IS_GRAYSCALE');
+                $test_list = $this->userData->getTesters();
+                $send_count = 0;
+                $send_user_list = [];
+                foreach ($buy_info_list as $item) {
+                    if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                        continue;
+                    }
+                    //发送数不大于1000人
+                    if($send_count >= 1000){
+                        break;
+                    }
+                    //判断是否是最后一条
+                    $add_time = $item['addTime'] + 1;
+                    $user_buy_list = $this->buyData->getUserByIds($item['userId'],$add_time);
+                    if(empty($user_buy_list)){
+                        $openId = $this->userData->getUserOpenId($item['userId']);
+                        if(!empty($openId)){
+                            Log::info("用户{$item['userId']}发送提醒消息");
+                            $msg_temp['keyword1']['value'] = $item['buyId'];
+                            $msg_temp['keyword2']['value'] = (string)$item['remark'];
+                            $msg_temp['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
+                            $msg_temp['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
+                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp);
+                            $send_count += 1;
+                            $send_user_list[] = $item['userId'];
+                        }
+                    }else{
+                        Log::info("用户{$item['userId']}有发布最新采购，不发送消息");
+                    }
+                }
+                write_log(2,'15天前发布过采购微信模板消息接收人：' . json_encode($send_user_list));
+            }
+        }
+        Log::info('历史发布采购商微信激活结束');
+        return ['历史发布采购商微信提醒'];
     }
 }

@@ -149,7 +149,7 @@ class ActivateTask{
      * 历史发布采购商激活
      * 每分钟执行
      *
-     * @Scheduled(cron="20 * * * * *")
+//     * @Scheduled(cron="20 * * * * *")
      * @throws DbException
      */
     public function historicalBuyTask()
@@ -174,9 +174,15 @@ class ActivateTask{
                 $tempId = $msg_temp['temp_id'];
                 $grayscale = getenv('IS_GRAYSCALE');
                 $test_list = $this->userData->getTesters();
+                $send_count = 0;
+                $send_user_list = [];
                 foreach ($buy_info_list as $item) {
                     if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
                         continue;
+                    }
+                    //发送数不大于1000人
+                    if($send_count >= 1000){
+                        break;
                     }
                     //判断是否是最后一条
                     $add_time = $item['addTime'] + 1;
@@ -190,11 +196,14 @@ class ActivateTask{
                             $msg_temp['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
                             $msg_temp['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
                             $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp);
+                            $send_count += 1;
+                            $send_user_list[] = $item['userId'];
                         }
                     }else{
                         Log::info("用户{$item['userId']}有发布最新采购，不发送消息");
                     }
                 }
+                write_log(2,'15天前发布过采购微信模板消息接收人：' . json_encode($send_user_list));
             }
         }
         Log::info('历史发布采购商微信激活结束');
