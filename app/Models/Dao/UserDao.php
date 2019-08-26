@@ -899,7 +899,8 @@ class UserDao
     {
         $auth_info = Query::table('sb_auth_authorize')->where('user_id',$user_id)->get(['old_openid'])->getResult();
         if(!empty($auth_info)){
-            return $auth_info['old_openid'];
+            $user_open = current($auth_info);
+            return $user_open['old_openid'];
         }
         $user_info = User::findById($user_id,['fields' => ['openid']])->getResult();
         if(!empty($user_info) && !empty($user_info['openid'])){
