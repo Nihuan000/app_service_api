@@ -512,11 +512,13 @@ class IndexController
                     if(empty($user_buy_list)){
                         $openId = $this->userData->getUserOpenId($item['userId']);
                         if(!empty($openId)){
+                            $tmp_data = $msg_temp['data'];
+                            $expire_time = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
                             Log::info("用户{$item['userId']}发送提醒消息");
                             $tmp_data['keyword1']['value'] = $item['buyId'];
                             $tmp_data['keyword2']['value'] = (string)$item['remark'];
                             $tmp_data['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
-                            $tmp_data['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
+                            $tmp_data['keyword4']['value'] = $expire_time;
                             $msg_temp['data'] = $tmp_data;
                             $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp,'',1);
                             $send_count += 1;

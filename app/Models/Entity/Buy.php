@@ -38,13 +38,13 @@ class Buy extends Model
 
     /**
      * @var string $title 求购标题
-     * @Column(name="title", type="string", length=100, default="''")
+     * @Column(name="title", type="string", length=100, default="")
      */
     private $title;
 
     /**
      * @var string $pic 图片
-     * @Column(name="pic", type="string", length=100, default="''")
+     * @Column(name="pic", type="string", length=255, default="")
      */
     private $pic;
 
@@ -56,7 +56,7 @@ class Buy extends Model
 
     /**
      * @var string $unit 单位
-     * @Column(name="unit", type="string", length=30, default="''")
+     * @Column(name="unit", type="string", length=30, default="")
      */
     private $unit;
 
@@ -74,24 +74,24 @@ class Buy extends Model
 
     /**
      * @var string $remark 需求说明
-     * @Column(name="remark", type="string", length=255, default="''")
+     * @Column(name="remark", type="string", length=255, default="")
      */
     private $remark;
 
     /**
      * @var string $contacts 联系人
-     * @Column(name="contacts", type="string", length=45, default="''")
+     * @Column(name="contacts", type="string", length=45, default="")
      */
     private $contacts;
 
     /**
      * @var string $contactNum 联系电话
-     * @Column(name="contact_num", type="string", length=20, default="''")
+     * @Column(name="contact_num", type="string", length=20, default="")
      */
     private $contactNum;
 
     /**
-     * @var int $isAudit 审核 :0通过 ,1 审核中, 2审核失败
+     * @var int $isAudit 审核 :0通过 ,1 审核中, 2审核失败 3 暂不审核 4 锁定 5暂时通过
      * @Column(name="is_audit", type="tinyint", default=0)
      */
     private $isAudit;
@@ -110,7 +110,7 @@ class Buy extends Model
 
     /**
      * @var string $cause 审核失败原因
-     * @Column(name="cause", type="string", length=200, default="''")
+     * @Column(name="cause", type="string", length=200, default="")
      */
     private $cause;
 
@@ -122,7 +122,7 @@ class Buy extends Model
 
     /**
      * @var string $voice 语音文件
-     * @Column(name="voice", type="string", length=100, default="''")
+     * @Column(name="voice", type="string", length=100, default="")
      */
     private $voice;
 
@@ -133,7 +133,7 @@ class Buy extends Model
     private $voiceTime;
 
     /**
-     * @var int $status 找布状态 0:未结束 1:已结束
+     * @var int $status 找布状态 0:未结束 1:已结束 2:已过期
      * @Column(name="status", type="tinyint", default=0)
      */
     private $status;
@@ -146,7 +146,7 @@ class Buy extends Model
 
     /**
      * @var string $pushKey 推送关键字
-     * @Column(name="push_key", type="string", length=100, default="''")
+     * @Column(name="push_key", type="string", length=100, default="")
      */
     private $pushKey;
 
@@ -170,7 +170,7 @@ class Buy extends Model
 
     /**
      * @var int $fromType 发布来源  0 APP1安卓 2IOS 9 T100 10微信
-     * @Column(name="from_type", type="integer", default=0)
+     * @Column(name="from_type", type="integer")
      */
     private $fromType;
 
@@ -191,6 +191,12 @@ class Buy extends Model
      * @Column(name="refresh_time", type="integer", default=0)
      */
     private $refreshTime;
+
+    /**
+     * @var int $expireTime 失效时间
+     * @Column(name="expire_time", type="integer", default=0)
+     */
+    private $expireTime;
 
     /**
      * @var int $refreshCount 刷新次数
@@ -218,29 +224,49 @@ class Buy extends Model
 
     /**
      * @var int $findType 结束找布类型 1:搜布已找到 2:线下已找到 3:没有符合需求的报价 4:不找了
-     * @Column(name="find_type", type="smallint")
-     * @Required()
+     * @Column(name="find_type", type="smallint", default=0)
      */
     private $findType;
 
     /**
+     * @var int $isSearchProductFind 是否搜索产品找到 1:是 0:否
+     * @Column(name="is_search_product_find", type="smallint", default=0)
+     */
+    private $isSearchProductFind;
+
+    /**
+     * @var string $notFindReason 未找到原因 1:风格不匹配 2:价格偏高 3:没有现货 4:供应商回复太慢了 5:其他 6:线下先找到了
+     * @Column(name="not_find_reason", type="string", length=255, default="")
+     */
+    private $notFindReason;
+
+    /**
+     * @var int $onlineFindType 线上找到类型 1:报价找到 2:搜索产品找到
+     * @Column(name="online_find_type", type="smallint", default=0)
+     */
+    private $onlineFindType;
+
+    /**
+     * @var string $matchingOfferId 符合报价的offer_id,用逗号分隔
+     * @Column(name="matching_offer_id", type="string", length=255, default="")
+     */
+    private $matchingOfferId;
+
+    /**
      * @var float $gramW 克重
-     * @Column(name="gram_w", type="double")
-     * @Required()
+     * @Column(name="gram_w", type="double", default=0)
      */
     private $gramW;
 
     /**
      * @var float $pWidth 幅宽
-     * @Column(name="p_width", type="double")
-     * @Required()
+     * @Column(name="p_width", type="double", default=0)
      */
     private $pWidth;
 
     /**
      * @var float $minPrice 价格区间最小值
-     * @Column(name="min_price", type="double")
-     * @Required()
+     * @Column(name="min_price", type="double", default=0)
      */
     private $minPrice;
 
@@ -266,24 +292,6 @@ class Buy extends Model
     private $frontLabel;
 
     /**
-     * @var int $offerUnreadCount 未读报价数
-     * @Column(name="offer_unread_count", type="integer", default=0)
-     */
-    private $offerUnreadCount;
-
-    /**
-     * @var int $fabricType 采购分类：1针织2梭织3其他
-     * @Column(name="fabric_type", type="tinyint", default=0)
-     */
-    private $fabricType;
-
-    /**
-     * @var int $isNoticed 0:未通知1：已通知
-     * @Column(name="is_noticed", type="tinyint", default=0)
-     */
-    private $isNoticed;
-
-    /**
      * @var string $standard 规格
      * @Column(name="standard", type="string", length=255)
      * @Required()
@@ -298,25 +306,22 @@ class Buy extends Model
     private $thickness;
 
     /**
-     * @var int $onlineFindType 线上找到类型 1:报价找到 2:搜索产品找到
-     * @Column(name="online_find_type", type="smallint")
-     * @Required()
+     * @var int $offerUnreadCount 未读报价数
+     * @Column(name="offer_unread_count", type="integer", default=0)
      */
-    private $onlineFindType;
+    private $offerUnreadCount;
 
     /**
-     * @var string $matchingOfferId 符合报价的offer_id,用逗号分隔
-     * @Column(name="matching_offer_id", type="string", length=255)
-     * @Required()
+     * @var int $minOfferPrice 报价估价下限价格
+     * @Column(name="min_offer_price", type="integer", default=0)
      */
-    private $matchingOfferId;
+    private $minOfferPrice;
 
     /**
-     * @var string $notFindReason 未找到原因
-     * @Column(name="not_find_reason", type="string", length=255)
-     * @Required()
+     * @var int $maxOfferPrice 报价估价上限价格
+     * @Column(name="max_offer_price", type="integer", default=0)
      */
-    private $notFindReason;
+    private $maxOfferPrice;
 
     /**
      * @var int $earnestId 诚意金记录表主键id
@@ -329,6 +334,36 @@ class Buy extends Model
      * @Column(name="over_time", type="integer", default=0)
      */
     private $overTime;
+
+    /**
+     * @var int $buyQuality 采购质量评分1-10
+     * @Column(name="buy_quality", type="integer", default=0)
+     */
+    private $buyQuality;
+
+    /**
+     * @var int $fabricType 采购分类：1针织2梭织3其他
+     * @Column(name="fabric_type", type="tinyint", default=0)
+     */
+    private $fabricType;
+
+    /**
+     * @var int $isNoticed 0:未通知1：已通知
+     * @Column(name="is_noticed", type="tinyint", default=0)
+     */
+    private $isNoticed;
+
+    /**
+     * @var int $buyFixed 一口价采购 0：否 1：是
+     * @Column(name="buy_fixed", type="tinyint", default=0)
+     */
+    private $buyFixed;
+
+    /**
+     * @var float $fixedAmount 一口价金额(总价+运费)
+     * @Column(name="fixed_amount", type="decimal", default=0)
+     */
+    private $fixedAmount;
 
     /**
      * @param int $value
@@ -474,7 +509,7 @@ class Buy extends Model
     }
 
     /**
-     * 审核 :0通过 ,1 审核中, 2审核失败
+     * 审核 :0通过 ,1 审核中, 2审核失败 3 暂不审核 4 锁定 5暂时通过
      * @param int $value
      * @return $this
      */
@@ -558,7 +593,7 @@ class Buy extends Model
     }
 
     /**
-     * 找布状态 0:未结束 1:已结束
+     * 找布状态 0:未结束 1:已结束 2:已过期
      * @param int $value
      * @return $this
      */
@@ -678,6 +713,18 @@ class Buy extends Model
     }
 
     /**
+     * 失效时间
+     * @param int $value
+     * @return $this
+     */
+    public function setExpireTime(int $value): self
+    {
+        $this->expireTime = $value;
+
+        return $this;
+    }
+
+    /**
      * 刷新次数
      * @param int $value
      * @return $this
@@ -733,6 +780,54 @@ class Buy extends Model
     public function setFindType(int $value): self
     {
         $this->findType = $value;
+
+        return $this;
+    }
+
+    /**
+     * 是否搜索产品找到 1:是 0:否
+     * @param int $value
+     * @return $this
+     */
+    public function setIsSearchProductFind(int $value): self
+    {
+        $this->isSearchProductFind = $value;
+
+        return $this;
+    }
+
+    /**
+     * 未找到原因 1:风格不匹配 2:价格偏高 3:没有现货 4:供应商回复太慢了 5:其他 6:线下先找到了
+     * @param string $value
+     * @return $this
+     */
+    public function setNotFindReason(string $value): self
+    {
+        $this->notFindReason = $value;
+
+        return $this;
+    }
+
+    /**
+     * 线上找到类型 1:报价找到 2:搜索产品找到
+     * @param int $value
+     * @return $this
+     */
+    public function setOnlineFindType(int $value): self
+    {
+        $this->onlineFindType = $value;
+
+        return $this;
+    }
+
+    /**
+     * 符合报价的offer_id,用逗号分隔
+     * @param string $value
+     * @return $this
+     */
+    public function setMatchingOfferId(string $value): self
+    {
+        $this->matchingOfferId = $value;
 
         return $this;
     }
@@ -810,6 +905,30 @@ class Buy extends Model
     }
 
     /**
+     * 规格
+     * @param string $value
+     * @return $this
+     */
+    public function setStandard(string $value): self
+    {
+        $this->standard = $value;
+
+        return $this;
+    }
+
+    /**
+     * 厚度
+     * @param int $value
+     * @return $this
+     */
+    public function setThickness(int $value): self
+    {
+        $this->thickness = $value;
+
+        return $this;
+    }
+
+    /**
      * 未读报价数
      * @param int $value
      * @return $this
@@ -817,6 +936,66 @@ class Buy extends Model
     public function setOfferUnreadCount(int $value): self
     {
         $this->offerUnreadCount = $value;
+
+        return $this;
+    }
+
+    /**
+     * 报价估价下限价格
+     * @param int $value
+     * @return $this
+     */
+    public function setMinOfferPrice(int $value): self
+    {
+        $this->minOfferPrice = $value;
+
+        return $this;
+    }
+
+    /**
+     * 报价估价上限价格
+     * @param int $value
+     * @return $this
+     */
+    public function setMaxOfferPrice(int $value): self
+    {
+        $this->maxOfferPrice = $value;
+
+        return $this;
+    }
+
+    /**
+     * 诚意金记录表主键id
+     * @param int $value
+     * @return $this
+     */
+    public function setEarnestId(int $value): self
+    {
+        $this->earnestId = $value;
+
+        return $this;
+    }
+
+    /**
+     * 结束找布时间
+     * @param int $value
+     * @return $this
+     */
+    public function setOverTime(int $value): self
+    {
+        $this->overTime = $value;
+
+        return $this;
+    }
+
+    /**
+     * 采购质量评分1-10
+     * @param int $value
+     * @return $this
+     */
+    public function setBuyQuality(int $value): self
+    {
+        $this->buyQuality = $value;
 
         return $this;
     }
@@ -846,85 +1025,25 @@ class Buy extends Model
     }
 
     /**
-     * 规格
-     * @param string $value
-     * @return $this
-     */
-    public function setStandard(string $value): self
-    {
-        $this->standard = $value;
-
-        return $this;
-    }
-
-    /**
-     * 厚度
+     * 一口价采购 0：否 1：是
      * @param int $value
      * @return $this
      */
-    public function setThickness(int $value): self
+    public function setBuyFixed(int $value): self
     {
-        $this->thickness = $value;
+        $this->buyFixed = $value;
 
         return $this;
     }
 
     /**
-     * 线上找到类型 1:报价找到 2:搜索产品找到
-     * @param int $value
+     * 一口价金额(总价+运费)
+     * @param float $value
      * @return $this
      */
-    public function setOnlineFindType(int $value): self
+    public function setFixedAmount(float $value): self
     {
-        $this->onlineFindType = $value;
-
-        return $this;
-    }
-
-    /**
-     * 符合报价的offer_id,用逗号分隔
-     * @param string $value
-     * @return $this
-     */
-    public function setMatchingOfferId(string $value): self
-    {
-        $this->matchingOfferId = $value;
-
-        return $this;
-    }
-
-    /**
-     * 未找到原因
-     * @param string $value
-     * @return $this
-     */
-    public function setNotFindReason(string $value): self
-    {
-        $this->notFindReason = $value;
-
-        return $this;
-    }
-
-    /**
-     * 诚意金记录表主键id
-     * @param int $value
-     * @return $this
-     */
-    public function setEarnestId(int $value): self
-    {
-        $this->earnestId = $value;
-
-        return $this;
-    }
-
-    /**
-     * 结束找布时间
-     * @param int $value
-     * @return $this
-     */
-    public function setOverTime(int $value): self
-    {
-        $this->overTime = $value;
+        $this->fixedAmount = $value;
 
         return $this;
     }
@@ -957,7 +1076,7 @@ class Buy extends Model
 
     /**
      * 求购标题
-     * @return mixed
+     * @return string
      */
     public function getTitle()
     {
@@ -966,7 +1085,7 @@ class Buy extends Model
 
     /**
      * 图片
-     * @return mixed
+     * @return string
      */
     public function getPic()
     {
@@ -984,7 +1103,7 @@ class Buy extends Model
 
     /**
      * 单位
-     * @return mixed
+     * @return string
      */
     public function getUnit()
     {
@@ -1011,7 +1130,7 @@ class Buy extends Model
 
     /**
      * 需求说明
-     * @return mixed
+     * @return string
      */
     public function getRemark()
     {
@@ -1020,7 +1139,7 @@ class Buy extends Model
 
     /**
      * 联系人
-     * @return mixed
+     * @return string
      */
     public function getContacts()
     {
@@ -1029,7 +1148,7 @@ class Buy extends Model
 
     /**
      * 联系电话
-     * @return mixed
+     * @return string
      */
     public function getContactNum()
     {
@@ -1037,7 +1156,7 @@ class Buy extends Model
     }
 
     /**
-     * 审核 :0通过 ,1 审核中, 2审核失败
+     * 审核 :0通过 ,1 审核中, 2审核失败 3 暂不审核 4 锁定 5暂时通过
      * @return int
      */
     public function getIsAudit()
@@ -1065,7 +1184,7 @@ class Buy extends Model
 
     /**
      * 审核失败原因
-     * @return mixed
+     * @return string
      */
     public function getCause()
     {
@@ -1083,7 +1202,7 @@ class Buy extends Model
 
     /**
      * 语音文件
-     * @return mixed
+     * @return string
      */
     public function getVoice()
     {
@@ -1100,7 +1219,7 @@ class Buy extends Model
     }
 
     /**
-     * 找布状态 0:未结束 1:已结束
+     * 找布状态 0:未结束 1:已结束 2:已过期
      * @return int
      */
     public function getStatus()
@@ -1119,7 +1238,7 @@ class Buy extends Model
 
     /**
      * 推送关键字
-     * @return mixed
+     * @return string
      */
     public function getPushKey()
     {
@@ -1155,7 +1274,7 @@ class Buy extends Model
 
     /**
      * 发布来源  0 APP1安卓 2IOS 9 T100 10微信
-     * @return mixed
+     * @return int
      */
     public function getFromType()
     {
@@ -1187,6 +1306,15 @@ class Buy extends Model
     public function getRefreshTime()
     {
         return $this->refreshTime;
+    }
+
+    /**
+     * 失效时间
+     * @return int
+     */
+    public function getExpireTime()
+    {
+        return $this->expireTime;
     }
 
     /**
@@ -1232,6 +1360,42 @@ class Buy extends Model
     public function getFindType()
     {
         return $this->findType;
+    }
+
+    /**
+     * 是否搜索产品找到 1:是 0:否
+     * @return int
+     */
+    public function getIsSearchProductFind()
+    {
+        return $this->isSearchProductFind;
+    }
+
+    /**
+     * 未找到原因 1:风格不匹配 2:价格偏高 3:没有现货 4:供应商回复太慢了 5:其他 6:线下先找到了
+     * @return string
+     */
+    public function getNotFindReason()
+    {
+        return $this->notFindReason;
+    }
+
+    /**
+     * 线上找到类型 1:报价找到 2:搜索产品找到
+     * @return int
+     */
+    public function getOnlineFindType()
+    {
+        return $this->onlineFindType;
+    }
+
+    /**
+     * 符合报价的offer_id,用逗号分隔
+     * @return string
+     */
+    public function getMatchingOfferId()
+    {
+        return $this->matchingOfferId;
     }
 
     /**
@@ -1289,12 +1453,75 @@ class Buy extends Model
     }
 
     /**
+     * 规格
+     * @return string
+     */
+    public function getStandard()
+    {
+        return $this->standard;
+    }
+
+    /**
+     * 厚度
+     * @return int
+     */
+    public function getThickness()
+    {
+        return $this->thickness;
+    }
+
+    /**
      * 未读报价数
      * @return int
      */
     public function getOfferUnreadCount()
     {
         return $this->offerUnreadCount;
+    }
+
+    /**
+     * 报价估价下限价格
+     * @return int
+     */
+    public function getMinOfferPrice()
+    {
+        return $this->minOfferPrice;
+    }
+
+    /**
+     * 报价估价上限价格
+     * @return int
+     */
+    public function getMaxOfferPrice()
+    {
+        return $this->maxOfferPrice;
+    }
+
+    /**
+     * 诚意金记录表主键id
+     * @return int
+     */
+    public function getEarnestId()
+    {
+        return $this->earnestId;
+    }
+
+    /**
+     * 结束找布时间
+     * @return int
+     */
+    public function getOverTime()
+    {
+        return $this->overTime;
+    }
+
+    /**
+     * 采购质量评分1-10
+     * @return int
+     */
+    public function getBuyQuality()
+    {
+        return $this->buyQuality;
     }
 
     /**
@@ -1316,66 +1543,21 @@ class Buy extends Model
     }
 
     /**
-     * 规格
-     * @return string
-     */
-    public function getStandard()
-    {
-        return $this->standard;
-    }
-
-    /**
-     * 厚度
+     * 一口价采购 0：否 1：是
      * @return int
      */
-    public function getThickness()
+    public function getBuyFixed()
     {
-        return $this->thickness;
+        return $this->buyFixed;
     }
 
     /**
-     * 线上找到类型 1:报价找到 2:搜索产品找到
-     * @return int
+     * 一口价金额(总价+运费)
+     * @return mixed
      */
-    public function getOnlineFindType()
+    public function getFixedAmount()
     {
-        return $this->onlineFindType;
-    }
-
-    /**
-     * 符合报价的offer_id,用逗号分隔
-     * @return string
-     */
-    public function getMatchingOfferId()
-    {
-        return $this->matchingOfferId;
-    }
-
-    /**
-     * 未找到原因
-     * @return string
-     */
-    public function getNotFindReason()
-    {
-        return $this->notFindReason;
-    }
-
-    /**
-     * 诚意金记录表主键id
-     * @return int
-     */
-    public function getEarnestId()
-    {
-        return $this->earnestId;
-    }
-
-    /**
-     * 结束找布时间
-     * @return int
-     */
-    public function getOverTime()
-    {
-        return $this->overTime;
+        return $this->fixedAmount;
     }
 
 }

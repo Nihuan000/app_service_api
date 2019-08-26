@@ -193,7 +193,7 @@ function sendTemplet($access_token, $toUser,$info,$template_id,$url = '', $has_s
     if(empty($toUser))return false;
     $data['touser'] = $toUser;
     $data['template_id'] = $template_id;
-    $data['url'] = is_null($url) ? '' : $url;
+    $data['url'] = is_null($url) ? '' : $info['url'];
     $info['data']['remark']['value'] = "\n" . $info['data']['remark']['value'];
     unset($info['url']);
     unset($info['temp_id']);
