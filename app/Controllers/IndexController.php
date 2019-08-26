@@ -482,6 +482,7 @@ class IndexController
         $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $params = [
             ['add_time','between',$start_time,$end_time],
+            'user_id' => 101662
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){
