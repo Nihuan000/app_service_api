@@ -290,10 +290,15 @@ class BuyData
     public function getLastBuyIds($params)
     {
         $buy_ids = [];
+        $user_list = [];
         $buy_ids_result = $this->buyDao->getLastBuyIds($params);
         if(!empty($buy_ids_result)){
             foreach ($buy_ids_result as $buy) {
+                if(in_array($buy['userId'],$user_list)){
+                    continue;
+                }
                 $buy_ids[] = $buy['buyId'];
+                $user_list[] = $buy['userId'];
             }
         }
         return $buy_ids;

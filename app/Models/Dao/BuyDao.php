@@ -163,11 +163,12 @@ class BuyDao
     }
 
     /**
+     * 获取用户最新发布的采购信息，group +max 貌似效果不理想，先多取，数组过滤
      * @param array $params
      * @return mixed
      */
     public function getLastBuyIds(array $params)
     {
-        return Query::table(Buy::class)->whereBetween('add_time',$params['add_time_start'],$params['add_time_end'])->groupBy('user_id')->max('buy_id','buyId')->getResult();
+        return Buy::query()->whereBetween('add_time',$params['add_time_start'],$params['add_time_end'])->orderBy('add_time','desc')->get(['user_id','buy_id','add_time'])->getResult();
     }
 }
