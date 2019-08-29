@@ -148,8 +148,7 @@ class ActivateTask{
     /**
      * 历史发布采购商激活
      * 每分钟执行
-     *
-//     * @Scheduled(cron="20 * * * * *")
+     * @Scheduled(cron="20 * * * * *")
      * @throws DbException
      */
     public function historicalBuyTask()
@@ -158,8 +157,7 @@ class ActivateTask{
         $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
         $end_time = $start_time + 59;
         $params = [
-            'add_time_start' => $start_time,
-            'add_time_end' => $end_time,
+            ['add_time','between',$start_time,$end_time],
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){

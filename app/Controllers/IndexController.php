@@ -480,8 +480,8 @@ class IndexController
     {
         $user_id = $request->post('user_id',0);
         Log::info('历史发布采购商微信激活开启');
-        $start_time = strtotime('2019-07-01');
-        $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
+        $end_time = $start_time + 59;
         $params = [
             ['add_time','between',$start_time,$end_time],
         ];
