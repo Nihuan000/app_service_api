@@ -162,7 +162,7 @@ class RecommendMsgQueueTask
      */
     public function quotaNotReceiveTask()
     {
-        Log::info('90天未登录采购商短信通知开始');
+        Log::info('发布采购45分钟未报价且供应商30分钟有登录任务开始');
         $receive_msg_cache = 'ReceiveMsgCache_';
         $date = date('Y_m_d');
         $start_time = strtotime(date('Y-m-d H:i',strtotime('-45 minute')));
@@ -172,7 +172,7 @@ class RecommendMsgQueueTask
             'is_audit' => [1,5],
             'status' => 0
         ];
-        $fields =['buy_id','pic','status','remark','amount','unit','user_id'];
+        $fields =['buy_id','pic','status','remark','amount','unit','user_id','add_time'];
         $buy_list = $this->buyData->getBuyList($params,$fields);
         if(!empty($buy_list)){
             $grayscale = getenv('IS_GRAYSCALE');
@@ -183,6 +183,7 @@ class RecommendMsgQueueTask
                     continue;
                 }
                 $user_ids = $this->userLogic->buyTagRecommend($item['buyId']);
+                $last_user_ids = [];
                 if(!empty($user_ids)){
                     if($grayscale == 1){
                         $user_ids = array_intersect($user_ids,$test_list);
@@ -193,17 +194,28 @@ class RecommendMsgQueueTask
                     if(!empty($arr_intersect)){
                         $user_ids = array_diff($user_ids,$arr_intersect);
                     }
+                    //30分钟内有登陆判断
+                    $userParams = [
+                        ['last_time','>', $item['addTime'] + 30 *3600],
+                        'user_id' => $user_ids
+                    ];
+                    $last_login_list = $this->userData->getUserDataByParams($userParams,2000);
+                    if(!empty($last_login_list)){
+                        foreach ($last_login_list as $user_id) {
+                            $last_user_ids[] = $user_id['userId'];
+                        }
+                    }
                 }
 
-                if(!empty($user_ids)){
-                    write_log(2,'45_minute_msg_user_id:' . json_encode($user_ids));
+                if(!empty($last_login_list)){
+                    write_log(2,'45_minute_msg_user_id:' . json_encode($last_login_list));
                     $buyer_info = $this->userData->getUserInfo($item['userId']);
                     $config = \Swoft::getBean('config');
                     $sys_msg = $config->get('offerMsg');
-                    $pages = ceil(count($user_ids)/$this->limit);
+                    $pages = ceil(count($last_login_list)/$this->limit);
                     for ($i=0;$i<$pages;$i++)
                     {
-                        $list = array_slice($user_ids,$i,$this->limit);
+                        $list = array_slice($last_login_list,$i,$this->limit);
                         ################## 消息展示内容开始 #######################
                         $extra = $sys_msg;
                         $extra['image'] = !is_null($item['pic']) ? get_img_url($item['pic']) : '';
