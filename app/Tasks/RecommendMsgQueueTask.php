@@ -186,6 +186,7 @@ class RecommendMsgQueueTask
             'status' => 0
         ];
         $fields =['buy_id','pic','status','remark','amount','unit','user_id','add_time'];
+        Log::info(json_encode($params));
         $buy_list = $this->buyData->getBuyList($params,$fields);
         if(!empty($buy_list)){
             $grayscale = getenv('IS_GRAYSCALE');
@@ -208,6 +209,7 @@ class RecommendMsgQueueTask
                     foreach ($buy_top_ids as $buy_top_id) {
                         $top_ids[] = $buy_top_id['topId'];
                     }
+                    Log::info(json_encode($top_ids));
                     if(!empty($top_ids)){
                         $user_ids = $this->userRelationData->getTagRelationUserIds($top_ids);
                     }
