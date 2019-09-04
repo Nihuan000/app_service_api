@@ -12,6 +12,7 @@ namespace App\Tasks;
 use App\Models\Data\BuyData;
 use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserData;
+use App\Models\Data\UserSubscriptionTagData;
 use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Exception\DbException;
@@ -45,6 +46,18 @@ class RecommendMsgQueueTask
      * @var BuyData
      */
     private $buyData;
+
+    /**
+     * @Inject()
+     * @var BuyRelationTagData
+     */
+    private $buyRelationData;
+
+    /**
+     * @Inject()
+     * @var UserSubscriptionTagData
+     */
+    private $userRelationData;
 
     /**
      * @Inject()
@@ -186,6 +199,20 @@ class RecommendMsgQueueTask
                     continue;
                 }
                 $user_ids = $this->userLogic->buyTagRecommend($item['buyId']);
+                $tag_params = [
+                    'buy_id' => $item['buyId'],
+                    ['top_id','>',100]
+                ];
+                $buy_top_ids = $this->buyRelationData->getBuyTagByParams($tag_params,['top_id']);
+                $top_ids = [];
+                if(!empty($buy_top_ids)){
+                    foreach ($buy_top_ids as $buy_top_id) {
+                        $top_ids[] = $buy_top_id['topId'];
+                    }
+                    if(!empty($top_ids)){
+                        $user_ids = $this->userRelationData->getTagRelationUserIds($top_ids);
+                    }
+                }
                 $last_user_ids = [];
                 if(!empty($user_ids)){
                     if($grayscale == 1){

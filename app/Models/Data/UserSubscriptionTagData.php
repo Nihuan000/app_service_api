@@ -46,4 +46,23 @@ class UserSubscriptionTagData
         }
         return $result_ids;
     }
+
+    /**
+     * 顶级类关联的用户
+     * @param $top_ids
+     * @return mixed
+     */
+    public function getTagRelationUserIds($top_ids)
+    {
+        $user_ids = [];
+        $fields = ['user_id'];
+        $user_list = $this->userSubscriptionTagDao->getSubscriptionTopList($top_ids,$fields);
+        if(!empty($user_list)){
+            foreach ($user_list as $item) {
+                $user_ids[] = $item['userId'];
+            }
+        }
+        $user_ids = array_values(array_unique($user_ids));
+        return $user_ids;
+    }
 }
