@@ -49,5 +49,6 @@ return [
     //激活短信
     'activateSms' => [
         'supplier_recall' => '【搜布】刚刚有人浏览了您的店铺，赶快打开搜布更新下产品吧！ ',
+        'inactive_buyer' => '【搜布】小布近期发布了新版本，快来体验一下吧！ http://t.cn/AiRXq5ew', //90天未登录采购商新版本提示
     ],
 ];

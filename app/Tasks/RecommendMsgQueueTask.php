@@ -10,8 +10,12 @@
 namespace App\Tasks;
 
 use App\Models\Data\BuyData;
+use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserData;
+use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\DbException;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -42,13 +46,19 @@ class RecommendMsgQueueTask
      */
     private $buyData;
 
+    /**
+     * @Inject()
+     * @var UserLogic
+     */
+    private $userLogic;
+
     private $limit = 500;
 
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
+     * @return array
      * @author Nihuan
      * @Scheduled(cron="10 * * * * *")
-     * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()
     {
@@ -142,6 +152,87 @@ class RecommendMsgQueueTask
             }
         }
         return ['商机推荐消息提醒发送'];
+    }
+
+    /**
+     * 发布采购45分钟未报价且供应商30分钟有登录消息
+     * 每分钟执行
+     * @Scheduled(cron="23 * * * * *")
+     * @throws DbException
+     */
+    public function quotaNotReceiveTask()
+    {
+        Log::info('90天未登录采购商短信通知开始');
+        $receive_msg_cache = 'ReceiveMsgCache_';
+        $date = date('Y_m_d');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-45 minute')));
+        $end_time = $start_time + 59;
+        $params = [
+            ['add_time','between',$start_time,$end_time],
+            'is_audit' => [1,5],
+            'status' => 0
+        ];
+        $fields =['buy_id','pic','status','remark','amount','unit','user_id'];
+        $buy_list = $this->buyData->getBuyList($params,$fields);
+        if(!empty($buy_list)){
+            $grayscale = getenv('IS_GRAYSCALE');
+            $test_list = $this->userData->getTesters();
+            foreach ($buy_list as $item) {
+                $buy_id = $item['buyId'];
+                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                    continue;
+                }
+                $user_ids = $this->userLogic->buyTagRecommend($item['buyId']);
+                if(!empty($user_ids)){
+                    if($grayscale == 1){
+                        $user_ids = array_intersect($user_ids,$test_list);
+                    }
+                    //过滤当天已发送
+                    $receive_history = $this->searchRedis->zRange($receive_msg_cache . $date,0,-1);
+                    $arr_intersect = array_intersect($user_ids,$receive_history);
+                    if(!empty($arr_intersect)){
+                        $user_ids = array_diff($user_ids,$arr_intersect);
+                    }
+                }
+
+                if(!empty($user_ids)){
+                    write_log(2,'45_minute_msg_user_id:' . json_encode($user_ids));
+                    $buyer_info = $this->userData->getUserInfo($item['userId']);
+                    $config = \Swoft::getBean('config');
+                    $sys_msg = $config->get('offerMsg');
+                    $pages = ceil(count($user_ids)/$this->limit);
+                    for ($i=0;$i<$pages;$i++)
+                    {
+                        $list = array_slice($user_ids,$i,$this->limit);
+                        ################## 消息展示内容开始 #######################
+                        $extra = $sys_msg;
+                        $extra['image'] = !is_null($item['pic']) ? get_img_url($item['pic']) : '';
+                        $extra['type'] = $item['status'];
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['name'] = (string)$buyer_info['name'];
+                        $extra['title'] = (string)$item['remark'];
+                        $extra['amount'] = $item['amount'];
+                        $extra['unit'] = $item['unit'];
+                        ################## 消息展示内容结束 #######################
+
+                        ################## 消息基本信息开始 #######################
+                        $extra['msgTitle'] = '收到邀请';
+                        $extra['msgContent'] = "买家{$buyer_info['name']}邀请您为他报价！";
+                        ################## 消息基本信息结束 #######################
+
+                        $notice['extra'] = $extra;
+                        sendInstantMessaging('11', $list, json_encode($notice['extra']),1);
+                        $cache_list = [];
+                        foreach ($list as $uid) {
+                            $cache_list[] = $i;
+                            $cache_list[] = $uid;
+                        }
+                        call_user_func_array([$receive_msg_cache . $date,'zadd'],$cache_list);
+                    }
+                }
+            }
+        }
     }
 
 

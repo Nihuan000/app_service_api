@@ -197,7 +197,11 @@ class ScoreDao
         Log::info('updateUserRes:' . $updateUserRes);
         Log::info('UserLevelRec:' . $UserLevelRec);
         if($recordRes && $userScoreRes && $updateScoreRes && $updateUserRes && $UserLevelRec){
-            Db::commit();
+            try{
+                Db::commit();
+            } catch (\PDOException $exception){
+                Db::rollback();
+            }
         }else{
             Db::rollback();
         }

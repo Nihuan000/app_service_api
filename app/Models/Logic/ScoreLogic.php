@@ -417,6 +417,7 @@ class ScoreLogic
             $record_id = $deposit_score['record_id'];
         }else{
             $score_get_record_data['is_valid'] = 1;
+            $score_get_record_data['order_num'] = '66666666';
             $score_get_record_data['expire_time'] = isset($attr['end_time']) ? $attr['end_time'] : 0;
         }
 

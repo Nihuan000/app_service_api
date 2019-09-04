@@ -112,8 +112,6 @@ class OfferTask{
         if(!$this->searchRedis->exists($historyIndex . $date)){
             $expire_time = 604800;
         }
-        $test_list = $this->userData->getTesters();
-        $grayscale = getenv('IS_GRAYSCALE');
         Log::info('len:' . $len);
         if($len > 0){
             $config = \Swoft::getBean('config');
@@ -133,9 +131,6 @@ class OfferTask{
                         $user_info = $this->userData->getUserInfo($offerer_id);
                         $pro_info = $this->proData->getProductInfo($pro_id);
                         $receive_status = 0;
-                        if(($grayscale == 1 && in_array($offerer_id, $test_list)) || $grayscale == 0){
-                            $receive_status = 1;
-                        }
                         Log::info('receive_status:' . $receive_status);
                         //队列当前内容删除
                         $this->searchRedis->lPop($index . $date);
