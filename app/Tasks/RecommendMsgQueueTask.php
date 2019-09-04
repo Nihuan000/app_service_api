@@ -198,7 +198,6 @@ class RecommendMsgQueueTask
                 if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
                     continue;
                 }
-                $user_ids = $this->userLogic->buyTagRecommend($item['buyId']);
                 $tag_params = [
                     'buy_id' => $item['buyId'],
                     ['top_id','>',100]
