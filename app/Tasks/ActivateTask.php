@@ -216,8 +216,10 @@ class ActivateTask{
         $end_time = $start_time + 59;
         $params = [
             ['last_time','between',$start_time,$end_time],
+            'role' => [1,5]
         ];
-        $fields = ['phone'];
+        $fields = ['user_id','phone'];
+        Log::info(json_encode($params));
         $user_list = $this->userData->getUserDataByParams($params,$this->limit,$fields);
         if(!empty($user_list)){
             $config = \Swoft::getBean('config');
