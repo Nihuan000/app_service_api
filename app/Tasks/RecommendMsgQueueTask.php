@@ -178,6 +178,9 @@ class RecommendMsgQueueTask
             $grayscale = getenv('IS_GRAYSCALE');
             $test_list = $this->userData->getTesters();
             foreach ($buy_list as $item) {
+                if(date('H',$item['addTime']) > 23 || date('H',$item['addTime']) < 8){
+                    continue;
+                }
                 $buy_id = $item['buyId'];
                 if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
                     continue;
@@ -245,6 +248,8 @@ class RecommendMsgQueueTask
                 }
             }
         }
+        Log::info('发布采购45分钟未报价且供应商30分钟有登录任务结束');
+        return ["发布采购45分钟未报价任务"];
     }
 
 
