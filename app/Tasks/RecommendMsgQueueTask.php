@@ -211,7 +211,6 @@ class RecommendMsgQueueTask
                     foreach ($buy_top_ids as $buy_top_id) {
                         $top_ids[] = $buy_top_id['topId'];
                     }
-                    Log::info(json_encode($top_ids));
                     if(!empty($top_ids)){
                         $user_ids = $this->userRelationData->getTagRelationUserIds($top_ids);
                     }
@@ -244,14 +243,16 @@ class RecommendMsgQueueTask
                 }
                 Log::info(json_encode($last_user_ids));
                 if(!empty($last_login_list)){
-                    write_log(2,'45_minute_msg_user_id:' . json_encode($last_login_list));
+                    write_log(2,'45_minute_msg_user_id:' . json_encode($last_user_ids));
                     $buyer_info = $this->userData->getUserInfo($item['userId']);
                     $config = \Swoft::getBean('config');
                     $sys_msg = $config->get('offerMsg');
-                    $pages = ceil(count($last_login_list)/$this->limit);
+                    $pages = ceil(count($last_user_ids)/$this->limit);
                     for ($i=0;$i<$pages;$i++)
                     {
-                        $list = array_slice($last_login_list,$i,$this->limit);
+                        $offset = $i * $this->limit;
+                        $list = array_slice($last_user_ids,$offset,$this->limit);
+                        Log::info('send_list:' . json_encode($list));
                         ################## 消息展示内容开始 #######################
                         $extra = $sys_msg;
                         $extra['image'] = !is_null($item['pic']) ? get_img_url($item['pic']) : '';
