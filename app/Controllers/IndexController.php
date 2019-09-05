@@ -472,18 +472,22 @@ class IndexController
 
 
     /**
+     * @param Request $request
      * @return array
      * @throws DbException
      */
-    public function historicalBuy()
+    public function historicalBuy(Request $request)
     {
+        $user_id = $request->post('user_id',0);
         Log::info('历史发布采购商微信激活开启');
-        $start_time = strtotime('2019-07-01');
-        $end_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-15 day')));
+        $end_time = $start_time + 59;
         $params = [
             ['add_time','between',$start_time,$end_time],
-            'user_id' => 101662
         ];
+        if($user_id > 0){
+            $params['user_id'] = $user_id;
+        }
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){
             Log::info("提醒采购id列表:" . json_encode($buy_list));

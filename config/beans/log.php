@@ -7,10 +7,11 @@
  * file that was distributed with this source code.
  */
 
+$log_file = '@runtime/logs/notice_' .date('Y_m_d'). '.log';
 return [
     'noticeHandler'      => [
         'class'     => \Swoft\Log\FileHandler::class,
-        'logFile'   => '@runtime/logs/notice.log',
+        'logFile'   => $log_file,
         'formatter' => '${lineFormatter}',
         'levels'    => [
             \Swoft\Log\Logger::NOTICE,

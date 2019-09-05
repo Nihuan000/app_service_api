@@ -18,6 +18,7 @@ use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\ProductLogic;
 use Swoft\App;
  use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
@@ -68,7 +69,7 @@ class OfferTask{
      * @param $buy_remark
      * @param $tag_list
      * @param $buy_img_list
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function Product_Auto_offer($buy_id, $buy_remark,$tag_list,$buy_img_list)
     {
@@ -97,10 +98,10 @@ class OfferTask{
 
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
+     * @return array
+     * @throws MysqlException
      * @author Nihuan
      * @Scheduled(cron="0 * * * * *")
-     * @throws \Swoft\Db\Exception\DbException
-     * @throws \Swoft\Db\Exception\MysqlException
      */
     public function SendQueueTask()
     {
@@ -112,8 +113,6 @@ class OfferTask{
         if(!$this->searchRedis->exists($historyIndex . $date)){
             $expire_time = 604800;
         }
-        $test_list = $this->userData->getTesters();
-        $grayscale = getenv('IS_GRAYSCALE');
         Log::info('len:' . $len);
         if($len > 0){
             $config = \Swoft::getBean('config');
@@ -133,9 +132,6 @@ class OfferTask{
                         $user_info = $this->userData->getUserInfo($offerer_id);
                         $pro_info = $this->proData->getProductInfo($pro_id);
                         $receive_status = 0;
-                        if(($grayscale == 1 && in_array($offerer_id, $test_list)) || $grayscale == 0){
-                            $receive_status = 1;
-                        }
                         Log::info('receive_status:' . $receive_status);
                         //队列当前内容删除
                         $this->searchRedis->lPop($index . $date);

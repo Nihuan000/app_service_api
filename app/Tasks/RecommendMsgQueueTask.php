@@ -10,8 +10,13 @@
 namespace App\Tasks;
 
 use App\Models\Data\BuyData;
+use App\Models\Data\BuyRelationTagData;
 use App\Models\Data\UserData;
+use App\Models\Data\UserSubscriptionTagData;
+use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\Exception\DbException;
+use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
@@ -42,13 +47,31 @@ class RecommendMsgQueueTask
      */
     private $buyData;
 
+    /**
+     * @Inject()
+     * @var BuyRelationTagData
+     */
+    private $buyRelationData;
+
+    /**
+     * @Inject()
+     * @var UserSubscriptionTagData
+     */
+    private $userRelationData;
+
+    /**
+     * @Inject()
+     * @var UserLogic
+     */
+    private $userLogic;
+
     private $limit = 500;
 
     /**
      * 商机推荐消息提醒发送, 每分钟第10秒执行
+     * @return array
      * @author Nihuan
      * @Scheduled(cron="10 * * * * *")
-     * @throws \Swoft\Db\Exception\DbException
      */
     public function RecommendQueueTask()
     {
@@ -142,6 +165,121 @@ class RecommendMsgQueueTask
             }
         }
         return ['商机推荐消息提醒发送'];
+    }
+
+    /**
+     * 发布采购45分钟未报价且供应商30分钟有登录消息
+     * 每分钟执行
+     * @Scheduled(cron="23 * * * * *")
+     * @throws DbException
+     */
+    public function quotaNotReceiveTask()
+    {
+        Log::info('发布采购45分钟未报价且供应商30分钟有登录任务开始');
+        $receive_msg_cache = 'ReceiveMsgCache_';
+        $date = date('Y_m_d');
+        $now_time = time();
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-45 minute')));
+        $end_time = $start_time + 59;
+        $params = [
+            ['add_time','between',$start_time,$end_time],
+            'is_audit' => 0,
+            'status' => 0
+        ];
+        $fields =['buy_id','pic','status','remark','amount','unit','user_id','add_time'];
+        $buy_list = $this->buyData->getBuyList($params,$fields);
+        if(!empty($buy_list)){
+            $grayscale = getenv('IS_GRAYSCALE');
+            $test_list = $this->userData->getTesters();
+            foreach ($buy_list as $item) {
+                $user_ids = [];
+                if(date('H',$now_time) > 23 || date('H',$now_time) < 8){
+                    continue;
+                }
+                $buy_id = $item['buyId'];
+                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                    continue;
+                }
+                $tag_params = [
+                    'buy_id' => $item['buyId'],
+                    ['top_id','>',100]
+                ];
+                $buy_top_ids = $this->buyRelationData->getBuyTagByParams($tag_params,['top_id']);
+                $top_ids = [];
+                if(!empty($buy_top_ids)){
+                    foreach ($buy_top_ids as $buy_top_id) {
+                        $top_ids[] = $buy_top_id['topId'];
+                    }
+                    if(!empty($top_ids)){
+                        $user_ids = $this->userRelationData->getTagRelationUserIds($top_ids);
+                    }
+                }
+                $last_user_ids = [];
+                if(!empty($user_ids)){
+                    if($grayscale == 1){
+                        $user_ids = array_intersect($user_ids,$test_list);
+                    }
+                    //过滤当天已发送
+                    $receive_history = $this->searchRedis->zRange($receive_msg_cache . $date,0,-1);
+                    $arr_intersect = array_intersect($user_ids,$receive_history);
+                    if(!empty($arr_intersect)){
+                        $user_ids = array_diff($user_ids,$arr_intersect);
+                    }
+                    //30分钟内有登陆判断
+                    $userParams = [
+                        ['last_time','>', $now_time - 1800],
+                        'user_id' => $user_ids
+                    ];
+                    $last_login_list = $this->userData->getUserDataByParams($userParams,2000);
+                    if(!empty($last_login_list)){
+                        foreach ($last_login_list as $user_id) {
+                            $last_user_ids[] = (string)$user_id['userId'];
+                        }
+                    }
+                }
+                if(!empty($last_login_list)){
+                    write_log(2,'45_minute_msg_user_id:' . json_encode($last_user_ids));
+                    $buyer_info = $this->userData->getUserInfo($item['userId']);
+                    $config = \Swoft::getBean('config');
+                    $sys_msg = $config->get('offerMsg');
+                    $pages = ceil(count($last_user_ids)/$this->limit);
+                    for ($i=0;$i<$pages;$i++)
+                    {
+                        $offset = $i * $this->limit;
+                        $list = array_slice($last_user_ids,$offset,$this->limit);
+                        Log::info('send_list:' . json_encode($list));
+                        ################## 消息展示内容开始 #######################
+                        $extra = $sys_msg;
+                        $extra['image'] = !is_null($item['pic']) ? get_img_url($item['pic']) : '';
+                        $extra['type'] = $item['status'];
+                        $extra['id'] = $buy_id;
+                        $extra['buy_id'] = $buy_id;
+                        $extra['name'] = (string)$buyer_info['name'];
+                        $extra['title'] = (string)$item['remark'];
+                        $extra['amount'] = $item['amount'];
+                        $extra['unit'] = $item['unit'];
+                        ################## 消息展示内容结束 #######################
+
+                        ################## 消息基本信息开始 #######################
+                        $extra['msgTitle'] = '收到邀请';
+                        $extra['msgContent'] = "买家{$buyer_info['name']}邀请您为他报价！";
+                        ################## 消息基本信息结束 #######################
+
+                        $notice['extra'] = $extra;
+                        sendInstantMessaging('11', $list, json_encode($notice['extra']),1);
+                        $cache_list = [];
+                        $cache_list[] = $receive_msg_cache . $date;
+                        foreach ($list as $uid) {
+                            $cache_list[] = $i;
+                            $cache_list[] = $uid;
+                        }
+                        call_user_func_array([$this->searchRedis,'zadd'],$cache_list);
+                    }
+                }
+            }
+        }
+        Log::info('发布采购45分钟未报价且供应商30分钟有登录任务结束');
+        return ["发布采购45分钟未报价任务"];
     }
 
 

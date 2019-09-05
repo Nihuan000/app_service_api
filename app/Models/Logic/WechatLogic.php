@@ -40,7 +40,18 @@ class WechatLogic
             $wechat_type = $wechat_account['wechat_type'];
             $wechat_appid = $wechat_account['wechat_appid'];
             $wechat_secret = $wechat_account['wechat_secret'];
-            $res = file_get_contents('https://api.weixin.qq.com/cgi-bin/token?grant_type=' . $wechat_type . '&appid='. $wechat_appid.'&secret=' . $wechat_secret);
+
+            $ud = curl_init();
+            curl_setopt($ud,CURLOPT_URL,'https://api.weixin.qq.com/cgi-bin/token?grant_type=' . $wechat_type . '&appid='. $wechat_appid.'&secret=' . $wechat_secret);
+            curl_setopt($ud, CURLOPT_POST, 1);
+            curl_setopt($ud, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ud, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ud, CURLOPT_HTTPHEADER, ["Accept-Charset: utf-8"]);
+            curl_setopt($ud, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ud, CURLOPT_AUTOREFERER, 1);
+            curl_setopt($ud, CURLOPT_RETURNTRANSFER, true);
+            $res = curl_exec($ud);
+            curl_close($ud);
             $res = json_decode($res, true);
             $access_token = $res['access_token'];
             $this->redis->setex("access_token",50,$access_token);

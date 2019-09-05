@@ -52,7 +52,7 @@ function get_img_url($pic)
         $account = $marketing_config['M_account'];
         $password = $marketing_config['M_password'];
     }
-
+    write_log(3,'receive_phone:' . $phone);
     if($is_service == false && $sms_switch == 1){
         write_log(3,$phone);
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
