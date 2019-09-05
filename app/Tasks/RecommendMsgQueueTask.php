@@ -178,6 +178,7 @@ class RecommendMsgQueueTask
         Log::info('发布采购45分钟未报价且供应商30分钟有登录任务开始');
         $receive_msg_cache = 'ReceiveMsgCache_';
         $date = date('Y_m_d');
+        $now_time = time();
         $start_time = strtotime(date('Y-m-d H:i',strtotime('-45 minute')));
         $end_time = $start_time + 59;
         $params = [
@@ -192,7 +193,8 @@ class RecommendMsgQueueTask
             $grayscale = getenv('IS_GRAYSCALE');
             $test_list = $this->userData->getTesters();
             foreach ($buy_list as $item) {
-                if(date('H',$item['addTime']) > 23 || date('H',$item['addTime']) < 8){
+                $user_ids = [];
+                if(date('H',$now_time) > 23 || date('H',$now_time) < 8){
                     continue;
                 }
                 $buy_id = $item['buyId'];
@@ -214,17 +216,20 @@ class RecommendMsgQueueTask
                         $user_ids = $this->userRelationData->getTagRelationUserIds($top_ids);
                     }
                 }
+                Log::info(json_encode($user_ids));
                 $last_user_ids = [];
                 if(!empty($user_ids)){
                     if($grayscale == 1){
                         $user_ids = array_intersect($user_ids,$test_list);
                     }
+                    Log::info(json_encode($user_ids));
                     //过滤当天已发送
                     $receive_history = $this->searchRedis->zRange($receive_msg_cache . $date,0,-1);
                     $arr_intersect = array_intersect($user_ids,$receive_history);
                     if(!empty($arr_intersect)){
                         $user_ids = array_diff($user_ids,$arr_intersect);
                     }
+                    Log::info(json_encode($user_ids));
                     //30分钟内有登陆判断
                     $userParams = [
                         ['last_time','>', $item['addTime'] + 30 *3600],
@@ -237,7 +242,7 @@ class RecommendMsgQueueTask
                         }
                     }
                 }
-
+                Log::info(json_encode($last_user_ids));
                 if(!empty($last_login_list)){
                     write_log(2,'45_minute_msg_user_id:' . json_encode($last_login_list));
                     $buyer_info = $this->userData->getUserInfo($item['userId']);
