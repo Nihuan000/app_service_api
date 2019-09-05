@@ -183,7 +183,7 @@ class RecommendMsgQueueTask
         $end_time = $start_time + 59;
         $params = [
             ['add_time','between',$start_time,$end_time],
-            'is_audit' => [1,5],
+            'is_audit' => 0,
             'status' => 0
         ];
         $fields =['buy_id','pic','status','remark','amount','unit','user_id','add_time'];
@@ -232,7 +232,7 @@ class RecommendMsgQueueTask
                     Log::info(json_encode($user_ids));
                     //30分钟内有登陆判断
                     $userParams = [
-                        ['last_time','>', $item['addTime'] + 30 *3600],
+                        ['last_time','>', $now_time - 30 *3600],
                         'user_id' => $user_ids
                     ];
                     $last_login_list = $this->userData->getUserDataByParams($userParams,2000);
