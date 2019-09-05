@@ -177,7 +177,7 @@ class RecommendMsgQueueTask
     {
         Log::info('发布采购45分钟未报价且供应商30分钟有登录任务开始');
         $receive_msg_cache = 'ReceiveMsgCache_';
-        $date = date('Y_m_d');
+        $date = date('Y-m-d');
         $now_time = time();
         $start_time = strtotime(date('Y-m-d H:i',strtotime('-45 minute')));
         $end_time = $start_time + 59;
@@ -291,12 +291,18 @@ class RecommendMsgQueueTask
     public function RecommendHistoryExpireTask()
     {
         $date = date('Y-m-d',strtotime('-7 day'));
-        $historyIndex = '@RecommendMsgHistory_';
-        if($this->searchRedis->exists($historyIndex . $date)){
-            $res = $this->searchRedis->delete($historyIndex . $date);
-        }else{
-            $res = true;
+        $historyIndexs = [
+            '@RecommendMsgHistory_',
+            'ReceiveMsgCache_',
+        ];
+        foreach ($historyIndexs as $historyIndex) {
+            $history_cache = $historyIndex . $date;
+            if($this->searchRedis->exists($history_cache)){
+                $this->searchRedis->delete($history_cache);
+                Log::info("删除{$history_cache}发送历史记录");
+            }
         }
-        return ["删除商机推荐[{$date}]发送历史记录:{$res}"];
+
+        return ["历史缓存清除"];
     }
 }
