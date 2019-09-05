@@ -209,11 +209,14 @@ class UserData
      * 用户数据列表
      * @param array $params
      * @param int $limit
+     * @param array $fields
      * @return array
      */
-    public function getUserDataByParams(array $params, int $limit)
+    public function getUserDataByParams(array $params, int $limit, $fields = [])
     {
-        $fields = ['user_id'];
+        if(empty($fields)){
+            $fields = ['user_id'];
+        }
         $user_list = $this->userDao->getUserListByParams($params,$fields,$limit);
         return $user_list;
     }
@@ -522,7 +525,7 @@ class UserData
                 $this->userDao->UserGrowthAdd($user_id);
                 $growth_num = $growth;
             }
-            
+
             $params = [
                 'growth' => $growth_num,
                 'update_time' => time(),

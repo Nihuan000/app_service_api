@@ -78,4 +78,26 @@ class PushQueueTask{
         }
         return ['商机推荐队列任务执行'];
     }
+
+    /**
+     * 商机推荐提醒记录清除, 每天6点执行，删除7天以前的记录
+     * @author Nihuan
+     * @Scheduled(cron="0 0 6 * * *")
+     */
+    public function PushHistoryExpireTask()
+    {
+        $date = date('Y-m-d',strtotime('-7 day'));
+        $historyIndexs = [
+            '@RecommendPushHistory_',
+        ];
+        foreach ($historyIndexs as $historyIndex) {
+            $history_cache = $historyIndex . $date;
+            if($this->redis->exists($history_cache)){
+                $this->redis->delete($history_cache);
+                Log::info("删除{$history_cache}发送历史记录");
+            }
+        }
+
+        return ["历史缓存清除"];
+    }
 }

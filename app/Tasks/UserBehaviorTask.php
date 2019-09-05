@@ -267,7 +267,6 @@ class UserBehaviorTask{
                 $this->redis->set($tag_key,json_encode($tags));
                 $this->redis->expire($tag_key,86300);
             }
-            write_log(2,'tag记录:'.json_encode($tags));
 
             //缓存关键词
             $behaviors = [];

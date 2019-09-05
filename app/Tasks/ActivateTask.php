@@ -134,7 +134,7 @@ class ActivateTask{
                     $extra['data'] = [$extraData];
                     $extra['content'] = "刚刚有人浏览了您的搜布店铺，赶快更新下产品吧！ #更新产品#";
                     $notice['extra'] = $extra;
-                    sendInstantMessaging('1', $user_list, json_encode($notice['extra']));
+                    sendInstantMessaging('1', $user_list, json_encode($notice['extra']),1);
                     if($send_result && !empty($record)){
                         $this->OtherLogic->activate_sms_records($record);
                     }
@@ -147,7 +147,9 @@ class ActivateTask{
 
     /**
      * 历史发布采购商激活
-     * @throws DbException
+     * 每分钟执行
+     * @Scheduled(cron="20 * * * * *")
+     * @return array
      */
     public function historicalBuyTask()
     {
@@ -168,11 +170,12 @@ class ActivateTask{
                 $config = \Swoft::getBean('config');
                 $msg_temp = $config->get('last_buy_msg');
                 $tempId = $msg_temp['temp_id'];
-                $grayscale = getenv('IS_GRAYSCALE');
-                $test_list = $this->userData->getTesters();
+                $send_count = 0;
+                $send_user_list = [];
                 foreach ($buy_info_list as $item) {
-                    if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
-                        continue;
+                    //发送数不大于1000人
+                    if($send_count >= 1000){
+                        break;
                     }
                     //判断是否是最后一条
                     $add_time = $item['addTime'] + 1;
@@ -180,24 +183,65 @@ class ActivateTask{
                     if(empty($user_buy_list)){
                         $openId = $this->userData->getUserOpenId($item['userId']);
                         if(!empty($openId)){
-                            $tmp_data = $msg_temp['data'];
-                            $expire_time = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
                             Log::info("用户{$item['userId']}发送提醒消息");
-                            $tmp_data['keyword1']['value'] = $item['buyId'];
-                            $tmp_data['keyword2']['value'] = (string)$item['remark'];
-                            $tmp_data['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
-                            $tmp_data['keyword4']['value'] = $expire_time;
-                            $msg_temp['data'] = $tmp_data;
-                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp,'',1);
+                            $msg_temp['keyword1']['value'] = $item['buyId'];
+                            $msg_temp['keyword2']['value'] = (string)$item['remark'];
+                            $msg_temp['keyword3']['value'] = (string)$item['amount'] . $item['unit'];
+                            $msg_temp['keyword4']['value'] = empty($item['expireTime']) ? '' : date('Y年n月j日 H:i:s', $item['expireTime']);
+                            $this->wechatLogic->send_wechat_message($openId, $tempId, $msg_temp);
+                            $send_count += 1;
+                            $send_user_list[] = $item['userId'];
                         }
                     }else{
                         Log::info("用户{$item['userId']}有发布最新采购，不发送消息");
                     }
                 }
+                write_log(2,'15天前发布过采购微信模板消息接收人：' . json_encode($send_user_list));
             }
         }
         Log::info('历史发布采购商微信激活结束');
         return ['历史发布采购商微信提醒'];
+    }
+
+    /**
+     * 超过90天没登录的采购商,短信通知
+     * 每分钟执行
+     * @Scheduled(cron="16 * * * * *")
+     * @throws DbException
+     */
+    public function unLoginBuyTask()
+    {
+        Log::info('90天未登录采购商短信通知开始');
+        $start_time = strtotime(date('Y-m-d H:i',strtotime('-90 day')));
+        $end_time = $start_time + 59;
+        $params = [
+            ['last_time','between',$start_time,$end_time],
+            'role' => [1,5]
+        ];
+        $fields = ['user_id','phone'];
+        Log::info(json_encode($params));
+        $user_list = $this->userData->getUserDataByParams($params,$this->limit,$fields);
+        if(!empty($user_list)){
+            $config = \Swoft::getBean('config');
+            $inactive_buyer_msg = $config->get('activateSms.inactive_buyer');
+            $grayscale = getenv('IS_GRAYSCALE');
+            $test_list = $this->userData->getTesters();
+            $phone_list = [];
+            foreach ($user_list as $item) {
+                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                    continue;
+                }
+                $phone_list[] = $item['phone'];
+            }
+
+            if(!empty($phone_list)){
+                write_log(2,'90天未登录通知用户列表：' . json_encode($phone_list));
+                $receive_list = implode(',',$phone_list);
+                sendSms($receive_list,$inactive_buyer_msg,2,2,1);
+            }
+        }
+        Log::info('90天未登录采购商短信通知结束');
+        return ['90天未登录的采购商短信通知'];
     }
 
     /**
