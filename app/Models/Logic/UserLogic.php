@@ -295,6 +295,7 @@ class UserLogic
     public function strengthUserOrderTotal($user_id,$order_num,$total_amount,$pay_time)
     {
         $plusRes = true;
+        $threshold_cache = 'strength_threshold_' . $user_id;
         $strength_info = $this->userData->getUserStrengthInfo($user_id);
         if(!empty($strength_info)){
             $activity_info = $this->userData->getStrengthActivity($pay_time,2);
@@ -303,6 +304,10 @@ class UserLogic
                 if(!$checkRec){
                     Db::beginTransaction();
                     $order_total = $strength_info['total_amount'] + $total_amount;
+                    //记录满足返还服务费条件时间
+                    if($order_total >= $strength_info['order_threshold'] && !$this->redis->exists($threshold_cache)){
+                        $this->redis->setex($threshold_cache,$strength_info['end_time'],$pay_time);
+                    }
                     $params = [
                         'total_amount' => $order_total,
                         'update_time' => $pay_time
@@ -695,7 +700,7 @@ class UserLogic
                 //添加用户金额
                 $user_price = $user_wallet_info["balance"];
                 $balance_price = $user_price + $money;
-                $order_wallet_result = $this->userData->updateUserWallet($user_id, $balance_price); 
+                $order_wallet_result = $this->userData->updateUserWallet($user_id, $balance_price);
                 //添加钱包变动日志
                 $order_wallet_record_data['user_id'] = $user_id;
                 $order_wallet_record_data['money'] = $money;
