@@ -52,9 +52,7 @@ function get_img_url($pic)
         $account = $marketing_config['M_account'];
         $password = $marketing_config['M_password'];
     }
-    write_log(3,'receive_phone:' . $phone);
     if($is_service == false && $sms_switch == 1){
-        write_log(3,$phone);
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
         $postFields = json_encode($sendSms);
         $ch = curl_init ();
@@ -70,7 +68,9 @@ function get_img_url($pic)
         curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0);
         $ret = curl_exec ( $ch );
-        write_log(3,json_encode($ret));
+        $record_data = $sendSms;
+        $record_data['msg'] = urldecode($record_data['msg']);
+        write_log(3,json_encode($record_data,JSON_UNESCAPED_UNICODE) . '->' . $ret);
         if (false == $ret) {
             $result =  false;
         } else {
