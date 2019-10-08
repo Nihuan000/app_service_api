@@ -383,7 +383,7 @@ class ScoreLogic
         $real_score = $rule_score_value;
         $userScoreInfo = $this->scoreData->getUserScore($user_id);
         if(!empty($userScoreInfo)){
-            $current_base_score = intval($userScoreInfo->base_score_value);
+            $current_base_score = intval($userScoreInfo['baseScoreValue']);
             $real_score = $rule_score_value - $current_base_score > 0 ? $rule_score_value - $current_base_score :
                 $rule_score_value;
         }
