@@ -593,16 +593,7 @@ function similar_acquisition($judgment,$match_list,$get_type = 1)
  * @return mixed|string
  */
 function get_shot_url($day){
-    $jump_url = "https://api.isoubu.com/trade/location/index.html";
-    $business = date("Y_m_d_H")."_activate_msg_".$day;
-    $url = "http://d.isoubu.com/sbadmin/index.php/Admin/Operation/update_redirect?url={$jump_url}&business={$business}&type=2";
-    $json = file_get_contents($url);
-    $list = json_decode( $json,true );
-    if($list['status'] == 1){
-        $shot_url = str_replace("http://","",$list['url']);
-        return $shot_url;
-    }else{
-        write_log(3,$json);
-        return "";
-    }
+    //新浪短连接不能用了，先给历史有效链接好了
+    $short_url = 'http://t.cn/AiE6eHns';
+    return $short_url;
 }

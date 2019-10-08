@@ -144,6 +144,11 @@ class ScoreDao
         $updateUserRes = true;
         $UserLevelRec = true;
         $now_time = time();
+        if(isset($data['total_score_value'])){
+            $base_score_value = $data['total_score_value'];
+            unset($data['total_score_value']);
+        }
+
         Db::beginTransaction();
         //写入/更新积分记录
         if($record_id > 0){
@@ -161,7 +166,7 @@ class ScoreDao
         if($record_id == 0){
             if(!empty($current_score)){
                 if($is_safe_price == 1){
-                    $score['base_score_value'] = $data['score_value'];
+                    $score['base_score_value'] = isset($base_score_value) ? $base_score_value : $data['score_value'];
                     $total_score = $current_score['scoreValue'] + $score['base_score_value'];
                 }else{
                     $score['score_value'] = $data['new_score'];

@@ -158,6 +158,7 @@ class ActivateTask{
         $end_time = $start_time + 59;
         $params = [
             ['add_time','between',$start_time,$end_time],
+            'is_audit' => 0
         ];
         $buy_list = $this->buyData->getLastBuyIds($params);
         if(!empty($buy_list)){

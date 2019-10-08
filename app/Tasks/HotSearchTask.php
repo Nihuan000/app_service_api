@@ -84,7 +84,7 @@ class HotSearchTask{
      * 热度报告生成
      * 每周二0点生成
      *
-     * @Scheduled(cron="0 0 0 * * 3")
+     * @Scheduled(cron="0 1 3 * * 3")
      */
     public function purchaseReportTask()
     {
@@ -132,7 +132,7 @@ class HotSearchTask{
                 $search_list = $this->proSearchData->getRecordList($search_params,['log_id','keyword']);
             }
         }
-        
+
         //标签分数计算
         if(!empty($buy_tag_list)){
             foreach ($buy_tag_list as $item) {
@@ -160,8 +160,6 @@ class HotSearchTask{
                 $data['add_time'] = time();
                 $data_list[] = $data;
             }
-            //过期时间15天
-            $this->redis->expire($hot_search_key,15*24*3600);
         }
 
         if(!empty($data_list)){

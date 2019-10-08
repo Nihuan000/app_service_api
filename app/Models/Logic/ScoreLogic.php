@@ -373,17 +373,28 @@ class ScoreLogic
         }
 
 
-        //积分最多300
+        //取积分上限
         $max_safe_price_score = $this->userData->getSetting('max_safe_price_score');
         if($rule_score_value > $max_safe_price_score){
             $rule_score_value = $max_safe_price_score;
         }
 
+        //取用户当前保证金积分,积分记录里扣除当前积分
+        $real_score = $rule_score_value;
+        $userScoreInfo = $this->scoreData->getUserScore($user_id);
+        if(!empty($userScoreInfo)){
+            $current_base_score = intval($userScoreInfo->base_score_value);
+            $real_score = $rule_score_value - $current_base_score > 0 ? $rule_score_value - $current_base_score :
+                $rule_score_value;
+        }
+
+
         $score_get_record_data['is_valid'] = 1;
         $score_get_record_data['old_score'] = 0;
-        $score_get_record_data['score_value'] = $rule_score_value;
+        $score_get_record_data['score_value'] = $real_score;
+        $score_get_record_data['total_score_value'] = $rule_score_value;
         $score_get_record_data['new_score'] = 0;
-        $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取".$rule_score_value.'分';
+        $score_get_record_data['desc'] = $rule_info['rule_desc'] . ", 获取".$real_score.'分';
         Log::info(json_encode($score_get_record_data));
         return ['is_passed' => $record_check['is_passed'], 'score_get_record_data' => $score_get_record_data];
     }
