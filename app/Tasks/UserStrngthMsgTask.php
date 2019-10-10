@@ -23,7 +23,7 @@ use Swoft\Task\Bean\Annotation\Task;
 /**
  * Class UserStrngthMsgTask - define some tasks
  *
- * @Task("User")
+ * @Task("UserStrngthMsg")
  * @package App\Tasks
  */
 class UserStrngthMsgTask{

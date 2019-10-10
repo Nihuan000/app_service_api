@@ -24,7 +24,7 @@ use Swoft\Task\Bean\Annotation\Task;
 /**
  * Class ActivityTask - define some tasks
  *
- * @Task("User")
+ * @Task("Activity")
  * @package App\Tasks
  */
 class ActivityTask{
