@@ -52,9 +52,7 @@ function get_img_url($pic)
         $account = $marketing_config['M_account'];
         $password = $marketing_config['M_password'];
     }
-    write_log(3,'receive_phone:' . $phone);
     if($is_service == false && $sms_switch == 1){
-        write_log(3,$phone);
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
         $postFields = json_encode($sendSms);
         $ch = curl_init ();
@@ -70,7 +68,9 @@ function get_img_url($pic)
         curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0);
         $ret = curl_exec ( $ch );
-        write_log(3,json_encode($ret));
+        $record_data = $sendSms;
+        $record_data['msg'] = urldecode($record_data['msg']);
+        write_log(3,json_encode($record_data,JSON_UNESCAPED_UNICODE) . '->' . $ret);
         if (false == $ret) {
             $result =  false;
         } else {
@@ -593,16 +593,7 @@ function similar_acquisition($judgment,$match_list,$get_type = 1)
  * @return mixed|string
  */
 function get_shot_url($day){
-    $jump_url = "https://api.isoubu.com/trade/location/index.html";
-    $business = date("Y_m_d_H")."_activate_msg_".$day;
-    $url = "http://d.isoubu.com/sbadmin/index.php/Admin/Operation/update_redirect?url={$jump_url}&business={$business}&type=2";
-    $json = file_get_contents($url);
-    $list = json_decode( $json,true );
-    if($list['status'] == 1){
-        $shot_url = str_replace("http://","",$list['url']);
-        return $shot_url;
-    }else{
-        write_log(3,$json);
-        return "";
-    }
+    //新浪短连接不能用了，先给历史有效链接好了
+    $short_url = 'http://t.cn/AiE6eHns';
+    return $short_url;
 }

@@ -52,8 +52,6 @@ class NewRegActivationTask{
     /**
      * 供应商注册激活消息
      * per minute 每分钟执行
-     *
-     * @Scheduled(cron="32 * * * * *")
      */
     public function SupplierTask()
     {
