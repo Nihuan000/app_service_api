@@ -43,7 +43,7 @@ class UserStrngthMsgTask{
     /**
      * @var string
      */
-    private $redis_key = 'inter_strength_page_userlist';
+    private $redis_key = 'member_inter_strength_page';
 
 
     /**
