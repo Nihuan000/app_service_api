@@ -139,10 +139,13 @@ class ActivityTask{
                 
                 $msg = "【搜布】您的408元的实力商家礼包将于今日过期，快去激活吧！ $sms_short_url 退订回T";
 
-                if($this->userData->getSetting('SEND_SMS') == 1 && !empty($msg)){
+                if(env('SMS_SWITCH') == 1 && !empty($msg)){
+                    write_log(3,"鼓励消息允许发送");
                     $user_info = $this->userData->getUserInfo($user_id);
+                    write_log(3,"user_info:".json_encode($user_info));
                     if(!empty($user_info)){
                         $result = sendSms($user_info['phone'],$msg,2,2);
+                        write_log(3,"短信发送结果:".json_encode($result));
                         if($result){
                             $rec = [
                                 'user_id' => $user_id,
