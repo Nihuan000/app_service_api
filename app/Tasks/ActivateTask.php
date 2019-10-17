@@ -80,7 +80,6 @@ class ActivateTask{
         }else{
             $supplier_recall = $supplier_recall_msg;
         }
-        $supplier_recall .= ' 退订回T';
         $expire_time = 7 * 24 * 3600;
         $user_list = $this->OtherLogic->inactive_user_list($this->limit,$days);
         $has_cache = 1;
