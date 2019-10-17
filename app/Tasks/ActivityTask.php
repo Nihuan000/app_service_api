@@ -137,7 +137,7 @@ class ActivityTask{
                 //发送短信消息
                 $sms_short_url = $this->userData->getSetting('nine_encourage_activity_sms_url');
 
-                $msg = "【搜布】您的408元的实力商家礼包将于今日过期，快去激活吧！ $sms_short_url 退订回T";
+                $msg = "【搜布】您的408元的实力商家礼包将于今日过期，快去激活吧！ $sms_short_url";
 
                 if(env('SMS_SWITCH') == 1 && !empty($msg)){
                     write_log(3,"鼓励消息允许发送");

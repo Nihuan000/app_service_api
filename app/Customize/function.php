@@ -45,14 +45,17 @@ function get_img_url($pic)
         $is_service = true;
     }
 
+    $shuffix = '';
     if($send_route == 1){
         $account = $industry_config['I_account'];
         $password = $industry_config['I_password'];
     }else{
         $account = $marketing_config['M_account'];
         $password = $marketing_config['M_password'];
+        $shuffix = ' 退订回T';
     }
     if($is_service == false && $sms_switch == 1){
+        $content .= $shuffix;
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
         $postFields = json_encode($sendSms);
         $ch = curl_init ();
