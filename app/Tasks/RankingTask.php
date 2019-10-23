@@ -26,7 +26,7 @@ use Swoft\Task\Bean\Annotation\Task;
 class RankingTask
 {
     /**
-     * @Inject("demoRedis")
+     * @Inject("appRedis")
      * @var Redis
      */
     private $redis;
@@ -57,6 +57,10 @@ class RankingTask
         $date = date('Y_m_d');
         Log::info($date . '日报价排行榜任务开始');
         $cache_list = $this->offer_cache_list . $date;
+        //删除历史记录
+        if($this->redis->has($cache_list)){
+            $this->redis->delete($cache_list);
+        }
         $start_time = strtotime(date('Y-m-d',strtotime("-{$this->limit_days} day")));
         $end_time = strtotime(date('Y-m-d',strtotime('-1 day')));
         $limit = 100;
@@ -68,6 +72,7 @@ class RankingTask
         }
         if($this->redis->has($cache_list)){
             $this->redis->expire($cache_list, $this->limit_days * 24 * 3600);
+            $this->redis->set('offer_ranking_date',json_encode(['start' => $start_time, 'end' => $end_time]));
         }
         Log::info($date . '日报价排行榜任务结束');
         return '报价排行榜';

@@ -75,6 +75,6 @@ class OfferDao
      */
     public function getOfferUserByCount(int $start_time,int $end_time, int $limit)
     {
-        return Db::query("SELECT offerer_id,count(offer_id) as offer_count FROM sb_offer WHERE offer_time BETWEEN {$start_time} AND {$end_time} ORDER BY count(offer_id) DESC LIMIT {$limit}")->getResult();
+        return Db::query("SELECT offerer_id,count(offer_id) as offer_count FROM sb_offer WHERE offer_time BETWEEN {$start_time} AND {$end_time} GROUP BY offerer_id ORDER BY count(offer_id) DESC LIMIT {$limit}")->getResult();
     }
 }
