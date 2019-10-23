@@ -67,6 +67,11 @@ class UserTask{
     private $safe_price_finish_user_sms_queue = 'safe_price_finish_user_sms_queue';
 
     /**
+     * @var string
+     */
+    private $new_register_buyer_sys_msg = 'new_register_buyer_sys_msg';
+
+    /**
      * 用户保证金提取操作
      * 每分钟26秒执行一次
      * @Scheduled(cron="26 * * * * *")
@@ -176,6 +181,42 @@ class UserTask{
                 Log::info("用户id:{$user_id}提取保证金消息推送完成");
                 write_log(3,"用户id:{$user_id}提取保证金消息推送完成");
             }
+        }
+    }
+
+
+    /**
+     * 用户保证金提取完成之后的消息发送操作
+     * 每分钟36秒执行一次
+     * @Scheduled(cron="36 * * * * *")
+     * @throws DbException
+     */
+    public function newRegisterBuyerTask()
+    {
+        $end_time = time();
+        $start_time = time()-600;
+        $reg_buyer_list = $this->redis->zRangeByScore($this->new_register_buyer_sys_msg, $start_time, $end_time);
+        if(!empty($reg_buyer_list)){
+            write_log(3,"新注册的采购商".json_encode($reg_buyer_list));
+            foreach ($reg_buyer_list as $key => $value) {
+                $this->redis->zDelete($this->new_register_buyer_sys_msg, $value);
+            }
+            $time = date('Y-m-d H:i:s', time());
+            $is_test = $this->userData->getSetting('is_test');
+            $is_test = empty($is_test) ? 0 : 1;
+            foreach ($reg_buyer_list as $key => $value) {
+                $$reg_buyer_list[$key] = (string)$value;
+            }
+            write_log(3,"在{$time}时间开始给用户id:{$user_id}发送系统消息");
+            $msg = "你好，请问需要找什么面料？";
+            $res = []; 
+            // $res['extra']['title'] ;
+            // $res['extra']['content'] = $msg;
+            $res['extra']['msgContent'] = $msg;
+            $send_user_id = $is_test == 1 ? '173174' : '236359';
+            sendInstantMessaging($send_user_id,$reg_buyer_list,json_encode($res['extra']), 1);
+
+            write_log(3,"在{$time}时间给用户id:{$user_id}发送系统消息完成");
         }
     }
 }
