@@ -65,8 +65,8 @@ class VisitRecordTask
                             $recordRes = $this->logic->event_record($type,$data);
                         }
                     }
-                    if($recordRes == true){
-                        $this->redis->lRem($this->record_cache_list,$item,1);
+                    if($recordRes){
+                        $this->redis->lPop($this->record_cache_list);
                     }
                 }
             }

@@ -931,10 +931,10 @@ class UserDao
         $userInfo = User::findById($id)->getResult();
         if(!empty($userInfo)){
             $data = [
-                'clicks' => $userInfo->clicks + 1,
+                'clicks' => $userInfo['clicks'] + 1,
                 'alter_time' => time()
             ];
-            return User::updateOne($data,['pro_id' => $id])->getResult();
+            return User::updateOne($data,['user_id' => $id])->getResult();
         }
         return false;
     }

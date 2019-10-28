@@ -225,7 +225,7 @@ class ProductDao
         $proInfo = Product::findById($id)->getResult();
         if(!empty($proInfo)){
             $data = [
-                'clicks' => $proInfo->clicks + 1,
+                'clicks' => $proInfo['clicks'] + 1,
                 'alter_time' => time()
             ];
             return Product::updateOne($data,['pro_id' => $id])->getResult();
