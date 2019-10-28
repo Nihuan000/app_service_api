@@ -319,4 +319,16 @@ class BuyData
         return $this->buyDao->getUserBuyIds($params);
     }
 
+
+    /**
+     * 采购访问记录添加
+     * @param array $data
+     * @return array
+     */
+    public function setBuyRecordLog(array $data)
+    {
+        //记录
+        return $this->buyDao->setBuyVisitLog($data);
+    }
+
 }

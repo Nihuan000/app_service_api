@@ -908,4 +908,34 @@ class UserDao
         }
         return '';
     }
+
+
+    /**
+     * 写入店铺访问记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setVisitShopLog(array $data)
+    {
+        return Query::table('sb_shop_records')->insert($data)->getResult();
+    }
+
+    /**
+     * 更新点击量
+     * @param int $id
+     * @return bool|mixed
+     */
+    public function updateUserClicks(int $id)
+    {
+        $userInfo = User::findById($id)->getResult();
+        if(!empty($userInfo)){
+            $data = [
+                'clicks' => $userInfo->clicks + 1,
+                'alter_time' => time()
+            ];
+            return User::updateOne($data,['pro_id' => $id])->getResult();
+        }
+        return false;
+    }
 }

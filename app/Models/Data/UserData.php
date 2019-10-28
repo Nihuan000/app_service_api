@@ -16,8 +16,10 @@ use App\Models\Dao\BuyRelationTagDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Core\ResultInterface;
+use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
 use Swoft\Db\Exception\MysqlException;
+use Swoft\Db\Query;
 use Swoft\Redis\Redis;
 
 /**
@@ -940,5 +942,18 @@ class UserData
     public function getUserOpenId(int $user_id)
     {
         return $this->userDao->getUserOpenId($user_id);
+    }
+
+    /**
+     * 写入店铺访问记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setVisitShopLog(array $data)
+    {
+        $recordRes = $this->userDao->setVisitShopLog($data);
+        $clicks = $this->userDao->updateUserClicks((int)$data['shop_id']);
+        return ['record' => $recordRes, 'clicks' => $clicks];
     }
 }

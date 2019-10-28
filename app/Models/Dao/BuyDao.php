@@ -171,4 +171,22 @@ class BuyDao
     {
         return Buy::findAll($params,['fields' => ['user_id','buy_id','add_time'], 'orderby' => ['add_time' => 'desc']])->getResult();
     }
+
+    /**
+     * 采购访问记录
+     * @param array $data
+     * @return mixed
+     */
+    public function setBuyVisitLog(array $data)
+    {
+        $record = new BuyRecords();
+        $record->setUserId($data['user_id']);
+        $record->setBuyId($data['buy_id']);
+        $record->setRTime($data['r_time']);
+        $record->setScene($data['scene']);
+        $record->setIsFilter($data['is_filter']);
+        $record->setFromType($data['from_type']);
+
+        return $record->save()->getResult();
+    }
 }

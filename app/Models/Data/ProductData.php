@@ -368,4 +368,18 @@ class ProductData
     {
         return $this->productDao->getPopularProduct($user_id);
     }
+
+    /**
+     * 产品记录添加
+     * @param array $data
+     * @return array
+     */
+    public function setProductRecordLog(array $data)
+    {
+        //记录
+        $record = $this->productDao->setVisitProLog($data);
+        //点击量更新
+        $clicks = $this->productDao->updateProClickById($data['pro_id']);
+        return ['record' => $record, 'clicks' => $clicks];
+    }
 }
