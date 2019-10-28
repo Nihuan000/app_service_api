@@ -45,6 +45,11 @@ class UserStrngthMsgTask{
      */
     private $redis_key = 'member_inter_strength_page';
 
+     /**
+     * @var string
+     */
+    private $role_key = 'finish_role_of_811_new_suppliers';
+
 
     /**
      * 用户保证金提取操作
@@ -85,6 +90,47 @@ class UserStrngthMsgTask{
 
                 $this->redis->zDelete($this->redis_key, $value);
             }
+        }
+    }
+
+    /**
+     * 用户保证金提取操作
+     * 每分钟16秒执行一次
+     * @Scheduled(cron="16 * * * * *")
+     * @throws DbException
+     */
+    public function finishRoleTask()
+    {
+        $end_time = time();
+        $start_time = time()-600;
+        $user_list = $this->redis->zRangeByScore($this->role_key, $start_time, $end_time);
+        if(!empty($user_list)){
+            $time = date('Y-m-d H:i:s', time());
+            $send_user_list = [];
+            foreach ($user_list as $key => $value) {
+                $send_user_list[] = (string)$value;
+            }
+            $user_str = implode(',', $send_user_list);
+            write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，开始发送系统消息");
+
+            //发送系统消息
+            $config = \Swoft::getBean('config');
+            $sys_msg = $config->get('sysMsg');
+            $extra = $sys_msg;
+            $extra['title'] =  $extra['msgTitle'] = "";
+            $extra['isRich'] = 0;
+            $extra['msgContent'] = '您的实力商家权益将于今天过期，点击查看相关权益并续费。';
+            $extra['content'] = '您的实力商家权益将于今天过期，#点击查看相关权益并续费。#';
+            $d = [["keyword"=>"#点击查看相关权益并续费。#","type"=>18,"id"=>0,"url"=>$this->userData->getSetting('finish_role_of_sysmsg')]];
+            $datashow = array();
+            $extra['data'] = $d;
+            $extra['commendUser'] = array();
+            $extra['showData'] = $datashow;
+            $data['extra'] = $extra;
+
+            sendInstantMessaging('1', $send_user_list, json_encode($data['extra']), 1);
+
+            write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，发送系统消息已经完成");
         }
     }
 }
