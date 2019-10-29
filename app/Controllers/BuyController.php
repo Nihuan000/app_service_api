@@ -131,6 +131,8 @@ class BuyController{
                 }
             }
 
+            $code = 200;
+            $msg = '拉取成功';
             $buy['pic_list'] = $pic_list;
             $result['data'] = $buy;
         }
