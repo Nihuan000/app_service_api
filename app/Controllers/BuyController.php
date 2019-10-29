@@ -14,6 +14,7 @@ use App\Models\Data\BuyData;
 use App\Models\Data\UserData;
 use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\ProductLogic;
+use QL\QueryList;
 use Swoft\App;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Http\Message\Server\Request;
@@ -63,6 +64,74 @@ class BuyController{
             $code = 0;
             $result = [];
             $msg = '成功';
+        }
+        return compact("code","result","msg");
+    }
+
+    /**
+     * 采购信息远程拉取
+     * @RequestMapping()
+     * @param Request $request
+     * @return array
+     */
+    public function tnc_buy_pull(Request $request): array
+    {
+        $tnc_url = $request->post('tnc_url');
+        if(empty($tnc_url)){
+            $code = 0;
+            $result = [];
+            $msg = '请求参数错误';
+        }else{
+            $result = [
+                'amount' => 0,
+                'cover' => '',
+                'remark' => '',
+                'pic_list' => [],
+            ];
+            $headers = [
+                'Referer' => 'https://www.tnc.com.cn/buyoffer/',
+                'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0',
+                'Host' => 'www.tnc.com.cn',
+            ];
+            $rules = [
+                //采购数量
+                'amount' => ['.cont-info>p:eq(0)','text'],
+                //采购封面
+                'cover' => ['div.pic-manager div.gallery a.jqzoom','href'],
+                //采购详情
+                'remark' => ['div.detail-info>div.info-bd','text']
+            ];
+            $pic_rules = [
+                //采购图片
+                'pic_list' => ['div.pic-manager div.clearfix ul#thumblist li>a', 'rel'],
+            ];
+            $query = new QueryList();
+            $queryInfo = $query->get($tnc_url,"",$headers)->encoding('UTF-8');
+            $data = $queryInfo->rules($rules)->queryData();
+            if(!empty($data)){
+                $buy_info = current($data);
+                $amount = str_replace('采购数量：','',$buy_info['amount']);
+                $result['amount'] = $amount > 0 ? (int)$amount : 1000;
+                $result['remark'] = trim(str_replace([PHP_EOL,' ','\r'],'',$buy_info['remark']));
+                $result['cover'] = trim($buy_info['cover']);
+            }
+            $pic = $queryInfo->rules($pic_rules)->queryData();
+            $pic_list = [];
+            if(!empty($pic)){
+                foreach ($pic as $item) {
+                    $tmp_string = str_replace(['{','}'],'',$item['pic_list']);
+                    $img_attr = explode(',',$tmp_string);
+                    if(is_array($img_attr)){
+                        $pic_arr = explode(': ',end($img_attr));
+                        if(count($pic_arr) > 0){
+                            $img = isset($pic_arr[1]) ? str_replace("'",'',$pic_arr[1]) : '';
+                            $pic_list[] = $img;
+                        }
+                    }
+                }
+            }
+
+            $result['pic_list'] = $pic_list;
         }
         return compact("code","result","msg");
     }
