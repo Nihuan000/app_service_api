@@ -20,7 +20,7 @@ use Swoft\Task\Bean\Annotation\Task;
 /**
  * Class VisitRecordTask
  *
- * @Task("VisitRecordTask")
+ * @Task("VisitRecord")
  * @package App\Tasks
  */
 class VisitRecordTask
@@ -43,9 +43,29 @@ class VisitRecordTask
      */
     private $record_cache_list = 'visit_record_list';
 
+
+    /**
+     * 访问记录异步任务
+     * @param int $type
+     * @param array $data
+     * @return string
+     * @throws MysqlException
+     */
+    public function syncVisitTask(int $type, array $data)
+    {
+        Log::info('异步访问记录任务');
+        $recordRes = $this->logic->event_record($type,$data);
+        if(!$recordRes){
+            $visit_info = $type . '#' . json_encode($data);
+            $this->redis->rPush($this->record_cache_list,$visit_info);
+        }
+        return '异步访问记录任务';
+    }
+
+
     /**
      * 访问记录任务
-     * @Scheduled(cron="*\/2 * * * * *")
+     * @Scheduled(cron="5 * * * * *")
      * @throws MysqlException
      */
     public function userVisitTask()
