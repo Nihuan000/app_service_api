@@ -82,7 +82,7 @@ class BuyController{
             $result = [];
             $msg = '请求参数错误';
         }else{
-            $result = [
+            $buy = [
                 'amount' => 0,
                 'cover' => '',
                 'remark' => '',
@@ -111,9 +111,9 @@ class BuyController{
             if(!empty($data)){
                 $buy_info = current($data);
                 $amount = str_replace('采购数量：','',$buy_info['amount']);
-                $result['amount'] = $amount > 0 ? (int)$amount : 1000;
-                $result['remark'] = trim(str_replace([PHP_EOL,' ','\r'],'',$buy_info['remark']));
-                $result['cover'] = trim($buy_info['cover']);
+                $buy['amount'] = $amount > 0 ? (int)$amount : 1000;
+                $buy['remark'] = trim(str_replace([PHP_EOL,' ','\r'],'',$buy_info['remark']));
+                $buy['cover'] = trim($buy_info['cover']);
             }
             $pic = $queryInfo->rules($pic_rules)->queryData();
             $pic_list = [];
@@ -131,7 +131,8 @@ class BuyController{
                 }
             }
 
-            $result['pic_list'] = $pic_list;
+            $buy['pic_list'] = $pic_list;
+            $result['data'] = $buy;
         }
         return compact("code","result","msg");
     }
