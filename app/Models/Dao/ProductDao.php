@@ -199,11 +199,15 @@ class ProductDao
     /**
      * 添加访问记录
      * @param array $data
-     * @return ResultInterface
+     * @return bool|ResultInterface
      */
     public function setVisitProLog(array $data)
     {
         $record = new ProductRecords();
+        $exists = $record::findOne(['user_id' => $data['user_id'], 'r_time' => $data['r_time'],'pro_id' => $data['pro_id']])->getResult();
+        if($exists){
+            return 0;
+        }
         $record->setUserId($data['user_id']);
         $record->setProId($data['pro_id']);
         $record->setRTime($data['r_time']);

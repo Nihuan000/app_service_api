@@ -918,6 +918,14 @@ class UserDao
      */
     public function setVisitShopLog(array $data)
     {
+        $exists = Query::table('sb_shop_records')
+            ->where('user_id',$data['user_id'])
+            ->where('shop_id',$data['shop_id'])
+            ->where('r_time',$data['r_time'])
+            ->count()->getResult();
+        if($exists > 0){
+            return 0;
+        }
         return Query::table('sb_shop_records')->insert($data)->getResult();
     }
 

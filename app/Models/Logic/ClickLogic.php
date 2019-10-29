@@ -75,7 +75,7 @@ class ClickLogic
                 $shop['scene'] = (int)$data['scene'];
                 $shop['product_id'] = (string)$data['pro_id'];
                 $shop_res = $this->userData->setVisitShopLog($shop);
-                if($product_res['record'] && $product_res['clicks'] && $shop_res['record'] && $shop_res['clicks']){
+                if($product_res && $shop_res){
                     $record_res = true;
                 }
                 break;
@@ -104,7 +104,7 @@ class ClickLogic
                 $shop['scene'] = (int)$data['scene'];
                 $shop['product_id'] = (string)$data['pro_id'];
                 $shop_res = $this->userData->setVisitShopLog($shop);
-                if($shop_res['record'] && $shop_res['clicks']){
+                if($shop_res){
                     $record_res = true;
                 }
                 break;

@@ -372,14 +372,20 @@ class ProductData
     /**
      * 产品记录添加
      * @param array $data
-     * @return array
+     * @return bool
      */
     public function setProductRecordLog(array $data)
     {
         //记录
         $record = $this->productDao->setVisitProLog($data);
+        if($record == 0){
+            return true;
+        }
         //点击量更新
         $clicks = $this->productDao->updateProClickById($data['pro_id']);
-        return ['record' => $record, 'clicks' => $clicks];
+        if($record && $clicks){
+            return true;
+        }
+        return false;
     }
 }

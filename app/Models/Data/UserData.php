@@ -953,7 +953,13 @@ class UserData
     public function setVisitShopLog(array $data)
     {
         $recordRes = $this->userDao->setVisitShopLog($data);
+        if($recordRes == 0){
+            return true;
+        }
         $clicks = $this->userDao->updateUserClicks((int)$data['shop_id']);
-        return ['record' => $recordRes, 'clicks' => $clicks];
+        if($recordRes && $clicks){
+            return true;
+        }
+        return false;
     }
 }
