@@ -204,10 +204,15 @@ class UserTask{
             $time = date('Y-m-d H:i:s', time());
             $is_test = $this->userData->getSetting('is_test');
             $is_test = empty($is_test) ? 0 : 1;
+            $start_time = strtotime(date('Y-m-d', $time - 24 *3600));
+            $end_time = strtotime(date('Y-m-d 23:59:59', $time - 24 *3600));
             foreach ($reg_buyer_list as $key => $value) {
-                $$reg_buyer_list[$key] = (string)$value;
+                $is_login = $this->userData->checkUserLogin($value, $start_time, $end_time);
+                if(empty($is_login)){
+                    $$reg_buyer_list[] = (string)$value;
+                }
             }
-            write_log(3,"在{$time}时间开始给用户id:{$user_id}发送系统消息");
+            write_log(3,"在{$time}时间开始给用户id:".json_encode($reg_buyer_list)."发送系统消息");
             $msg = "你好，请问需要找什么面料？";
             $send_user_id = $is_test == 1 ? '173173' : '236359';
             sendC2CMessaging($send_user_id,$reg_buyer_list,$msg, 1, 1);
