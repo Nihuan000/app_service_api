@@ -946,4 +946,17 @@ class UserDao
         }
         return false;
     }
+    
+     /**
+     * 最新登录版本获取
+     * @param int $user_id
+     * @param int $start_time
+     * @param int $end_time
+     * @return mixed
+     */
+    public function checkUserLogin(int $user_id, int $start_time, int $end_time)
+    {
+        $table = 'sb_login_log_' . date('Y');
+        return Query::table($table)->where(['user_id' => $user_id, 'addtime' => ['between', [$start_time, $end_time]]])->orderBy('id','DESC')->limit(1)->getResult();
+    }
 }

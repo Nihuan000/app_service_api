@@ -962,4 +962,16 @@ class UserData
         }
         return false;
     }
+    /*
+     * 用户是否在这个时间段内有过登录
+     * @param $user_id
+     * @param $start_time
+     * @param $end_time
+     * @return mixed
+     */
+    public function checkUserLogin($user_id, $start_time, $end_time)
+    {
+        return $this->userDao->checkUserLogin($user_id, $start_time, $end_time);
+
+    }
 }
