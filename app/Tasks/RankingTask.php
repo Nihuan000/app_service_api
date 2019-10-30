@@ -63,6 +63,7 @@ class RankingTask
         }
         $start_time = strtotime(date('Y-m-d',strtotime("-{$this->limit_days} day")));
         $end_time = strtotime(date('Y-m-d'));
+        $real_end_date = strtotime(date('Y-m-d',strtotime('-1 day')));
         $limit = 100;
         $offerer_list = $this->offerData->getOffererListByTime($start_time,$end_time,$limit);
         if(!empty($offerer_list)){
@@ -72,10 +73,19 @@ class RankingTask
         }
         if($this->redis->has($cache_list)){
             $this->redis->expire($cache_list, $this->limit_days * 24 * 3600);
-            $this->redis->set('offer_ranking_date',json_encode(['start' => $start_time, 'end' => $end_time]));
+            $this->redis->set('offer_ranking_date',json_encode(['start' => $start_time, 'end' => $real_end_date]));
             $this->redis->delete('ranking_list_cache');
         }
         Log::info($date . '日报价排行榜任务结束');
         return '报价排行榜';
+    }
+
+    /**
+     * 报价排行榜
+     * @Scheduled(cron="0 0 10 * * *")
+     */
+    public function offerRankingMsgTask()
+    {
+
     }
 }
