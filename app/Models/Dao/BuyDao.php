@@ -179,7 +179,7 @@ class BuyDao
     public function setBuyVisitLog(array $data)
     {
         $record = new BuyRecords();
-        $exists = $record::findOne(['user_id' => $data['user_id'], 'r_time' => $data['r_time'],'buy_id' => $data['pro_id']])->getResult();
+        $exists = $record::findOne(['user_id' => $data['user_id'], 'r_time' => $data['r_time'],'buy_id' => $data['buy_id']])->getResult();
         if($exists){
             return true;
         }

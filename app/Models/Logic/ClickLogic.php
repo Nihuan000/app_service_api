@@ -106,14 +106,14 @@ class ClickLogic
                 $shop_res = $this->userData->setVisitShopLog($shop);
 
                 //添加访客记录
-                $shop['user_id'] = (int)$data['user_id'];
-                $shop['visited_user_id'] = (int)$data['shop_id'];
-                $shop['r_time'] = (int)$data['r_time'];
-                $shop['from_type'] = (int)$data['from_type'];
-                $shop['scene'] = (int)$data['scene'];
-                $shop['thing_id'] = (int)$data['shop_id'];
-                $shop['thing_type'] = 2;
-                $visit_res = $this->userData->setUserVisitLog($shop);
+                $visit['user_id'] = (int)$data['user_id'];
+                $visit['visited_user_id'] = (int)$data['shop_id'];
+                $visit['r_time'] = (int)$data['r_time'];
+                $visit['from_type'] = (int)$data['from_type'];
+                $visit['scene'] = (int)$data['scene'];
+                $visit['thing_id'] = (int)$data['shop_id'];
+                $visit['thing_type'] = 2;
+                $visit_res = $this->userData->setUserVisitLog($visit);
                 if($shop_res && $visit_res){
                     $record_res = true;
                 }
