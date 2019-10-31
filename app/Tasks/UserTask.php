@@ -201,24 +201,29 @@ class UserTask{
             foreach ($reg_buyer_list as $key => $value) {
                 $this->redis->zDelete($this->new_register_buyer_sys_msg, $value);
             }
-            $time = date('Y-m-d H:i:s', time());
+            write_log(3,"获取时间");
+            $time = time();
+            write_log(3,"获取当前环境");
             $is_test = $this->userData->getSetting('is_test');
             $is_test = empty($is_test) ? 0 : 1;
+            write_log(3,"获取昨日时间");
             $start_time = strtotime(date('Y-m-d', $time - 24 *3600));
             $end_time = strtotime(date('Y-m-d 23:59:59', $time - 24 *3600));
             $satisfy_demand_user_list = [];
             foreach ($reg_buyer_list as $key => $value) {
                 $is_login = $this->userData->checkUserLogin($value, $start_time, $end_time);
+                write_log(3,"新注册的采购商:{$value},用户数据:".json_encode($is_login));
                 if(empty($is_login)){
-                    $$satisfy_demand_user_list[] = (string)$value;
+                    $satisfy_demand_user_list[] = (string)$value;
                 }
             }
             write_log(3,"在{$time}时间开始给用户id:".json_encode($satisfy_demand_user_list)."发送系统消息");
             $msg = "你好，请问需要找什么面料？";
             $send_user_id = $is_test == 1 ? '173173' : '236359';
+            write_log(3,"发送的人{$send_user_id}");
             sendC2CMessaging($send_user_id,$satisfy_demand_user_list,$msg, 1, 1);
 
-            write_log(3,"在{$time}时间给用户id:{$user_id}发送系统消息完成");
+            write_log(3,"在{$time}时间给用户id:".json_encode($satisfy_demand_user_list)."发送系统消息完成");
         }
     }
 }
