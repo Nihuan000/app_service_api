@@ -86,8 +86,7 @@ class BuyDao
      */
     public function getUserBuyIds($params)
     {
-        return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'del_status' => 1 ,'user_id' => $params['user_id']],
-            ['fields' => ['buy_id','add_time']])->getResult();
+        return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'del_status' => 1 ,'user_id' => $params['user_id']], ['fields' => ['buy_id','add_time']])->getResult();
     }
 
     /**
