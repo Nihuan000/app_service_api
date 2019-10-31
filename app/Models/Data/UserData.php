@@ -972,6 +972,16 @@ class UserData
     public function checkUserLogin($user_id, $start_time, $end_time)
     {
         return $this->userDao->checkUserLogin($user_id, $start_time, $end_time);
+    }
 
+    /**
+     * 访客记录添加
+     * @param $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setUserVisitLog($data)
+    {
+        return $this->userDao->setUserVisitLog($data);
     }
 }

@@ -67,15 +67,16 @@ class ClickLogic
                 //添加产品记录/产品点击量
                 $product_res = $this->prodocutData->setProductRecordLog($product);
 
-                //添加店铺访问记录/店铺点击量
+                //添加访客记录
                 $shop['user_id'] = (int)$data['user_id'];
-                $shop['shop_id'] = (int)$data['shop_id'];
+                $shop['visited_user_id'] = (int)$data['shop_id'];
                 $shop['r_time'] = (int)$data['r_time'];
                 $shop['from_type'] = (int)$data['from_type'];
                 $shop['scene'] = (int)$data['scene'];
-                $shop['product_id'] = (string)$data['pro_id'];
-                $shop_res = $this->userData->setVisitShopLog($shop);
-                if($product_res && $shop_res){
+                $shop['thing_id'] = (int)$data['pro_id'];
+                $shop['thing_type'] = 1;
+                $visit_res = $this->userData->setUserVisitLog($shop);
+                if($visit_res && $product_res){
                     $record_res = true;
                 }
                 break;
@@ -102,9 +103,18 @@ class ClickLogic
                 $shop['r_time'] = (int)$data['r_time'];
                 $shop['from_type'] = (int)$data['from_type'];
                 $shop['scene'] = (int)$data['scene'];
-                $shop['product_id'] = (string)$data['pro_id'];
                 $shop_res = $this->userData->setVisitShopLog($shop);
-                if($shop_res){
+
+                //添加访客记录
+                $shop['user_id'] = (int)$data['user_id'];
+                $shop['visited_user_id'] = (int)$data['shop_id'];
+                $shop['r_time'] = (int)$data['r_time'];
+                $shop['from_type'] = (int)$data['from_type'];
+                $shop['scene'] = (int)$data['scene'];
+                $shop['thing_id'] = (int)$data['shop_id'];
+                $shop['thing_type'] = 2;
+                $visit_res = $this->userData->setUserVisitLog($shop);
+                if($shop_res && $visit_res){
                     $record_res = true;
                 }
                 break;

@@ -946,7 +946,7 @@ class UserDao
         }
         return false;
     }
-    
+
      /**
      * 最新登录版本获取
      * @param int $user_id
@@ -958,5 +958,24 @@ class UserDao
     {
         $table = 'sb_login_log_' . date('Y');
         return Query::table($table)->where(['user_id' => $user_id, 'addtime' => ['between', [$start_time, $end_time]]])->orderBy('id','DESC')->limit(1)->getResult();
+    }
+
+    /**
+     * 写入访客记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setUserVisitLog(array $data)
+    {
+        $history = false;
+        $result = Query::table('sb_user_visit_info')->insert($data)->getResult();
+        if($result){
+            $history = Query::table('sb_user_visit_info_history')->insert($data)->getResult();
+        }
+        if($history && $result){
+            return true;
+        }
+        return false;
     }
 }
