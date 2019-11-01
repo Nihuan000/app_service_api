@@ -146,9 +146,9 @@ class RankingTask
         $extra['isRich'] = 0;
         $extra['title'] =  $extra['msgTitle'] = "报价排行榜";
         $msg = "恭喜您目前处于报价排行榜第{$sort}名，";
-        $extra['msgContent'] = $msg . "\n点击查看榜单";
+        $extra['msgContent'] = $msg . "点击查看榜单";
         $extra['content'] = $msg . "#点击查看榜单#";
-        $d = [["keyword"=>"#点击查看#","type"=>18,"id"=>0,"url"=> $url]];
+        $d = [["keyword"=>"#点击查看榜单#","type"=>18,"id"=>0,"url"=> $url]];
         $data_show = array();
         $extra['data'] = $d;
         $extra['commendUser'] = array();
