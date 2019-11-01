@@ -957,7 +957,7 @@ class UserDao
     public function checkUserLogin(int $user_id, int $start_time, int $end_time)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Query::table($table)->where(['user_id' => $user_id, 'addtime' => ['between', [$start_time, $end_time]]])->orderBy('id','DESC')->limit(1)->getResult();
+        return Db::query("select user_id from {$table} where user_id= {$user_id} AND addtime between {$start_time} and {$end_time}")->getResult();
     }
 
     /**
