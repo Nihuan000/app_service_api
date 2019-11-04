@@ -73,17 +73,23 @@ class VisitRecordTask
         Log::info('访问记录任务开始');
         //删除历史记录
         if($this->redis->has($this->record_cache_list)){
-            $item = $this->redis->lPop($this->record_cache_list);
-            $recordRes = false;
-            if(!empty($item)){
-                $record_arr = explode('#',$item);
-                $type = isset($record_arr[0]) && in_array($record_arr[0],[1,2,3]) ? (int)$record_arr[0] : 0;
-                $data = json_decode($record_arr[1],true);
-                if(is_array($data)){
-                    $recordRes = $this->logic->event_record($type,$data);
-                }
-                if(!$recordRes){
-                    $this->redis->rPush($this->record_cache_list,$item);
+            $list = $this->redis->lRange($this->record_cache_list,0,20);
+            if(!empty($list)){
+                foreach ($list as $item){
+                    $recordRes = false;
+                    if(!empty($item)){
+                        $record_arr = explode('#',$item);
+                        $type = isset($record_arr[0]) && in_array($record_arr[0],[1,2,3]) ? (int)$record_arr[0] : 0;
+                        $data = json_decode($record_arr[1],true);
+                        if(is_array($data)){
+                            $recordRes = $this->logic->event_record($type,$data);
+                        }
+                        if(!$recordRes){
+                            $this->redis->rPush($this->record_cache_list,$item);
+                        }else{
+                            $this->redis->lPop($item);
+                        }
+                    }
                 }
             }
         }
