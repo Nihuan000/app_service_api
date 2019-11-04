@@ -10,6 +10,9 @@ namespace App\Models\Dao;
 
 use Swoft\Bean\Annotation\Bean;
 use App\Models\Entity\Offer;
+use Swoft\Db\Db;
+use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 
 /**
@@ -44,7 +47,7 @@ class OfferDao
      * 写入报价数据
      * @param array $params
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function setOfferInfo(array $params)
     {
@@ -55,10 +58,23 @@ class OfferDao
      * 报价产品写入
      * @param array $data
      * @return mixed
-     * @throws \Swoft\Db\Exception\MysqlException
+     * @throws MysqlException
      */
     public function setOfferPro(array $data)
     {
         return Query::table('sb_offer_relation_product')->insert($data)->getResult();
+    }
+
+    /**
+     * 获取报价用户列表
+     * @param int $start_time
+     * @param int $end_time
+     * @param int $limit
+     * @return mixed
+     * @throws DbException
+     */
+    public function getOfferUserByCount(int $start_time,int $end_time, int $limit)
+    {
+        return Db::query("SELECT offerer_id,count(offer_id) as offer_count FROM sb_offer WHERE offer_time BETWEEN {$start_time} AND {$end_time} GROUP BY offerer_id ORDER BY count(offer_id) DESC LIMIT {$limit}")->getResult();
     }
 }

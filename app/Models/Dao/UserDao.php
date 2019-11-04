@@ -908,4 +908,74 @@ class UserDao
         }
         return '';
     }
+
+
+    /**
+     * 写入店铺访问记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setVisitShopLog(array $data)
+    {
+        $exists = Query::table('sb_shop_records')
+            ->where('user_id',$data['user_id'])
+            ->where('shop_id',$data['shop_id'])
+            ->where('r_time',$data['r_time'])
+            ->count()->getResult();
+        if($exists > 0){
+            return 0;
+        }
+        return Query::table('sb_shop_records')->insert($data)->getResult();
+    }
+
+    /**
+     * 更新点击量
+     * @param int $id
+     * @return bool|mixed
+     */
+    public function updateUserClicks(int $id)
+    {
+        $userInfo = User::findById($id)->getResult();
+        if(!empty($userInfo)){
+            $data = [
+                'clicks' => $userInfo['clicks'] + 1,
+                'alter_time' => time()
+            ];
+            return User::updateOne($data,['user_id' => $id])->getResult();
+        }
+        return false;
+    }
+
+     /**
+     * 最新登录版本获取
+     * @param int $user_id
+     * @param int $start_time
+     * @param int $end_time
+     * @return mixed
+     */
+    public function checkUserLogin(int $user_id, int $start_time, int $end_time)
+    {
+        $table = 'sb_login_log_' . date('Y');
+        return Db::query("select user_id from {$table} where user_id= {$user_id} AND addtime between {$start_time} and {$end_time}")->getResult();
+    }
+
+    /**
+     * 写入访客记录
+     * @param array $data
+     * @return mixed
+     * @throws MysqlException
+     */
+    public function setUserVisitLog(array $data)
+    {
+        $history = false;
+        $result = Query::table('sb_user_visit_info')->insert($data)->getResult();
+        if($result){
+            $history = Query::table('sb_user_visit_info_history')->insert($data)->getResult();
+        }
+        if($history && $result){
+            return true;
+        }
+        return false;
+    }
 }

@@ -146,12 +146,12 @@ function get_img_url($pic)
  * @param int $is_batch
  * @return bool
  */
-function sendC2CMessaging($fromId,$uid,$content,$is_batch = 0)
+function sendC2CMessaging($fromId,$uid,$content,$is_batch = 0, $SyncOtherMachine = 2)
 {
     $offline_apns = apns_info($fromId);
     $android_info = android_info();
     $params = [
-        'SyncOtherMachine' => 2,
+        'SyncOtherMachine' => $SyncOtherMachine,
         'MsgRandom' => rand(1, 65535),
         'MsgTimeStamp' => time(),
         'From_Account'=> (string)$fromId,

@@ -86,8 +86,7 @@ class BuyDao
      */
     public function getUserBuyIds($params)
     {
-        return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'del_status' => 1 ,'user_id' => $params['user_id']],
-            ['fields' => ['buy_id','add_time']])->getResult();
+        return Buy::findAll( [['add_time','>=',$params['last_time']], 'is_audit' => 0, 'del_status' => 1 ,'user_id' => $params['user_id']], ['fields' => ['buy_id','add_time']])->getResult();
     }
 
     /**
@@ -170,5 +169,27 @@ class BuyDao
     public function getLastBuyIds(array $params)
     {
         return Buy::findAll($params,['fields' => ['user_id','buy_id','add_time'], 'orderby' => ['add_time' => 'desc']])->getResult();
+    }
+
+    /**
+     * 采购访问记录
+     * @param array $data
+     * @return mixed
+     */
+    public function setBuyVisitLog(array $data)
+    {
+        $record = new BuyRecords();
+        $exists = $record::findOne(['user_id' => $data['user_id'], 'r_time' => $data['r_time'],'buy_id' => $data['buy_id']])->getResult();
+        if($exists){
+            return true;
+        }
+        $record->setUserId($data['user_id']);
+        $record->setBuyId($data['buy_id']);
+        $record->setRTime($data['r_time']);
+        $record->setScene($data['scene']);
+        $record->setIsFilter($data['is_filter']);
+        $record->setFromType($data['from_type']);
+
+        return $record->save()->getResult();
     }
 }

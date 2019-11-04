@@ -27,10 +27,12 @@ return [
     'demoRedis' => [
         'db'     => 2,
         'prefix' => '',
+        'serialize'   => 0,
     ],
     'searchRedis' => [
         'db'     => 7,
         'prefix' => '',
+        'serialize'   => 0,
     ],
     'appRedis' => [
         'db' => 0,

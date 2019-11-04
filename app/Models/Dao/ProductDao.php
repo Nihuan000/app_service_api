@@ -195,4 +195,45 @@ class ProductDao
     {
         return Product::findAll(['user_id' => $user_id, 'del_status' => 1, 'is_up' => 1],['fields' => ['pro_id','name'],'orderby' => ['clicks' => 'desc'], 'limit' => 10])->getResult();
     }
+
+    /**
+     * 添加访问记录
+     * @param array $data
+     * @return bool|ResultInterface
+     */
+    public function setVisitProLog(array $data)
+    {
+        $record = new ProductRecords();
+        $exists = $record::findOne(['user_id' => $data['user_id'], 'r_time' => $data['r_time'],'pro_id' => $data['pro_id']])->getResult();
+        if($exists){
+            return 0;
+        }
+        $record->setUserId($data['user_id']);
+        $record->setProId($data['pro_id']);
+        $record->setRTime($data['r_time']);
+        $record->setFromType($data['from_type']);
+        $record->setScene($data['scene']);
+        $record->setBusiness($data['business']);
+        $record->setIsFilter($data['is_filter']);
+        $record->setRequestId($data['request_id']);
+        return $record->save()->getResult();
+    }
+
+    /**
+     * 修改产品信息
+     * @param int $id
+     * @return mixed
+     */
+    public function updateProClickById(int $id)
+    {
+        $proInfo = Product::findById($id)->getResult();
+        if(!empty($proInfo)){
+            $data = [
+                'clicks' => $proInfo['clicks'] + 1,
+                'alter_time' => time()
+            ];
+            return Product::updateOne($data,['pro_id' => $id])->getResult();
+        }
+        return false;
+    }
 }

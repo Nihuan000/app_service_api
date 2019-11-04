@@ -33,7 +33,8 @@
         "swoft/memory": "^1.0",
         "swoft/service-governance": "^1.0",
         "elasticsearch/elasticsearch": "~2.0",
-        "malong/productai": "^1.0"
+        "malong/productai": "^1.0",
+        "jaeger/querylist": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7",
