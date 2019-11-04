@@ -109,6 +109,7 @@ class UserStrngthMsgTask{
             $send_user_list = [];
             foreach ($user_list as $key => $value) {
                 $send_user_list[] = (string)$value;
+                $this->redis->zDelete($this->role_key, $value);
             }
             $user_str = implode(',', $send_user_list);
             write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，开始发送系统消息");
