@@ -114,24 +114,31 @@ class UserStrngthMsgTask{
             $user_str = implode(',', $send_user_list);
             write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，开始发送系统消息");
 
-            //发送系统消息
-            $config = \Swoft::getBean('config');
-            $sys_msg = $config->get('sysMsg');
-            $extra = $sys_msg;
-            $extra['title'] =  $extra['msgTitle'] = "";
-            $extra['isRich'] = 0;
-            $extra['msgContent'] = '您的实力商家权益将于今天过期，点击查看相关权益并续费。';
-            $extra['content'] = '您的实力商家权益将于今天过期，#点击查看相关权益并续费。#';
-            $d = [["keyword"=>"#点击查看相关权益并续费。#","type"=>18,"id"=>0,"url"=>$this->userData->getSetting('finish_role_of_sysmsg')]];
-            $datashow = array();
-            $extra['data'] = $d;
-            $extra['commendUser'] = array();
-            $extra['showData'] = $datashow;
-            $data['extra'] = $extra;
-
-            sendInstantMessaging('1', $send_user_list, json_encode($data['extra']), 1);
-
-            write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，发送系统消息已经完成");
+            foreach ($send_user_list as $key => $value) {
+                //发送系统消息
+                $config = \Swoft::getBean('config');
+                $sys_msg = $config->get('sysMsg');
+                $extra = $sys_msg;
+                $extra['title'] =  $extra['msgTitle'] = "";
+                $extra['isRich'] = 0;
+                $extra['msgContent'] = '您的实力商家权益将于今天过期，点击查看相关权益并续费。';
+                $extra['content'] = '您的实力商家权益将于今天过期，#点击查看相关权益并续费。#';
+                $url = $this->userData->getSetting('finish_role_of_sysmsg');
+                $least_version_811 = $this->userData->getSetting('least_version_811');
+                $least_version_811 = empty($least_version_811) ? '8.10.1' : $least_version_811;
+                $url .=  "?uid={$value}&version={$least_version_811}";
+                $d = [["keyword"=>"#点击查看相关权益并续费。#","type"=>18,"id"=>0,"url"=> $url]];
+                write_log(3,"用户id:{$value}开始发送系统消息。URL:{$url}");
+                $datashow = array();
+                $extra['data'] = $d;
+                $extra['commendUser'] = array();
+                $extra['showData'] = $datashow;
+                $data['extra'] = $extra;
+    
+                sendInstantMessaging('1', $value, json_encode($data['extra']));
+    
+                write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，发送系统消息已经完成");
+            }
         }
     }
 }
