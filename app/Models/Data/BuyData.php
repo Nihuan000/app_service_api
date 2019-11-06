@@ -323,12 +323,21 @@ class BuyData
     /**
      * 采购访问记录添加
      * @param array $data
-     * @return array
+     * @return bool
      */
     public function setBuyRecordLog(array $data)
     {
         //记录
-        return $this->buyDao->setBuyVisitLog($data);
+        $record = $this->buyDao->setBuyVisitLog($data);
+        if($record == 0){
+            return true;
+        }
+        //点击量更新
+        $clicks = $this->buyDao->updateBuyClickById($data['buy_id']);
+        if($record && $clicks){
+            return true;
+        }
+        return false;
     }
 
 }

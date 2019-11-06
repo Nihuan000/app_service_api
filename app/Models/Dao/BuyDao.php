@@ -192,4 +192,22 @@ class BuyDao
 
         return $record->save()->getResult();
     }
+
+    /**
+     * 修改产品信息
+     * @param int $id
+     * @return mixed
+     */
+    public function updateBuyClickById(int $id)
+    {
+        $proInfo = Buy::findById($id)->getResult();
+        if(!empty($proInfo)){
+            $data = [
+                'clicks' => $proInfo['clicks'] + 1,
+                'alter_time' => time()
+            ];
+            return Buy::updateOne($data,['pro_id' => $id])->getResult();
+        }
+        return false;
+    }
 }

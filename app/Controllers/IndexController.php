@@ -539,4 +539,59 @@ class IndexController
         Log::info('历史发布采购商微信激活结束');
         return ['历史发布采购商微信提醒'];
     }
+
+    /**
+     * @param Request $request
+     * @return array
+     * @throws DbException
+     */
+    public function offer_ranking_test(Request $request)
+    {
+        $user_id = $request->post('user_id');
+        if(empty($user_id)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $msg = $this->offer_ranking_msg(20);
+            if($msg != false){
+                $msgRes = sendInstantMessaging('1',$user_id,$msg);
+                if($msgRes !== false){
+                    $code = 0;
+                    $result = [];
+                    $msg = '请求成功';
+                }
+            }
+        }
+        return compact("code","result","msg");
+    }
+
+
+    /**
+     * 采购商消息
+     * @param int $sort
+     * @return false|string
+     */
+    private function offer_ranking_msg($sort = 0)
+    {
+        $url = $this->userData->getSetting('offer_ranking_url');
+        if($sort > 20 || $sort < 1 || empty($url)){
+            return false;
+        }
+        $config = \Swoft::getBean('config');
+        $extra =  $config->get('sysMsg');
+        $extra['isRich'] = 0;
+        $extra['title'] =  $extra['msgTitle'] = "报价排行榜";
+        $msg = "恭喜您目前处于报价排行榜第{$sort}名，";
+        $extra['msgContent'] = $msg . "点击查看榜单";
+        $extra['content'] = $msg . "#点击查看榜单#";
+        $d = [["keyword"=>"#点击查看榜单#","type"=>18,"id"=>0,"url"=> $url]];
+        $data_show = array();
+        $extra['data'] = $d;
+        $extra['commendUser'] = array();
+        $extra['showData'] = $data_show;
+        $data['extra'] = $extra;
+
+        return json_encode($data['extra']);
+    }
 }

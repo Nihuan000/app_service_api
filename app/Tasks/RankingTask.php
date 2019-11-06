@@ -87,6 +87,7 @@ class RankingTask
                     'user_id' => env('TEST_USER_ID'),
                     'scene' => 'auto',
                 ],
+                'timeout' => 5,
                 'url' => env('API_BASE_URL') . '/frontend/offer-ranking'
             ];
             //缓存生成
@@ -98,6 +99,7 @@ class RankingTask
 
     /**
      * 报价排行榜消息发送
+     * @Scheduled(cron="01 0 10 * * *")
      */
     public function offerRankingMsgTask()
     {
