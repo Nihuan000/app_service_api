@@ -68,7 +68,7 @@ class UserStrngthMsgTask{
                 $user_id = (int)$value;
                 Log::info("用户id:{$user_id}在{$time}9.9体验实力商家消息发送开始");
                 write_log(3,"用户id:{$user_id}在{$time}9.9体验实力商家消息发送开始");
-               
+
                 //发送系统消息
                 $config = \Swoft::getBean('config');
                 $sys_msg = $config->get('sysMsg');
@@ -134,9 +134,7 @@ class UserStrngthMsgTask{
                 $extra['commendUser'] = array();
                 $extra['showData'] = $datashow;
                 $data['extra'] = $extra;
-    
                 sendInstantMessaging('1', $value, json_encode($data['extra']));
-    
                 write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，发送系统消息已经完成");
             }
         }
