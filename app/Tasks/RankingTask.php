@@ -82,6 +82,7 @@ class RankingTask
             $this->redis->expire($cache_list, $this->limit_days * 24 * 3600);
             $this->redis->set('offer_ranking_date',json_encode(['start' => $start_time, 'end' => $real_end_date]));
             $this->redis->delete('ranking_list_cache');
+            Log::info($date . '日报价排行榜自动生成请求开始');
             $params = [
                 'post_params' => [
                     'user_id' => env('TEST_USER_ID'),
@@ -91,7 +92,8 @@ class RankingTask
                 'url' => env('API_BASE_URL') . '/frontend/offer-ranking'
             ];
             //缓存生成
-            CURL($params);
+            CURL($params, 'post');
+            Log::info($date . '日报价排行榜自动生成请求结束');
         }
         Log::info($date . '日报价排行榜任务结束');
         return '报价排行榜';

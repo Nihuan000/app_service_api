@@ -122,6 +122,9 @@ class RefreshNoQuoteTask
         if($hour > 22 || $hour < 6){
             return true;
         }else{
+            //写入发送历史
+            $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
+            $history_exists = $this->redis->exists($refresh_history_key);
             $msg = '';
             $refresh_status = 1;
             $buy_id = $this->redis->lpop($this->buy_queue_key);
@@ -147,6 +150,12 @@ class RefreshNoQuoteTask
                 $msg = "采购报价数大于{$this->min_offer},跳过";
                 $refresh_status = 0;
             }
+            $refresh_times = $this->buriedLogic->get_buried_count($buy_id,9);
+            if($refresh_times >= 2){
+                $msg = "采购刷新次数{$refresh_times},跳过";
+                $refresh_status = 0;
+                $this->redis->sAdd($refresh_history_key,$buy_id);
+            }
             if($refresh_status == 1){
                 $up_result = $this->buyData->updateBuyInfo($buy_id,['refresh_time'=> time(),'alter_time' => time()]);
                 if($up_result){
@@ -154,9 +163,6 @@ class RefreshNoQuoteTask
                     if($this->redis->sIsMember($this->refresh_queue_key,(string)$buy_id)){
                         $this->redis->sRem($this->refresh_queue_key,(string)$buy_id);
                     }
-                    //写入发送历史
-                    $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
-                    $history_exists = $this->redis->exists($refresh_history_key);
                     $this->redis->sAdd($refresh_history_key,$buy_id);
                     if(!$history_exists){
                         $expire_time = strtotime("+7 day");

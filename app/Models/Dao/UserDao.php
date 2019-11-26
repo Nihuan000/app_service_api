@@ -241,7 +241,27 @@ class UserDao
     public function getUserVisitData(int $user_id, int $last_time)
     {
         $current_time = strtotime(date('Y-m-d'));
-        return Query::table('sb_user_visit')->where('visit_id',$user_id)->where('visit_time',$last_time,'>=')->where('visit_time',$current_time,'<')->groupBy('user_id')->get(['user_id'])->getResult();
+        return Query::table('sb_user_visit_info')->where('visited_user_id',$user_id)->where('r_time',$last_time,'>=')->where('r_time',$current_time,'<')->groupBy('user_id')->get(['user_id'])->getResult();
+    }
+
+    /**
+     * 获取最后访客
+     * @param int $shop_id
+     * @return mixed
+     * @throws DbException
+     */
+    public function getLastVisitUser(int $shop_id)
+    {
+        $current_time = strtotime('-30 day');
+        $visit_info = Query::table('sb_user_visit_info','t')
+            ->leftJoin('sb_user',"u.user_id = t.user_id",'u')
+            ->where('t.visited_user_id',$shop_id)->where('t.r_time',$current_time, '>')
+            ->orderBy('t.r_id','DESC')
+            ->limit(1)
+            ->get(['u.name'])
+            ->getResult();
+
+        return $visit_info;
     }
 
     /**
@@ -882,12 +902,13 @@ class UserDao
     /**
      * 最新登录版本获取
      * @param int $user_id
+     * @param array $field
      * @return mixed
      */
-    public function getUserLastLogin(int $user_id)
+    public function getUserLastLogin(int $user_id, array $field)
     {
         $table = 'sb_login_log_' . date('Y');
-        return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->limit(1)->get(['version'])->getResult();
+        return Query::table($table)->where('user_id',$user_id)->orderBy('id','DESC')->limit(1)->get($field)->getResult();
     }
 
     /**
@@ -968,10 +989,10 @@ class UserDao
      */
     public function setUserVisitLog(array $data)
     {
-        $history = false;
+        $history = true;
         $result = Query::table('sb_user_visit_info')->insert($data)->getResult();
         if($result){
-            $history = Query::table('sb_user_visit_info_history')->insert($data)->getResult();
+            //$history = Query::table('sb_user_visit_info_history')->insert($data)->getResult();
         }
         if($history && $result){
             return true;

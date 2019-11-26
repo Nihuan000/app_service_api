@@ -189,17 +189,12 @@ class RecommendMsgQueueTask
         $fields =['buy_id','pic','status','remark','amount','unit','user_id','add_time'];
         $buy_list = $this->buyData->getBuyList($params,$fields);
         if(!empty($buy_list)){
-            $grayscale = getenv('IS_GRAYSCALE');
-            $test_list = $this->userData->getTesters();
             foreach ($buy_list as $item) {
                 $user_ids = [];
                 if(date('H',$now_time) > 23 || date('H',$now_time) < 8){
                     continue;
                 }
                 $buy_id = $item['buyId'];
-                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
-                    continue;
-                }
                 $tag_params = [
                     'buy_id' => $item['buyId'],
                     ['top_id','>',100]
@@ -216,9 +211,6 @@ class RecommendMsgQueueTask
                 }
                 $last_user_ids = [];
                 if(!empty($user_ids)){
-                    if($grayscale == 1){
-                        $user_ids = array_intersect($user_ids,$test_list);
-                    }
                     //过滤当天已发送
                     $receive_history = $this->searchRedis->zRange($receive_msg_cache . $date,0,-1);
                     $arr_intersect = array_intersect($user_ids,$receive_history);
@@ -228,6 +220,7 @@ class RecommendMsgQueueTask
                     //30分钟内有登陆判断
                     $userParams = [
                         ['last_time','>', $now_time - 1800],
+                        ['role','in', [2,3,4]],
                         'user_id' => $user_ids
                     ];
                     $last_login_list = $this->userData->getUserDataByParams($userParams,2000);

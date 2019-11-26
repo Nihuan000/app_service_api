@@ -236,4 +236,35 @@ class ProductDao
         }
         return false;
     }
+
+    /**
+     * 获取产品图片列表
+     * @param int $id
+     * @return mixed
+     */
+    public function productImgList(int $id)
+    {
+        return Query::table('product_img')->where('pro_id',$id)->get(['pimg_id','img','img_width'])->getResult();
+    }
+
+    /**
+     * 修改产品图片信息
+     * @param int $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateProImg(int $id, $data)
+    {
+        return Query::table('product_img')->where('pimg_id',$id)->update($data)->getResult();
+    }
+
+    /**
+     * 图片列表获取
+     * @param int $psize
+     * @return mixed
+     */
+    public function noSizeImgList($psize = 20)
+    {
+        return Query::table('product_img')->limit($psize)->get(['pimg_id','img','img_width'])->getResult();
+    }
 }

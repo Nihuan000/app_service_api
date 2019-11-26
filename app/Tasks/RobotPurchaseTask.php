@@ -11,6 +11,7 @@
 namespace App\Tasks;
 
 use App\Models\Data\UserData;
+use App\Models\Logic\SmsLogic;
 use App\Models\Logic\UserStrengthLogic;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
@@ -47,6 +48,13 @@ class RobotPurchaseTask{
      * @var UserData
      */
     private $userData;
+
+
+    /**
+     * @Inject()
+     * @var SmsLogic
+     */
+    private $smsLogic;
 
     /**
      * 拼团成功实商补充任务/机器人参团状态修改
@@ -392,7 +400,7 @@ class RobotPurchaseTask{
         if($this->userData->getSetting('SEND_SMS') == 1 && !empty($sms)){
             $user_info = $this->userData->getUserInfo($user_id);
             if(!empty($user_info)){
-                sendSms($user_info['phone'],$sms,2,2);
+                $this->smsLogic->send_sms_message($user_info['phone'],$sms,2);
             }
         }
     }

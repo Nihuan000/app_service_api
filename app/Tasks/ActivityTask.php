@@ -11,6 +11,7 @@
 namespace App\Tasks;
 
 use App\Models\Data\UserData;
+use App\Models\Logic\SmsLogic;
 use App\Models\Logic\UserLogic;
 use Swoft\Bean\Annotation\Inject;
 use App\Models\Logic\OtherLogic;
@@ -46,6 +47,12 @@ class ActivityTask{
      * @var OtherLogic
      */
     private $OtherLogic;
+
+    /**
+     * @Inject()
+     * @var SmsLogic
+     */
+    private $smsLogic;
 
     /**
      * @var string
@@ -144,7 +151,7 @@ class ActivityTask{
                     $user_info = $this->userData->getUserInfo($user_id);
                     write_log(3,"user_info:".json_encode($user_info));
                     if(!empty($user_info)){
-                        $result = sendSms($user_info['phone'],$msg,2,2);
+                        $result = $this->smsLogic->send_sms_message($user_info['phone'],$msg,2);
                         write_log(3,"短信发送结果:".json_encode($result));
                         if($result){
                             $rec = [

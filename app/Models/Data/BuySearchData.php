@@ -50,10 +50,10 @@ class BuySearchData
     public function recommendByTag(array $params)
     {
         $page = $params['page'] == 0 ? $params['page'] : $params['page'] - 1;
-        $size = $params['psize'];
+        $size = $params['psize'] > 100 ? 100 : $params['psize'];
         $from = $page * $size;
-        $last_days = env('ES_RECOMMEND_DAYS');
-        $last_time = strtotime("-{$last_days} day");
+//        $last_days = env('ES_RECOMMEND_DAYS');
+//        $last_time = strtotime("-{$last_days} day");
 
         //过滤基本信息
         $filter = $this->baseFilter();
@@ -64,7 +64,7 @@ class BuySearchData
             $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
             if(!empty($user_tag_list)){
                 //设置过期时间
-                $this->redis->setex('user_subscription_tag:' . $params['user_id'],30*24*3600,json_encode($user_tag_list));
+                $this->redis->setex('user_subscription_tag:' . $params['user_id'],24*3600,json_encode($user_tag_list));
             }
         }
         $product_terms = [];
@@ -146,16 +146,15 @@ class BuySearchData
         }
 
         //发布时间过滤
-        if(!isset($params['type']) || $params['type'] == 0){
-            $size = 100;
-            $filter[] = [
-                'range' => [
-                    'audit_time' => [
-                        'from' => $last_time
-                    ]
-                ]
-            ];
-        }
+//        if(!isset($params['type']) || $params['type'] == 0){
+//            $filter[] = [
+//                'range' => [
+//                    'audit_time' => [
+//                        'from' => $last_time
+//                    ]
+//                ]
+//            ];
+//        }
         //搜索语句拼接
         $query = [
             'from' => $from,
@@ -177,7 +176,7 @@ class BuySearchData
         ];
         //记录日志
         $params['label_ids'] = $label_ids;
-        $this->search_log($params,6);
+        $query['search_params'] = $params;
         //搜索执行语句生成
         return $query;
     }
@@ -280,13 +279,16 @@ class BuySearchData
      * @param $params
      * @param int $hot_type
      */
-    private function search_log($params,$hot_type = 6)
+    public function search_log($params,$hot_type = 6)
     {
         $buyLog = [
             'user_id' => $params['user_id'],
             'parentid' => $params['type'],
             'label_ids' => json_encode($params['label_ids']),
             'is_hot' => $hot_type,
+            'match_num' => $params['match_num'],
+            'match_ids' => $params['match_ids'],
+            'request_id' => $params['request_id'],
             'page_num' => $params['page'],
             'version' => $params['version']
         ];

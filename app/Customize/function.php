@@ -24,16 +24,15 @@ function get_img_url($pic)
 
 
 /**
- * 行业短信
+ * 短信通知(批量发多个号码格式[phone1,phone2,phone3])
  * @param string $phone
  * @param string $content
- * @param int $msg_type 1:验证码 2:消息
- * @param int $send_route 1:行业短信 2:营销短信
- * @param int $is_batch
+ * @param int $msg_type 1:验证码|行业短信 2:营销短信
+ * @param string $params 扩展参数，变量短信时传参
  * @return bool
  * @author Nihuan
  */
- function sendSms(string $phone, string $content, int $msg_type=1, int $send_route = 1, int $is_batch = 0)
+ function sendSms(string $phone, string $content, int $msg_type=1, string $params = '')
 {
     $config = \Swoft::getBean('config');
     $filter_phone = $config['filter_phone'];
@@ -41,12 +40,12 @@ function get_img_url($pic)
     $marketing_config = $config['MarketingSms'];
     $sms_switch = env('SMS_SWITCH');
     $is_service = false;
-    if(in_array($phone,$filter_phone) && $msg_type == 2 && $is_batch == 0){
+    if(in_array($phone,$filter_phone) && $msg_type == 2){
         $is_service = true;
     }
 
     $shuffix = '';
-    if($send_route == 1){
+    if($msg_type == 1){
         $account = $industry_config['I_account'];
         $password = $industry_config['I_password'];
     }else{
@@ -57,9 +56,15 @@ function get_img_url($pic)
     if($is_service == false && $sms_switch == 1){
         $content .= $shuffix;
         $sendSms = ['phone'=>$phone, 'msg'=>urlencode($content),'account' => $account,'password' => $password,'report' => true];
+        $url = "http://vsms.253.com/msg/send/json";
+        if(!empty($params)){
+            unset($sendSms['phone']);
+            $sendSms['params'] = $params;
+            $url = "http://vsms.253.com/msg/variable/json";
+        }
         $postFields = json_encode($sendSms);
         $ch = curl_init ();
-        curl_setopt( $ch, CURLOPT_URL, "http://vsms.253.com/msg/send/json" );
+        curl_setopt( $ch, CURLOPT_URL, $url);
         curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json; charset=utf-8'
             )
@@ -87,6 +92,7 @@ function get_img_url($pic)
         curl_close ( $ch );
         return $result;
     }else{
+        write_log(3,'测试数据:' . $phone . ',内容:' . $content);
         return true;
     }
 }
@@ -98,10 +104,11 @@ function get_img_url($pic)
  * @param $uid
  * @param $content
  * @param int $is_batch
+ * @param string $task_id 任务id
  * @return bool
  * @author Nihuan
  */
- function sendInstantMessaging($fromId,$uid,$content,$is_batch = 0)
+ function sendInstantMessaging($fromId,$uid,$content,$is_batch = 0, $task_id = '')
 {
     $content_arr = json_decode($content,true);
     $offline_template = custom_offline($fromId,$content_arr);
@@ -129,7 +136,7 @@ function get_img_url($pic)
     $curl_result = CURL($curl_params, 'post');
 
     $reStatus = json_decode($curl_result);
-    write_log(3,$paramsString . '->' . $curl_result);
+    write_log(1,"taskId:{$task_id}->" . $paramsString . '->' . $curl_result);
     if($reStatus->ErrorCode == 0) {
         return true;
     }
@@ -144,6 +151,7 @@ function get_img_url($pic)
  * @param $uid
  * @param $content
  * @param int $is_batch
+ * @param int $SyncOtherMachine 消息是否同步至发送方 1:同步 2:不同步
  * @return bool
  */
 function sendC2CMessaging($fromId,$uid,$content,$is_batch = 0, $SyncOtherMachine = 2)
@@ -456,68 +464,109 @@ function get_im_config()
     return $InstantMSg_config;
 }
 
-
 /**
- * 个推消息发送
- * @author Nihuan
- * @param $cid
- * @param $content
+ * 批量设置个推接收方
+ * @param $cid_list
  * @return array
- * @throws Exception
  */
-function get_message($cid,$content)
+function set_getui_target($cid_list)
 {
+    $target_list = [];
+    $list_count = count($cid_list);
+    if($list_count > 1000){
+        return $target_list;
+    }
     $config = \Swoft::getBean('config');
-    $account = $config['getuiMsg'];
-    $category = json_encode($content);
-
-    //模板设置
-    $template = new IGtTransmissionTemplate();
-    $template->set_appId($account['GETUI_APP_ID']);
-    $template->set_appkey($account['GETUI_APP_KEY']);
-    $template->set_transmissionType(2);
-    $template->set_transmissionContent($category);
-
-    //透传内容设置
-    $payload = new IGtAPNPayload();
-    $payload->contentAvailable = 0;
-    $payload->category = $category;
-    $payload->badge = "+1";
-
-    //消息体设置
-    $alterMsg = new DictionaryAlertMsg();
-    $alterMsg->body = (string)$content['content'];
-    $alterMsg->title = $content['title'];
-    $payload->alertMsg = $alterMsg;
-    if($content['pic'] != ''){
-        $media = new IGtMultiMedia();
-        $medicType = new MediaType();
-        $media->type = $medicType::pic;
-        $media->url = $content['pic'];
-        $payload->add_multiMedia($media);
+    $account = $config['GetuiMsg'];
+    if(is_array($cid_list)){
+        foreach ($cid_list as $item) {
+            //接收方1
+            $target = new IGtTarget();
+            $target->set_appId($account['GETUI_APP_ID']);
+            $target->set_clientId($item);
+            $target_list[] = $target;
+        }
     }
 
-    $template->set_apnInfo($payload);
+    return $target_list;
+}
+
+
+/**
+ * 个推消息批量发送
+ * @param string $task_id 任务id
+ * @param array $batch_list
+ * @return array
+ * @throws Exception
+ * @author Nihuan
+ */
+function getui_message($task_id,$batch_list = [])
+{
+    $config = \Swoft::getBean('config');
+    $account = $config['GetuiMsg'];
+
+    require_once env('GETUI_PATH') . '/IGt.Push.php';
+    require_once env('GETUI_PATH') . '/igetui/IGt.AppMessage.php';
+    require_once env('GETUI_PATH') . '/igetui/IGt.APNPayload.php';
+    require_once env('GETUI_PATH') . '/IGt.Batch.php';
+    require_once env('GETUI_PATH') . '/igetui/utils/AppConditions.php';
+    require_once env('GETUI_PATH') . '/igetui/IGt.MultiMedia.php';
 
     //推送实例化
-    $igt = new IGeTui(NULL,$account['GETUI_APP_KEY'],$account['GETUI_MASTER_SECRET'],false);
+    $igt = new IGeTui($account['GETUI_HOST'],$account['GETUI_APP_KEY'],$account['GETUI_MASTER_SECRET'],false);
+    $batch = new IGtBatch($account['GETUI_APP_KEY'], $igt);
 
-    //个推信息体
-    $messageNoti = new IGtSingleMessage();
-    $messageNoti->set_isOffline(true);//是否离线
-    $messageNoti->set_offlineExpireTime(24 * 60 * 60);//离线时间
-    $messageNoti->set_data($template);//设置推送消息类型
+    foreach ($batch_list as $item) {
+        $cid = $item['cid'];
+        $content = $item['content'];
+        $category = json_encode($content);
 
-    //接收方
-    $target = new IGtTarget();
-    $target->set_appId($account['GETUI_APP_ID']);
-    $target->set_clientId($cid);
+        //模板设置
+        $template = new IGtTransmissionTemplate();
+        $template->set_appId($account['GETUI_APP_ID']);
+        $template->set_appkey($account['GETUI_APP_KEY']);
+        $template->set_transmissionType(2);
+        $template->set_transmissionContent($category);
+
+        //透传内容设置
+        $payload = new IGtAPNPayload();
+        $payload->contentAvailable = 0;
+        $payload->category = $category;
+        $payload->badge = "+1";
+
+        //消息体设置
+        $alterMsg = new DictionaryAlertMsg();
+        $alterMsg->body = (string)$content['content'];
+        $alterMsg->title = $content['title'];
+        $payload->alertMsg = $alterMsg;
+        if(isset($content['pic']) && $content['pic'] != ''){
+            $media = new IGtMultiMedia();
+            $medicType = new MediaType();
+            $media->type = $medicType::pic;
+            $media->url = $content['pic'];
+            $payload->add_multiMedia($media);
+        }
+
+        $template->set_apnInfo($payload);
+
+        //个推信息体
+        $messageNoti = new IGtSingleMessage();
+        $messageNoti->set_isOffline(true);//是否离线
+        $messageNoti->set_offlineExpireTime(24 * 60 * 60);//离线时间
+        $messageNoti->set_data($template);//设置推送消息类型
+
+        //接收方
+        $target = new IGtTarget();
+        $target->set_appId($account['GETUI_APP_ID']);
+        $target->set_clientId($cid);
+        $batch->add($messageNoti, $target);
+    }
 
     try {
-        $rep = $igt->pushMessageToSingle($messageNoti, $target);
+        $rep = $batch->submit();
+        write_log(5,$task_id . '->' . json_encode($rep,JSON_UNESCAPED_SLASHES));
     }catch(RequestException $e){
-        $requstId =$e->getRequestId();
-        $rep = $igt->pushMessageToSingle($messageNoti, $target,$requstId);
+        write_log(5,$task_id . '_Err: code->' . $e->getCode() . ',Track ->' . $e->getTrace() . ',Message->' . $e->getMessage());
     }
     return $rep;
 }
@@ -533,7 +582,7 @@ function write_log($type,$data)
     $file = '';
     switch ($type){
         case 1:
-            $file = 'norefresh_' . date('Y_m_d') . '.log';
+            $file = 'message_' . date('Y_m_d') . '.log';
             break;
 
         case 2:
@@ -542,6 +591,18 @@ function write_log($type,$data)
 
         case 3:
             $file = 'record_' . date('Y_m_d') . '.log';
+            break;
+
+        case 4:
+            $file = 'sms_' . date('Y_m_d') . '.log';
+            break;
+
+        case 5:
+            $file = 'getui_' . date('Y_m_d') . '.log';
+            break;
+
+        case 6:
+            $file = 'wechat_' . date('Y_m_d') . '.log';
             break;
     }
     if(!empty($file)){
@@ -590,6 +651,126 @@ function similar_acquisition($judgment,$match_list,$get_type = 1)
     return $current_match_value;
 }
 
+
+/**
+ * 唯一码uuid生成
+ * @param string $mark
+ * @return string
+ */
+function _uuid_geneal($mark = ''){
+    $uuid = '';
+    $num_mark = empty($mark) ? '003700' : $mark;
+    $tmp_num = microtime(true) * 10000;
+    $bit = 31;
+    $sec_uuid = $num_mark . $tmp_num;
+    $len = strlen($sec_uuid);
+    $flx = ceil(($bit - $len) /2);
+    for($j=0;$j<$flx;$j++){
+        $uuid .= 0;
+    }
+    $uuid .= $sec_uuid;
+    $flx_max = $bit - strlen($uuid);
+    for ($i = 0;$i<$flx_max;$i++){
+        $uuid .= 0;
+    }
+    return $uuid;
+}
+
+/**
+ * 搜索获取接口
+ * @Author Nihuan
+ * @Version 1.0
+ * @Date 16-11-28
+ * @param $type
+ * @param $params
+ * @param $id
+ * @param $device
+ * @param $from_type
+ * @return array|bool
+ */
+function publicSearch($type, $params, $id, $device = 'activate-task-device', $from_type = 1){
+    $es_type = '';
+    switch($type){
+        case 1:
+            $es_type = 'complement';
+            break;
+
+        case 2:
+            $es_type = 'buy';
+            break;
+
+        case 3:
+            $es_type = 'product';
+            break;
+
+        case 4:
+            $es_type = 'shop';
+            break;
+
+        case 5:
+            $es_type = 'addressBook';
+            break;
+
+        case 6:
+            //同店推荐,邻家好货,相似推荐
+            $es_type = 'listByProduct';
+            break;
+
+        case 7:
+            //店铺删除
+            $es_type = 'shopDelete';
+            break;
+
+        case 8:
+            //关键词推广产品
+            $es_type = 'recommendProduct';
+            break;
+    }
+    $ch = curl_init();
+    $request_url = env('SEARCH_HOST');
+    $server_name = env('SEARCH_SERVER_NAME');
+    $application_name = env('SEARCH_APP_NAME');
+    $post_data = [
+        'serviceName' => $server_name,
+        'applicationName' => $application_name,
+        'methodName' => $es_type
+    ];
+    $header_data = [
+        'Content-Type: application/json',
+        'deviceId: ' . $device,
+        'requestBasic:' . json_encode(['fromType' => (int)$from_type]),
+        'userId:' . $id
+    ];
+    curl_setopt($ch, CURLOPT_URL, $request_url);
+    if($params != false)
+    {
+        if(isset($params)){
+            $search_params = $params;
+            $post_data['inputParameter'] = $search_params;
+        }
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
+    }
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header_data);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $res = curl_exec($ch);
+    $curl_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if($curl_code == 200){
+        if(false === $res){
+            return 0;
+        }else{
+            $result = json_decode($res,true);
+            return !empty($result['data']['total']) && $result['data']['total'] >= 0 ? $result['data']['total'] : 0;
+        }
+    }else{
+        return false;
+    }
+}
+
 /**
  * 短连接生成
  * @param $day
@@ -599,4 +780,9 @@ function get_shot_url($day){
     //新浪短连接不能用了，先给历史有效链接好了
     $short_url = 'http://t.cn/AiE6eHns';
     return $short_url;
+}
+
+function resize_oss_img($url)
+{
+
 }

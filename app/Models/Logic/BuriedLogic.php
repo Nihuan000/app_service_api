@@ -105,4 +105,15 @@ class BuriedLogic
         $operation_time = $event['time'];
         return $this->buyBuriedData->buy_viewed_status($buy_id,$status,$operation_time);
     }
+
+    /**
+     * 记录获取
+     * @param int $id
+     * @param int $status
+     * @return mixed
+     */
+    public function get_buried_count(int $id, int $status)
+    {
+        return $this->buyBuriedData->get_buried_count($id, $status);
+    }
 }

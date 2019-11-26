@@ -11,6 +11,7 @@ namespace App\Models\Data;
 use App\Models\Dao\OrderBuriedDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Redis\Redis;
 
 /**
  *
@@ -27,6 +28,24 @@ class OrderBuriedData
      * @var OrderBuriedDao
      */
     private $orderBuriedDao;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+    /**
+     * @Inject()
+     * @var OrderData
+     */
+    private $orderData;
+
+    /**
+     * @Inject("appRedis")
+     * @var Redis
+     */
+    private $redis;
 
     public function saveOrderBuried($order)
     {
@@ -100,8 +119,59 @@ class OrderBuriedData
             'updated_price' => $order['properties']['CurrentPrice'],
             'record_time' => time()
         ];
-        return $this->orderBuriedDao->saveOrderBuried($data);
 
+        $result = $this->orderBuriedDao->saveOrderBuried($data);
+        return $result;
     }
 
+    /**
+     * 交易服务通知
+     * @param $order_num
+     * @param $order_status
+     */
+    public function send_service_tips($order_num, $order_status)
+    {
+        $week = date('w');
+        $now_time = date('H');
+        if(in_array($week,[0,6]) || $now_time > 18 || $now_time < 9){
+            write_log(3,'时间不符合');
+            return;
+        }
+        $send_history_key = 'service_tips_' . date('Y_m_d');
+        $send_history = $this->redis->exists($send_history_key);
+        $orderInfo = $this->orderData->getOrderInfo($order_num,['buyer_id']);
+        if(!empty($orderInfo)){
+            $no_receive_list = $this->userData->getSetting('feedback_user_ids');
+            if(in_array($orderInfo['buyerId'],$no_receive_list)){
+                write_log(3,'用户已反馈');
+                return;
+            }
+            if($this->redis->hGet($send_history_key,$orderInfo['buyerId'])){
+                write_log(3,'消息已发送');
+                return;
+            }
+            $msg = '';
+            $service_id = 0;
+            switch ($order_status){
+                case 2:
+                    $service_ids = $this->userData->getSetting('paid_service_ids');
+                    if(is_array($service_ids) && !empty($service_ids)){
+                        $key = array_rand($service_ids);
+                        $service_id = (int)$service_ids[$key];
+                    }
+                    if($service_id > 0){
+                        $msg = "您好，最近搜布做快递补贴活动，顺丰3kg最低只要10元，您这边需要寄快递吗？";
+                    }
+                    break;
+            }
+
+            if(!empty($msg) && $service_id > 0 && $service_id != $orderInfo['buyerId']){
+                sendC2CMessaging((string)$service_id,$orderInfo['buyerId'],$msg);
+                $this->redis->hSet($send_history_key,$orderInfo['buyerId'],time());
+                if(!$send_history){
+                    $this->redis->expire($send_history_key,7*24*3600);
+                }
+            }
+        }
+    }
 }

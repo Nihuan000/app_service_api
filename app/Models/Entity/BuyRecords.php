@@ -18,7 +18,7 @@ use Swoft\Db\Types;
 class BuyRecords extends Model
 {
     /**
-     * @var int $rId 
+     * @var int $rId
      * @Id()
      * @Column(name="r_id", type="integer")
      */
@@ -58,6 +58,12 @@ class BuyRecords extends Model
      * @Required()
      */
     private $isFilter;
+
+    /**
+     * @var string $requestId 请求唯一标识,关联search_record表
+     * @Column(name="request_id", type="string", length=32, default="")
+     */
+    private $requestId;
 
     /**
      * @var int $fromType 0:app1:Android 2:ios 3:微信
@@ -208,6 +214,28 @@ class BuyRecords extends Model
     public function getFromType()
     {
         return $this->fromType;
+    }
+
+
+    /**
+     * 请求唯一标识,关联search_record表
+     * @param string $value
+     * @return $this
+     */
+    public function setRequestId(string $value): self
+    {
+        $this->requestId = $value;
+
+        return $this;
+    }
+
+    /**
+     * 请求唯一标识,关联search_record表
+     * @return string
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 
 }

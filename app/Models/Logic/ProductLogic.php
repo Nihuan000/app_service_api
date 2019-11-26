@@ -9,6 +9,7 @@
 namespace App\Models\Logic;
 
 use App\Models\Data\ProductData;
+use App\Models\Data\UserData;
 use ProductAI;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
@@ -33,6 +34,12 @@ class ProductLogic
      * @var ProductData
      */
     private $proData;
+
+    /**
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
 
     /**
      * @param $buy_id
@@ -154,5 +161,55 @@ class ProductLogic
             $record['add_time'] = time();
             $this->proData->saveMatchPro($record);
         }
+    }
+
+    /**
+     * 重置产品图片尺寸
+     * @param $pro_id
+     * @return mixed|string 0:图片不存在 -1:oss信息获取失败 -2: 图片地址不符
+     */
+    public function resize_pro_img($pro_id)
+    {
+        $res_list = [];
+        $pro_img_list = $this->proData->getProductImg($pro_id);
+        if(!empty($pro_img_list)){
+            foreach ($pro_img_list as $item) {
+                $res_list += $this->update_pro_img_size($item);
+            }
+        }
+        return $res_list;
+    }
+
+    /**
+     * 重置图片方法
+     * @param array $item
+     * @return array
+     */
+    public function update_pro_img_size(array $item)
+    {
+        $res_list = [];
+        if($item['img_width'] > 0){
+            $res_list[$item['pimg_id']] = 0;
+        }
+        $pic = $this->userData->getSetting('oss_default_path') . $item['img'];
+        $flag = strtolower(substr($pic,0,4)) == 'http'?true:false;
+        if( $flag ) {
+            $url = $pic."@info";
+            $curl_param = array('url'=>$url,'timeout'=>3);
+            $curl_result = CURL($curl_param);
+            if( $curl_result ) {
+                $result = json_decode($curl_result,1);
+                if($result){
+                    $data['img_width'] = (int)$result['width'];
+                    $data['img_height'] = (int)$result['height'];
+                    $res_list[$item['pimg_id']] = $this->proData->updateProImgData($item['pimg_id'],$data);
+                }
+            }else{
+                $res_list[$item['pimg_id']] = -1;
+            }
+        }else{
+            $res_list[$item['pimg_id']] = -2;
+        }
+        return $res_list;
     }
 }

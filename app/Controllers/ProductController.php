@@ -18,6 +18,8 @@ use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Http\Server\Bean\Annotation\RequestMethod;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Redis\Redis;
+use Swoft\Task\Exception\TaskException;
+use Swoft\Task\Task;
 
 /**
  * Class ProductController
@@ -85,6 +87,34 @@ class ProductController{
                 $result = [];
                 $msg = '删除成功';
             }
+        }
+        return compact("code","result","msg");
+    }
+
+    /**
+     * 产品图片尺寸重置
+     * @param Request $request
+     * @RequestMapping()
+     * @return array
+     * @throws TaskException
+     */
+    public function product_img_size(Request $request): array
+    {
+        $pro_id = $request->post('product_id');
+        if(empty($pro_id)){
+            $code = 0;
+            $result = [];
+            $msg = '请求参数错误';
+        }else{
+            $code = 0;
+            $data = ['pro_id' => $pro_id];
+            //实力值执行任务投递
+            $cacheRes = Task::deliver('Product', 'imgResizeTask',[$data], Task::TYPE_ASYNC);
+            if($cacheRes){
+                $code = 200;
+            }
+            $result = [];
+            $msg = '执行成功';
         }
         return compact("code","result","msg");
     }

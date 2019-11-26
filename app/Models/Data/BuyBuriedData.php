@@ -114,4 +114,15 @@ class BuyBuriedData
         ];
         return $this->buyBuriedDao->saveBuyBuried($data);
     }
+
+    /**
+     * 采购变更日志条数
+     * @param int $bid
+     * @param int $buy_status
+     * @return mixed
+     */
+    public function get_buried_count(int $bid, int $buy_status)
+    {
+        return $this->buyBuriedDao->getBuriedCount($bid,$buy_status);
+    }
 }

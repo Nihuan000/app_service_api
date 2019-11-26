@@ -8,9 +8,11 @@
 
 namespace App\Controllers;
 
+use App\Models\Data\OrderBuriedData;
 use App\Models\Logic\OrderLogic;
 use App\Models\Logic\UserLogic;
 use Swoft\App;
+use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -24,6 +26,11 @@ use Swoft\Http\Message\Server\Request;
 class OrderController
 {
 
+    /**
+     * @Inject()
+     * @var OrderBuriedData
+     */
+    private $orderBuriedData;
     /**
      * 关键词搜索获取订单编号
      * @RequestMapping()
@@ -156,6 +163,28 @@ class OrderController
             }
         }
 
+        return compact('code','result','msg');
+    }
+
+    /**
+     * 服务提醒
+     * @param Request $request
+     * @return array
+     */
+    public function order_service_tips(Request $request)
+    {
+        $order_num = $request->post('order_num');
+        $order_status = $request->post('order_status');
+        if(empty($order_num) || empty($order_status)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $this->orderBuriedData->send_service_tips($order_num,$order_status);
+            $code = 1;
+            $result = [];
+            $msg = '提醒成功';
+        }
         return compact('code','result','msg');
     }
 }

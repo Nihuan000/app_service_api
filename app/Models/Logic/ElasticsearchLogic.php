@@ -83,10 +83,13 @@ class ElasticsearchLogic
         $type = '';
         $query = [];
         $status = 0;
+        $search_params = [];
         switch ($module){
             case RECOMMEND_MODULE_NAME:
                 $master_name = $this->esConfig->getBuyMaster();
                 $query = $this->buySearchData->recommendByTag($events);
+                $search_params = $query['search_params'];
+                unset($query['search_params']);
                 $type = 'buy';
                 break;
         }
@@ -102,9 +105,14 @@ class ElasticsearchLogic
                 $result = $connect->search($params);
                 if(!empty($result)){
                     $list = $result['hits']['hits'];
-                    $list = $this->_DataEntity($list);
+                    $buy_list = $this->_DataEntity($list);
+                    $list = $buy_list['list'];
+                    $search_params['match_ids'] = $buy_list['ids'];
                     $count = (int)$result['hits']['total'];
-                    return ['status' => 200, 'result' => ['list' => $list, 'count' => $count]];
+                    $search_params['match_num'] = $count;
+                    $search_params['request_id'] = _uuid_geneal();
+                    $this->buySearchData->search_log($search_params,6);
+                    return ['status' => 200, 'result' => ['list' => $list, 'count' => $count, 'trackId' => $search_params['request_id']]];
                 }
             } catch (PoolException $e) {
                 print_r($e->getMessage());
@@ -398,9 +406,11 @@ class ElasticsearchLogic
     private function _DataEntity($data)
     {
         $list = [];
+        $ids = [];
         foreach ($data as $key => $sub) {
             if(isset($sub['_id'])){
                 $list[$key]['bid'] = (int)$sub['_id'];
+                $ids[] = (int)$sub['_id'];
             }
             $item = $sub['_source'];
             if(isset($item['status'])){
@@ -452,6 +462,6 @@ class ElasticsearchLogic
                 $list[$key]['province'] = $item['province'];
             }
         }
-        return $list;
+        return ['list' => $list, 'ids' => json_encode($ids)];
     }
 }

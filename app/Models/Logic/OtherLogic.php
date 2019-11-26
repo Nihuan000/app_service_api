@@ -53,6 +53,12 @@ class OtherLogic
         return $this->otherData->saveRecords($records);
     }
 
+    /**
+     * $days未登录供应商列表
+     * @param int $limit
+     * @param int $days
+     * @return array
+     */
     public function inactive_user_list($limit = 20, $days = 7)
     {
         $user_list = [];
@@ -79,10 +85,12 @@ class OtherLogic
                     'status' => 1,
                     ['user_id','>',$last_id]
                 ];
-                $tmp_list = $this->userData->getListByParams($params,$limit);
+                $fields = ['user_id','name','phone','level','safe_price','phone_type','cid'];
+                $tmp_list = $this->userData->getListByParams($params,$limit,$fields);
+                foreach ($tmp_list as $item) {
+                    $last_id = $item['userId'];
+                }
                 $user_list[] = $tmp_list;
-                $last_info = end($user_list);
-                $last_id = $last_info['userId'];
             }
         }
         return $user_list;

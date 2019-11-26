@@ -388,4 +388,35 @@ class ProductData
         }
         return false;
     }
+
+    /**
+     * 产品图片列表
+     * @param int $id
+     * @return mixed
+     */
+    public function getProductImg(int $id)
+    {
+        return $this->productDao->productImgList($id);
+    }
+
+    /**
+     * 修改产品图片数据
+     * @param int $id
+     * @param array $data
+     * @return mixed
+     */
+    public function updateProImgData(int $id, array $data)
+    {
+        return $this->productDao->updateProImg($id,$data);
+    }
+
+    /**
+     * 无尺寸图片列表
+     * @param int $size
+     * @return mixed
+     */
+    public function getNoSizeImg($size = 20)
+    {
+        return $this->productDao->noSizeImgList($size);
+    }
 }

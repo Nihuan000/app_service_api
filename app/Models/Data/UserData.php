@@ -722,11 +722,12 @@ class UserData
      * 用户列表获取
      * @param array $params
      * @param int $size
+     * @param array $fields
      * @return mixed
      */
-    public function getListByParams(array $params, int $size = 20)
+    public function getListByParams(array $params, int $size = 20, array $fields = ['user_id','phone'])
     {
-        return $this->userDao->getUserListByParams($params,['user_id','phone'],$size);
+        return $this->userDao->getUserListByParams($params,$fields,$size);
     }
 
     /**
@@ -927,11 +928,12 @@ class UserData
     /**
      * 最新登录版本号获取
      * @param $user_id
+     * @param array $field
      * @return mixed
      */
-    public function getUserLoginVersion($user_id)
+    public function getUserLoginVersion($user_id,$field = ['version'])
     {
-        return $this->userDao->getUserLastLogin($user_id);
+        return $this->userDao->getUserLastLogin($user_id,$field);
     }
 
     /**
@@ -983,5 +985,21 @@ class UserData
     public function setUserVisitLog($data)
     {
         return $this->userDao->setUserVisitLog($data);
+    }
+
+    /**
+     * 我的最新访客
+     * @param int $shop_id
+     * @return mixed
+     * @throws DbException
+     */
+    public function getLastVisitInfo(int $shop_id)
+    {
+        $visit_user = [];
+        $visit_info = $this->userDao->getLastVisitUser($shop_id);
+        if(!empty($visit_info)){
+            $visit_user = current($visit_info);
+        }
+        return $visit_user;
     }
 }

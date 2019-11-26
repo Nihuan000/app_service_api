@@ -340,4 +340,19 @@ class BuyData
         return false;
     }
 
+    /**
+     * 获取用户收到的报价列表
+     * @param int $user_id
+     * @param array $fields
+     * @return mixed
+     */
+    public function getUserReceiveOffer(int $user_id,array $fields = ['*'])
+    {
+        if(empty($fields)){
+            $fields = ['offer_id'];
+        }
+        $offer_list = $this->offerDao->getUserReceiveOfferList($user_id,$fields);
+        return $offer_list;
+    }
+
 }

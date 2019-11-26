@@ -84,7 +84,7 @@ class UserScoreTask{
      */
     public function scoreSyncTask(array $score_info)
     {
-//        Log::info('用户积分变更任务开启');
+        Log::info('用户积分变更任务开启');
         $queue = json_encode($score_info);
         Log::info('用户积分任务信息:' . $queue);
         $scoreRes = 0;
@@ -103,6 +103,6 @@ class UserScoreTask{
         if($scoreRes == 0){
             $this->redis->rPush($this->score_queue_key,$queue);
         }
-//        Log::info('用户积分变更任务结束');
+        Log::info('用户积分变更任务结束');
     }
 }

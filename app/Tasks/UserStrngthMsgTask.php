@@ -134,9 +134,7 @@ class UserStrngthMsgTask{
                 $extra['commendUser'] = array();
                 $extra['showData'] = $datashow;
                 $data['extra'] = $extra;
-
                 sendInstantMessaging('1', $value, json_encode($data['extra']));
-
                 write_log(3,"用户id:{$user_str}在{$time}之后实力商家权益过期，发送系统消息已经完成");
             }
         }

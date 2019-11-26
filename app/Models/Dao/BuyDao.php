@@ -189,6 +189,7 @@ class BuyDao
         $record->setScene($data['scene']);
         $record->setIsFilter($data['is_filter']);
         $record->setFromType($data['from_type']);
+        $record->setRequestId($data['request_id']);
 
         return $record->save()->getResult();
     }
@@ -206,7 +207,7 @@ class BuyDao
                 'clicks' => $proInfo['clicks'] + 1,
                 'alter_time' => time()
             ];
-            return Buy::updateOne($data,['pro_id' => $id])->getResult();
+            return Buy::updateOne($data,['buy_id' => $id])->getResult();
         }
         return false;
     }

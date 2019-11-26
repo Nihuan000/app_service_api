@@ -106,6 +106,7 @@ class SearchController
                 'count' => 0
             ];
             $result['count'] = $list['result']['count'];
+            $result['trackId'] = $list['result']['trackId'];
             $result['list'] = is_null($list['result']['list']) ? [] : $list['result']['list'];
             $msg = '获取成功';
         }

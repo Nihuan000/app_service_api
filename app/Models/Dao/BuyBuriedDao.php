@@ -55,6 +55,20 @@ class BuyBuriedDao
         $buried->setLabelIds($buy['label_ids']);
         $buried->setAppVersion($buy['version']);
         $buried->setSearchTime(time());
+        $buried->setRequestId($buy['request_id']);
+        $buried->setMatchIds($buy['match_ids']);
+        $buried->setMatchNum($buy['match_num']);
         return $buried->save()->getResult();
+    }
+
+    /**
+     * 日志条数
+     * @param int $bid
+     * @param int $status
+     * @return mixed
+     */
+    public function getBuriedCount(int $bid, int $status)
+    {
+        return BuyBuried::count('*',['buy_id' => $bid, 'buy_status' => $status])->getResult();
     }
 }

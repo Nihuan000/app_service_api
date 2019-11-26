@@ -18,7 +18,7 @@ use Swoft\Db\Types;
 class BuySearchLog extends Model
 {
     /**
-     * @var int $logId 
+     * @var int $logId
      * @Id()
      * @Column(name="log_id", type="integer")
      */
@@ -61,7 +61,7 @@ class BuySearchLog extends Model
     private $labelIds;
 
     /**
-     * @var int $isHot 0：智能排序，1：热门采购 2：最新发布 3:待抢单 5:全部采购 6:订阅标签推荐
+     * @var int $isHot 0：智能排序，1：热门采购 2：最新发布 3:无报价采购 4:无效字段 5：全部采购 6：订阅标签采购推荐
      * @Column(name="is_hot", type="tinyint", default=0)
      */
     private $isHot;
@@ -89,6 +89,24 @@ class BuySearchLog extends Model
      * @Column(name="search_time", type="integer", default=0)
      */
     private $searchTime;
+
+    /**
+     * @var int $matchNum 匹配数
+     * @Column(name="match_num", type="integer", default=0)
+     */
+    private $matchNum;
+
+    /**
+     * @var string $matchIds 匹配采购列表
+     * @Column(name="match_ids", type="string", length=455, default="")
+     */
+    private $matchIds;
+
+    /**
+     * @var string $requestId 请求唯一标识
+     * @Column(name="request_id", type="string", length=32, default="")
+     */
+    private $requestId;
 
     /**
      * @param int $value
@@ -174,7 +192,7 @@ class BuySearchLog extends Model
     }
 
     /**
-     * 0：智能排序，1：热门采购 2：最新发布
+     * 0：智能排序，1：热门采购 2：最新发布 3:无报价采购 4:无效字段 5：全部采购 6：订阅标签采购推荐
      * @param int $value
      * @return $this
      */
@@ -229,6 +247,42 @@ class BuySearchLog extends Model
     public function setSearchTime(int $value): self
     {
         $this->searchTime = $value;
+
+        return $this;
+    }
+
+    /**
+     * 匹配数
+     * @param int $value
+     * @return $this
+     */
+    public function setMatchNum(int $value): self
+    {
+        $this->matchNum = $value;
+
+        return $this;
+    }
+
+    /**
+     * 匹配采购列表
+     * @param string $value
+     * @return $this
+     */
+    public function setMatchIds(string $value): self
+    {
+        $this->matchIds = $value;
+
+        return $this;
+    }
+
+    /**
+     * 请求唯一标识
+     * @param string $value
+     * @return $this
+     */
+    public function setRequestId(string $value): self
+    {
+        $this->requestId = $value;
 
         return $this;
     }
@@ -296,7 +350,7 @@ class BuySearchLog extends Model
     }
 
     /**
-     * 0：智能排序，1：热门采购 2：最新发布
+     * 0：智能排序，1：热门采购 2：最新发布 3:无报价采购 4:无效字段 5：全部采购 6：订阅标签采购推荐
      * @return int
      */
     public function getIsHot()
@@ -338,6 +392,33 @@ class BuySearchLog extends Model
     public function getSearchTime()
     {
         return $this->searchTime;
+    }
+
+    /**
+     * 匹配数
+     * @return int
+     */
+    public function getMatchNum()
+    {
+        return $this->matchNum;
+    }
+
+    /**
+     * 匹配采购列表
+     * @return string
+     */
+    public function getMatchIds()
+    {
+        return $this->matchIds;
+    }
+
+    /**
+     * 请求唯一标识
+     * @return string
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 
 }

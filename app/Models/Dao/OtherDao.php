@@ -13,7 +13,7 @@ use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Query;
 
 /**
- * 订单数据对象
+ * 其他项数据对象
  * @Bean()
  * @uses OtherDao
  * @author Nihuan

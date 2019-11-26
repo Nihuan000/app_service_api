@@ -77,4 +77,15 @@ class OfferDao
     {
         return Db::query("SELECT offerer_id,count(offer_id) as offer_count FROM sb_offer WHERE offer_time BETWEEN {$start_time} AND {$end_time} GROUP BY offerer_id ORDER BY count(offer_id) DESC LIMIT {$limit}")->getResult();
     }
+
+    /**
+     * 获取用户收到的报价(指定字段)列表
+     * @param int $buyer_id
+     * @param array $fields
+     * @return mixed
+     */
+    public function getUserReceiveOfferList(int $buyer_id, $fields = ['*'])
+    {
+        return Offer::findAll(['user_id' => $buyer_id],['fields' => $fields])->getResult();
+    }
 }

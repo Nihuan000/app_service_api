@@ -130,6 +130,17 @@ class ScoreDao
     }
 
     /**
+     * 修改实力值记录信息
+     * @param array $params
+     * @param int $id
+     * @return mixed
+     */
+    public function updateScoreRecordByParams(array $params, int $id)
+    {
+        return UserScoreGetRecord::updateOne($params, ['id' => $id])->getResult();
+    }
+
+    /**
      * 用户积分更新任务
      * @param array $data
      * @param int $record_id 记录id,目前仅用于判断是否续费实商

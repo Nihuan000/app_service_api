@@ -185,8 +185,20 @@ class ScoreData
         ];
         $strength_score = $this->scoreDao->getScoreRecordByParams($params);
         if(!empty($strength_score)){
-            $record_id = $strength_score['id'];
-            $expire_time = $strength_score['expire_time'];
+            //如果记录存在，查找该记录之后是否存在扣分记录
+            $expire_params = [
+                'user_id' => $user_id,
+                'get_rule_id' => 7,
+                ['id','>=',$strength_score['id']]
+            ];
+            $expire_score = $this->scoreDao->getScoreRecordByParams($expire_params);
+
+            //验证当前用户积分和等级
+            $user_score = $this->scoreDao->getUserScore($user_id);
+            if(empty($expire_score) && $user_score['scoreValue'] >= $strength_score['scoreValue']){
+                $record_id = $strength_score['id'];
+                $expire_time = $strength_score['expire_time'];
+            }
         }
 
         return ['is_passed' => $is_passed, 'record_id' => $record_id, 'expire_time' => $expire_time];
@@ -242,5 +254,16 @@ class ScoreData
     public function userScoreDeduction(array $data, int $isUserStrength,int $isSafePrice,int $isSendNotice)
     {
         return $this->scoreDao->userScoreDeduction($data,$isUserStrength,$isSafePrice,$isSendNotice);
+    }
+
+    /**
+     * 更新实力值数据
+     * @param array $data
+     * @param int $id
+     * @return mixed
+     */
+    public function updateUserScoreRecord(array $data, int $id)
+    {
+        return $this->scoreDao->updateScoreRecordByParams($data,$id);
     }
 }
