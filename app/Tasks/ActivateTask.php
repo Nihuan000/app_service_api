@@ -420,7 +420,7 @@ class ActivateTask{
                         $user_label = '新品';
                         $cache_labels = $this->recommendRedis->zRevRange($user_tag_cache_key . $item['userId'],0,0);
                         if(!empty($cache_labels)){
-                            $search_label = $cache_labels;
+                            $search_label = current($cache_labels);
                         }
 
                         $nums = 99;

@@ -16,6 +16,7 @@ use App\Models\Data\UserData;
 use App\Models\Logic\ElasticsearchLogic;
 use App\Models\Logic\UserLogic;
 use App\Models\Logic\WechatLogic;
+use Swoft;
 use Swoft\Db\Exception\DbException;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Bean\Annotation\Inject;
@@ -25,6 +26,8 @@ use Swoft\Core\Coroutine;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Log\Log;
+use Swoft\Task\Exception\TaskException;
+use Swoft\Task\Task;
 use Swoft\View\Bean\Annotation\View;
 use Swoft\Contract\Arrayable;
 use Swoft\Http\Server\Exception\BadRequestException;
@@ -94,6 +97,32 @@ class IndexController
     }
 
     /**
+     * 定时任务投递测试
+     * @param Request $request
+     * @return array
+     * @throws TaskException
+     */
+    public function task_start(Request $request)
+    {
+        $task_service = $request->post('task_service');
+        $task_func = $request->post('task_func');
+        $data_json = $request->post('data_json');
+        if(empty($task_service) || empty($task_func)){
+            $code = 0;
+            $result = [];
+            $msg = '参数错误';
+        }else{
+            $data = json_decode($data_json,true);
+            $result = Task::deliver($task_service, $task_func,[$data], Task::TYPE_ASYNC);
+            $code = 1;
+            $result = ['result' => $result];
+            $msg = '任务投递成功';
+        }
+
+       return compact('code','result','msg');
+    }
+
+    /**
      * @param Request $request
      * @return array
      */
@@ -107,7 +136,7 @@ class IndexController
         $is_send_offer = env('SEND_OFFER_NOTICE');
         $setting_info = $this->userData->getSetting('recommend_deposit_switch');
         Log::info($setting_info);
-        $config = \Swoft::getBean('config');
+        $config = Swoft::getBean('config');
         $sys_msg = $is_send_offer==1 ? $config->get('offerMsg') : $config->get('sysMsg');
 
         if($is_send_offer == 1){
@@ -186,7 +215,7 @@ class IndexController
         ];
         $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
         if(!empty($strength_list)){
-            $config = \Swoft::getBean('config');
+            $config = Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
             foreach ($strength_list as $strength) {
                 $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
@@ -243,7 +272,7 @@ class IndexController
         ];
         $strength_list = $this->userData->getWillExpStrength($params,['user_id']);
         if(!empty($strength_list)){
-            $config = \Swoft::getBean('config');
+            $config = Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
             foreach ($strength_list as $strength) {
                 $history_record = $this->redis->sIsMember($notice_history_key,(string)$strength['userId']);
@@ -372,7 +401,7 @@ class IndexController
                 foreach ($list as $item) {
 
                     //TODO 消息体
-                    $config = \Swoft::getBean('config');
+                    $config = Swoft::getBean('config');
                     $sys_msg = $config->get('sysMsg');
                     $data = array();
                     $extra = $sys_msg;
@@ -496,7 +525,7 @@ class IndexController
             ];
             $buy_info_list = $this->buyData->getBuyList($search_params,['buy_id','remark','amount','unit','expire_time','user_id','add_time']);
             if(!empty($buy_info_list)){
-                $config = \Swoft::getBean('config');
+                $config = Swoft::getBean('config');
                 $msg_temp = $config->get('last_buy_msg');
                 $tempId = $msg_temp['temp_id'];
                 $grayscale = getenv('IS_GRAYSCALE');
@@ -578,7 +607,7 @@ class IndexController
         if($sort > 20 || $sort < 1 || empty($url)){
             return false;
         }
-        $config = \Swoft::getBean('config');
+        $config = Swoft::getBean('config');
         $extra =  $config->get('sysMsg');
         $extra['isRich'] = 0;
         $extra['title'] =  $extra['msgTitle'] = "报价排行榜";
