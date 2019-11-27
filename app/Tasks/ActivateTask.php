@@ -171,6 +171,9 @@ class ActivateTask{
                     $send_string = '';
                     //转换变量内容格式为"手机号,变量1,变量2;手机号2,变量1,变量2"
                     foreach ($phone_list as $item) {
+                        if(($grayscale == 1 && !in_array($item[0], $this->userData->getSetting('version_811_test_phone')))){
+                            continue;
+                        }
                         $send_list[] = implode(',',$item);
                     }
                     if(!empty($send_list)){
@@ -222,7 +225,7 @@ class ActivateTask{
             $test_list = $this->userData->getTesters();
             foreach ($user_list as $key => $item) {
                 //测试
-                if(($grayscale == 1 && !in_array($item['userId'], $test_list))){
+                if(($grayscale == 1 && !in_array($key, $test_list))){
                     continue;
                 }
                 $info = explode('#',$item);
@@ -506,15 +509,17 @@ class ActivateTask{
             ['expire_time','>',$now_time],
             ['role','in',[1,5]],
             'is_done' => 0,
+            ['urr_id','>',$last_id]
         ];
         $count = $this->recallData->get_recall_count($params);
         $pages = ceil($count/$this->msg_limit);
         $grayscale = getenv('IS_GRAYSCALE');
         $test_list = $this->userData->getTesters();
         if($pages > 0){
-            for ($i = 0; $i < $pages; $pages++)
+            for ($i = 0; $i < $pages; $i++)
             {
                 $params[] = ['urr_id','>',$last_id];
+                Log::info(json_encode($params));
                 $recall_list = $this->recallData->get_recall_list($params,['urr_id','user_id','send_role','send_msg_time','send_sms_time','expire_time','msg_is_return','sms_is_return','user_notice_label','match_num']);
                 if(!empty($recall_list)){
                     $record = [];
@@ -526,27 +531,27 @@ class ActivateTask{
                         $data = [];
                         $user_info = $this->userData->getUserInfo($item['userId']);
                         //3天消息已发送，短信未发送且有效期在3天以内
-                        if($item['send_msg_time'] > 0 && $item['send_sms_time'] == 0 && $now_time - $item['send_msg_time'] <= 3600 * 24 * 2 + 1800){
+                        if($item['sendMsgTime'] > 0 && $item['sendSmsTime'] == 0 && $now_time - $item['sendMsgTime'] <= 3600 * 24 * 2 + 1800){
                             if($item['send_msg_time'] < $user_info['lastTime']){
                                 $data['msg_is_return'] = 1;
                                 $data['is_done'] = 1;
                                 $data['update_time'] = $now_time;
                             }
-                        }else if($item['send_sms_time'] > 0 && $now_time < $item['expire_time']){
-                            if($item['send_sms_time'] < $user_info['lastTime']){
+                        }else if($item['sendSmsTime'] > 0 && $now_time < $item['expireTime']){
+                            if($item['sendSmsTime'] < $user_info['lastTime']){
                                 //已发送短信，且当前记录在10天有效期内
                                 $data['sms_is_return'] = 1;
                                 $data['is_done'] = 1;
                                 $data['update_time'] = $now_time;
                             }
-                        }else if($item['send_sms_time'] == 0 && $item['send_msg_time'] > 0 && $item['msg_is_return'] == 0 && $item['sms_is_return'] == 0 && $now_time - $item['send_msg_time'] > 3600 * 24 * 2 + 1800){
+                        }else if($item['sendSmsTime'] == 0 && $item['sendMsgTime'] > 0 && $item['msgIsReturn'] == 0 && $item['smsIsReturn'] == 0 && $now_time - $item['sendMsgTime'] > 3600 * 24 * 2 + 1800){
                             //3天消息已发送，未召回，未发送短信，且超出消息有效期，记录在10天内,无行为不再发送消息
-                            if($item['send_role'] > 1){
+                            if($item['sendRole'] > 1){
                                 //获取最后一次登录设备，以此作为发送系统消息途径的判断
                                 $last_info = $this->userData->getUserLoginVersion($item['userId'],['system','addtime']);
-                                $supplier_recall = $this->messageLogic->template_combination('buyer_no_login_3th',[['>X<','>Y<'],[$item['match_num'],$item['user_notice_label']]]);
+                                $supplier_recall = $this->messageLogic->template_combination('buyer_no_login_3th',[['>X<','>Y<'],[$item['matchNum'],$item['userNoticeLabel']]]);
                                 //cid空或者最后一次登录设备为安卓,系统消息
-                                if($user_info['cid'] == '' || (isset($last_info['system']) && $last_info['system'] == 1)){
+                                if($user_info['cid'] == '' || (isset($last_info['system']) && $last_info['system'] == 1) || empty($last_info)){
                                     $this->messageLogic->send_system_message('1',$item['userId'],$supplier_recall);
                                 }else{
                                     //个推模板生成
@@ -559,7 +564,7 @@ class ActivateTask{
                             }
 
                             //批量发送短信列表模板发送
-                            $phone_list[] = [$user_info['phone'],$item['user_notice_label'],$item['match_num']];
+                            $phone_list[] = [$user_info['phone'],$item['userNoticeLabel'],$item['matchNum']];
 
                             //预存发送日志
                             $rec = [
@@ -574,17 +579,20 @@ class ActivateTask{
                             $data['update_time'] = $now_time;
                         }
                         if(!empty($data)){
-                            $this->recallData->update_recall_info($item['urr_id'],$data);
+                            $this->recallData->update_recall_info($item['urrId'],$data);
                         }
-                        $last_id = $item['urr_id'];
+                        $last_id = $item['urrId'];
                     }
 
                     if(!empty($phone_list)){
                         $send_list = [];
                         $send_string = '';
                         //转换变量内容格式为"手机号,变量1,变量2;手机号2,变量1,变量2"
-                        foreach ($phone_list as $item) {
-                            $send_list[] = implode(',',$item);
+                        foreach ($phone_list as $sms) {
+                            if(($grayscale == 1 && !in_array($sms[0], $this->userData->getSetting('version_811_test_phone')))){
+                                continue;
+                            }
+                            $send_list[] = implode(',',$sms);
                         }
                         if(!empty($send_list)){
                             $send_string = implode(';',$send_list);
@@ -693,6 +701,9 @@ class ActivateTask{
                             continue;
                         }
                         if($has_sms == 1){
+                            if(($grayscale == 1 && !in_array($item['phone'], $this->userData->getSetting('version_811_test_phone')))){
+                                continue;
+                            }
                             $tmp['phone'] = $item['phone'];
                             $tmp['user_id'] = $item['userId'];
                             $tmp['msg_type'] = 20;

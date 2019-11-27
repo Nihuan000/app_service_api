@@ -60,6 +60,7 @@ function get_img_url($pic)
         if(!empty($params)){
             unset($sendSms['phone']);
             $sendSms['params'] = $params;
+            $sendSms['msg'] = $content;
             $url = "http://vsms.253.com/msg/variable/json";
         }
         $postFields = json_encode($sendSms);

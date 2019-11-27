@@ -32,7 +32,7 @@ class UserRecallRecordDao
      */
     public function getRecallList(array $params, array $fields)
     {
-        return UserRecallRecord::findAll($params, ['fields' => $fields, 'orderBy' => ['urr_id' => 'ASC']])->getResult();
+        return UserRecallRecord::findAll($params, ['fields' => $fields, 'orderby' => ['urr_id' => 'asc']])->getResult();
     }
 
     /**

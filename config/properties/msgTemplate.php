@@ -55,9 +55,9 @@ return [
      */
     'activateSms' => [
         'supplier_recall' => [
-            'lable' => '【搜布】',
-            'content' => '刚刚{$var}浏览了您的店铺，赶快打开搜布更新下产品吧！',
-            'short_url' => 'http://t.cn/AiE6eHns',
+            'label' => '【搜布】',
+            'content' => '刚刚{$var}浏览了您的店铺，赶快打开搜布更新下产品吧！ ',
+            'short_url' => 'http://t.cn/AiK0sKMu',
             'has_params' => 1
         ],
         //90天未登录采购商新版本提示

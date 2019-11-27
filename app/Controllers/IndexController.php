@@ -118,8 +118,7 @@ class IndexController
             $result = ['result' => $result];
             $msg = '任务投递成功';
         }
-
-       return compact('code','result','msg');
+       return  compact('code','result','msg');
     }
 
     /**
