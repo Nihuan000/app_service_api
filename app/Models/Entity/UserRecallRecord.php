@@ -55,6 +55,12 @@ class UserRecallRecord extends Model
     private $userNoticeLabel;
 
     /**
+     * @var int $matchNum 匹配个数
+     * @Column(name="match_num", type="integer", default=0)
+     */
+    private $matchNum;
+
+    /**
      * @var int $msgType 消息类型 1：系统消息 2：个推通知
      * @Column(name="msg_type", type="tinyint", default=0)
      */
@@ -85,6 +91,12 @@ class UserRecallRecord extends Model
     private $smsIsReturn;
 
     /**
+     * @var int $isDone 是否已完成 0:否 1：是
+     * @Column(name="is_done", type="tinyint", default=0)
+     */
+    private $isDone;
+
+    /**
      * @var int $addTime 记录时间
      * @Column(name="add_time", type="integer", default=0)
      */
@@ -97,22 +109,10 @@ class UserRecallRecord extends Model
     private $updateTime;
 
     /**
-     * @var int $matchNum 匹配个数
-     * @Column(name="match_num", type="integer", default=0)
+     * @var int $expireTime 回归记录判断有效期
+     * @Column(name="expire_time", type="integer", default=0)
      */
-    private $matchNum;
-
-    /**
-     * 匹配个数
-     * @param int $value
-     * @return $this
-     */
-    public function setMatchNum(int $value): self
-    {
-        $this->matchNum = $value;
-
-        return $this;
-    }
+    private $expireTime;
 
     /**
      * id
@@ -187,6 +187,18 @@ class UserRecallRecord extends Model
     }
 
     /**
+     * 匹配个数
+     * @param int $value
+     * @return $this
+     */
+    public function setMatchNum(int $value): self
+    {
+        $this->matchNum = $value;
+
+        return $this;
+    }
+
+    /**
      * 消息类型 1：系统消息 2：个推通知
      * @param int $value
      * @return $this
@@ -247,6 +259,18 @@ class UserRecallRecord extends Model
     }
 
     /**
+     * 是否已完成 0:否 1：是
+     * @param int $value
+     * @return $this
+     */
+    public function setIsDone(int $value): self
+    {
+        $this->isDone = $value;
+
+        return $this;
+    }
+
+    /**
      * 记录时间
      * @param int $value
      * @return $this
@@ -266,6 +290,18 @@ class UserRecallRecord extends Model
     public function setUpdateTime(int $value): self
     {
         $this->updateTime = $value;
+
+        return $this;
+    }
+
+    /**
+     * 回归记录判断有效期
+     * @param int $value
+     * @return $this
+     */
+    public function setExpireTime(int $value): self
+    {
+        $this->expireTime = $value;
 
         return $this;
     }
@@ -325,6 +361,15 @@ class UserRecallRecord extends Model
     }
 
     /**
+     * 匹配个数
+     * @return int
+     */
+    public function getMatchNum()
+    {
+        return $this->matchNum;
+    }
+
+    /**
      * 消息类型 1：系统消息 2：个推通知
      * @return int
      */
@@ -370,6 +415,15 @@ class UserRecallRecord extends Model
     }
 
     /**
+     * 是否已完成 0:否 1：是
+     * @return int
+     */
+    public function getIsDone()
+    {
+        return $this->isDone;
+    }
+
+    /**
      * 记录时间
      * @return int
      */
@@ -388,12 +442,12 @@ class UserRecallRecord extends Model
     }
 
     /**
-     * 匹配个数
+     * 回归记录判断有效期
      * @return int
      */
-    public function getMatchNum()
+    public function getExpireTime()
     {
-        return $this->matchNum;
+        return $this->expireTime;
     }
 
 }
