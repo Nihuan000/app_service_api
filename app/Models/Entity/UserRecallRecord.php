@@ -97,6 +97,24 @@ class UserRecallRecord extends Model
     private $updateTime;
 
     /**
+     * @var int $matchNum 匹配个数
+     * @Column(name="match_num", type="integer", default=0)
+     */
+    private $matchNum;
+
+    /**
+     * 匹配个数
+     * @param int $value
+     * @return $this
+     */
+    public function setMatchNum(int $value): self
+    {
+        $this->matchNum = $value;
+
+        return $this;
+    }
+
+    /**
      * id
      * @param int $value
      * @return $this
@@ -367,6 +385,15 @@ class UserRecallRecord extends Model
     public function getUpdateTime()
     {
         return $this->updateTime;
+    }
+
+    /**
+     * 匹配个数
+     * @return int
+     */
+    public function getMatchNum()
+    {
+        return $this->matchNum;
     }
 
 }

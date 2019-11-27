@@ -548,14 +548,15 @@ class ActivateTask{
                             //3天消息已发送，未召回，未发送短信，且超出消息有效期，记录在10天内,无行为不再发送消息
                             if($item['sendRole'] > 1){
                                 //获取最后一次登录设备，以此作为发送系统消息途径的判断
-                                $last_info = $this->userData->getUserLoginVersion($item['userId'],['system','addtime']);
+                                $last_info_list = $this->userData->getUserLoginVersion($item['userId'],['system','addtime']);
+                                $last_info = current($last_info_list);
                                 $supplier_recall = $this->messageLogic->template_combination('buyer_no_login_3th',[['>X<','>Y<'],[$item['matchNum'],$item['userNoticeLabel']]]);
                                 //cid空或者最后一次登录设备为安卓,系统消息
                                 if($user_info['cid'] == '' || (isset($last_info['system']) && $last_info['system'] == 1) || empty($last_info)){
                                     $this->messageLogic->send_system_message('1',$item['userId'],$supplier_recall);
                                 }else{
                                     //个推模板生成
-                                    $cid = (string)$item['cid'];
+                                    $cid = (string)$user_info['cid'];
                                     $content = (string)$supplier_recall['msgContent'];
                                     //消息模板获取
                                     $msg_template = $this->getuiLogic->template_combination('buyer_no_login_3th',$cid,'您关注的店铺上新啦',$content,'',['type' => 5,'url' => $originlink]);
@@ -564,7 +565,7 @@ class ActivateTask{
                             }
 
                             //批量发送短信列表模板发送
-                            $phone_list[] = [$user_info['phone'],$item['userNoticeLabel'],$item['matchNum']];
+                            $phone_list[] = [$user_info['phone'],$item['matchNum'],$item['userNoticeLabel']];
 
                             //预存发送日志
                             $rec = [
