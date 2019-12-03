@@ -11,6 +11,7 @@ use App\Models\Dao\BuyBuriedDao;
 use App\Models\Dao\UserDao;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Db\Exception\DbException;
 use Swoft\Log\Log;
 use Swoft\Redis\Redis;
 
@@ -45,7 +46,7 @@ class BuySearchData
      * 根据标签推荐与我相关
      * @param array $params
      * @return array
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws DbException
      */
     public function recommendByTag(array $params)
     {
@@ -59,12 +60,11 @@ class BuySearchData
         $filter = $this->baseFilter();
         $user_tag_string = $this->redis->get('user_subscription_tag:' . $params['user_id']);
         $user_tag_list = json_decode($user_tag_string,true);
-        $ttl = $this->redis->ttl('user_subscription_tag:' . $params['user_id']);
-        if(empty($user_tag_list) || (!empty($user_tag_list) && $ttl == -1)){
+        if(empty($user_tag_list)){
             $user_tag_list = $this->userDao->getUserTagByUid($params['user_id']);
             if(!empty($user_tag_list)){
                 //设置过期时间
-                $this->redis->setex('user_subscription_tag:' . $params['user_id'],24*3600,json_encode($user_tag_list));
+                $this->redis->set('user_subscription_tag:' . $params['user_id'],json_encode($user_tag_list),24*3600);
             }
         }
         $product_terms = [];
@@ -80,9 +80,9 @@ class BuySearchData
         }else{
             $type_terms[] = $params['type'];
             $push_newest_key = 'push_newest_time_' . $params['user_id'] . '_' . $params['type'];
-            if(!$this->redis->exists($push_newest_key) && $page == 0){
+            if(!$this->redis->has($push_newest_key) && $page == 0){
                 $push_newest_time = time();
-                $this->redis->setex($push_newest_key,120,$push_newest_time);
+                $this->redis->set($push_newest_key,$push_newest_time,120);
             }else{
                 $push_newest_time = $this->redis->get($push_newest_key);
             }

@@ -197,7 +197,7 @@ class ElasticsearchLogic
         $date = date('Y-m-d');
         $index = '@RecommendPushQueue_';
         $historyIndex = '@RecommendPushHistory_';
-        $checkHistory = $this->redis->exists($historyIndex . $date);
+        $checkHistory = $this->redis->has($historyIndex . $date);
         $msg_json = json_encode($params);
         $history = false;
         if($checkHistory){
@@ -255,7 +255,7 @@ class ElasticsearchLogic
     {
         $match_list = [];
         $cache_keys = 'product_name_tag_dict';
-        if($this->redis->exists($cache_keys)){
+        if($this->redis->has($cache_keys)){
             $tag_cache = $this->redis->get($cache_keys);
             $tag_list = json_decode($tag_cache,true);
         }

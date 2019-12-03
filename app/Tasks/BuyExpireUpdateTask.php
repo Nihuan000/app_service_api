@@ -201,7 +201,7 @@ class BuyExpireUpdateTask
                     $can_send = 0;
                 }
                 if($can_send == 1){
-                    $has_pushed = $this->redis->exists($push_cache_key . date('Y-m-d'));
+                    $has_pushed = $this->redis->has($push_cache_key . date('Y-m-d'));
                     $push_list = $this->redis->zRevRange($push_cache_key . date('Y-m-d'),0, -1,true);
                     if(isset($push_list[$buy['userId']])){
                         $time_differ = $push_list[$buy['userId']] - $buy['expireTime'];
@@ -260,7 +260,7 @@ class BuyExpireUpdateTask
     {
         $date = date('Y_m_d');
         Log::info('采购过期缓存队列任务开始');
-        if($this->redis->exists($this->wait_push_list . $date)){
+        if($this->redis->has($this->wait_push_list . $date)){
             $push_list = $this->redis->lRange($this->wait_push_list . $date,0,-1);
             if(!empty($push_list)){
                 foreach ($push_list as $push) {

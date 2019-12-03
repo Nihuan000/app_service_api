@@ -114,14 +114,14 @@ class ProductData
     {
         $waterfall_index = 'index_water_falls_list_' . $params['cycle'] . '_' . $params['display_count'];
         $cache_key = 'water_fall_index';
-        if($this->redis->exists($waterfall_index)){
+        if($this->redis->has($waterfall_index)){
             if($params['page'] == 1){
                 $last_info = $this->redis->zRevRange($waterfall_index,0,0,true);
                 $last_time_arr = array_values($last_info);
                 $last_time = (int)$last_time_arr[0];
                 if(!empty($last_time)){
                     $params['prev_time'] = $last_time;
-                    if(!$this->redis->exists($cache_key)){
+                    if(!$this->redis->has($cache_key)){
                         $cache_data = [
                             'index' => $waterfall_index,
                             'params' => json_encode($params)
@@ -157,7 +157,7 @@ class ProductData
             }
             $params['end_time'] = strtotime("-{$end_day} day",$prev_date);
             $params['limit'] = $flx_count;
-            if(!$this->redis->exists($cache_key)){
+            if(!$this->redis->has($cache_key)){
                 $cache_data = [
                     'index' => $waterfall_index,
                     'params' => json_encode($params)

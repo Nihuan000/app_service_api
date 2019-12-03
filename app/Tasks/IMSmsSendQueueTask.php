@@ -37,11 +37,11 @@ class IMSmsSendQueueTask
     {
         $return_msg = '';
         $now_time = time();
-        $queue = $this->redis->exists($this->queue_key);
+        $queue = $this->redis->has($this->queue_key);
         if($queue){
             $msg = $this->redis->lPop($this->queue_key);
             $secret_code = md5($msg);
-            if($this->redis->exists($secret_code)){
+            if($this->redis->has($secret_code)){
                 $return_msg = '发送记录已存在，跳过';
             }
             $msg_info = json_decode($msg,true);
@@ -51,8 +51,7 @@ class IMSmsSendQueueTask
                 $this->redis->rPush($this->queue_key,$msg_json);
             }else{
                 sendInstantMessaging($msg_info['fromId'], (string)$msg_info['targetId'], json_encode($msg_info['msgExtra']));
-                $this->redis->set($secret_code,$msg);
-                $this->redis->expire($secret_code,180);
+                $this->redis->set($secret_code,$msg,180);
                 $return_msg = '发送成功';
             }
         }

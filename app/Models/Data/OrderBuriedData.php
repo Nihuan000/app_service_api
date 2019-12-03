@@ -138,7 +138,7 @@ class OrderBuriedData
             return;
         }
         $send_history_key = 'service_tips_' . date('Y_m_d');
-        $send_history = $this->redis->exists($send_history_key);
+        $send_history = $this->redis->has($send_history_key);
         $orderInfo = $this->orderData->getOrderInfo($order_num,['buyer_id']);
         if(!empty($orderInfo)){
             $no_receive_list = $this->userData->getSetting('feedback_user_ids');

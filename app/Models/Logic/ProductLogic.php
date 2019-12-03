@@ -60,7 +60,7 @@ class ProductLogic
             //根据分词与后台标签查询匹配报价产品缓存
             $record['buy_tags'] = implode(',',$buy_tags);
             foreach ($buy_tags as $buy_tag) {
-                if($this->redis->exists($keys . md5($buy_tag))){
+                if($this->redis->has($keys . md5($buy_tag))){
                     $product_list = $this->redis->sMembers($keys . md5($buy_tag));
                     if(!empty($product_list)){
                         $match_product_record = [];

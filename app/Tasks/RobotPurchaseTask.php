@@ -114,7 +114,7 @@ class RobotPurchaseTask{
             Log::info('团个数:' . $original_list);
             $robot_user_list = 'robot_user_list';
             $start_time = 0;
-            if($this->appRedis->exists($start_cache)){
+            if($this->appRedis->has($start_cache)){
                 $start_time = $this->appRedis->get($start_cache);
             }
             Log::info('执行时间:' . date('Y-m-d H:i:s',$start_time));
@@ -127,7 +127,7 @@ class RobotPurchaseTask{
                     $this->appRedis->set($start_cache,$random_time);
                     $has_defer = 1;
                 }else{
-                    if($this->appRedis->exists($robot_user_list)) {
+                    if($this->appRedis->has($robot_user_list)) {
                         $robot_info = $this->appRedis->lPop($robot_user_list);
                         $info = explode('#', $robot_info);
                         if (is_array($info)) {
@@ -192,7 +192,7 @@ class RobotPurchaseTask{
                         $this->appRedis->hSet($cache_key,$robot,$random_time);
                     }else{
                         //执行自动参团
-                        if($this->appRedis->exists($robot_user_list)){
+                        if($this->appRedis->has($robot_user_list)){
                             $robot_info = $this->appRedis->lPop($robot_user_list);
                             $info = explode('#',$robot_info);
                             if(is_array($info)){

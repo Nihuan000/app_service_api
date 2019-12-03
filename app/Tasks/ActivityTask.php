@@ -111,7 +111,7 @@ class ActivityTask{
                 Log::info("用户id:{$user_id}的激励活动系统消息发送完成");
                 write_log(3,"用户id:{$user_id}的激励活动系统消息发送完成");
 
-                $this->redis->zDelete($this->sys_redis_key, $value);
+                $this->redis->zRem($this->sys_redis_key, $value);
             }
 
             // 计数
@@ -170,7 +170,7 @@ class ActivityTask{
                 Log::info("用户id:{$user_id}的激励活动短信消息发送完成");
                 write_log(3,"用户id:{$user_id}的激励活动短信消息发送完成");
 
-                $this->redis->zDelete($this->sms_redis_key, $value);
+                $this->redis->zRem($this->sms_redis_key, $value);
             }
             // 入库
             $this->OtherLogic->activate_sms_records($record);

@@ -459,13 +459,13 @@ class IndexController
                 foreach ($pro_arr as $key => $tmp) {
                     $pro_id = $tmp['pro_id'];
                     $user_id = $tmp['user_id'];
-                    if($this->redis->exists($pro_cache_key . $pro_id)){
+                    if($this->redis->has($pro_cache_key . $pro_id)){
                         //删除缓存数据
                         $tokenize_cache = $this->redis->get($pro_cache_key . $pro_id);
                         if(!empty($tokenize_cache)){
                             $tokenize_list = json_decode($tokenize_cache,true);
                             foreach ($tokenize_list as $item) {
-                                if($this->redis->exists($keys . md5($item))){
+                                if($this->redis->has($keys . md5($item))){
                                     $this->redis->sRem($keys . md5($item),$pro_id . '#' . $user_id);
                                 }
                             }

@@ -87,7 +87,7 @@ class UserTask{
             foreach ($safe_price_list as $key => $value) {
                 if($key == 0){
                     $user_id = $value;
-                    $this->redis->zDelete($this->safe_price_msg_queue, $value);
+                    $this->redis->zRem($this->safe_price_msg_queue, $value);
                     $delay_time = $this->userData->getSetting('msg_delay_time');
                     $delay_time = empty($delay_time) ? 180 : $delay_time;
                     $use_time = $delay_time + time();
@@ -132,7 +132,7 @@ class UserTask{
         if(!empty($safe_price_msg_list)){
             write_log(3,"保证金消息发送的用户数组".json_encode($safe_price_msg_list));
             foreach ($safe_price_msg_list as $key => $value) {
-                $this->redis->zDelete($this->safe_price_send_msg_msg_queue, $value);
+                $this->redis->zRem($this->safe_price_send_msg_msg_queue, $value);
             }
             $time = date('Y-m-d H:i:s', time());
             foreach ($safe_price_msg_list as $key => $value) {
@@ -140,7 +140,7 @@ class UserTask{
                 Log::info("用户id:{$user_id}在{$time}保证金消息发送开始");
                 write_log(3,"用户id:{$user_id}在{$time}保证金消息发送开始");
                 $msg = "根据搜布官方统计，每上传一个产品，将增加12%的访客咨询，查看店铺-发布产品，即可轻松上传。";
-                $res = []; 
+                $res = [];
                 $res['extra']['title'] = '温馨提示';
                 $res['extra']['content'] = $msg;
                 $res['extra']['msgContent'] = $msg;
@@ -165,7 +165,7 @@ class UserTask{
         if(!empty($safe_price_msg_list)){
             write_log(3,"保证金提取完成,消息发送的用户数组".json_encode($safe_price_msg_list));
             foreach ($safe_price_msg_list as $key => $value) {
-                $this->redis->zDelete($this->safe_price_finish_user_list_queue, $value);
+                $this->redis->zRem($this->safe_price_finish_user_list_queue, $value);
             }
             $time = date('Y-m-d H:i:s', time());
             foreach ($safe_price_msg_list as $key => $value) {
@@ -173,7 +173,7 @@ class UserTask{
                 Log::info("用户id:{$user_id}在{$time}开始发送保证金完成消息");
                 write_log(3,"用户id:{$user_id}在{$time}开始发送保证金完成消息");
                 $msg = "尊敬的供应商您好，恭喜您保证金成功提现到余额，进入我的钱包即可查看。";
-                $res = []; 
+                $res = [];
                 $res['extra']['title'] = '温馨提示';
                 $res['extra']['content'] = $msg;
                 $res['extra']['msgContent'] = $msg;
@@ -199,7 +199,7 @@ class UserTask{
         if(!empty($reg_buyer_list)){
             write_log(3,"新注册的采购商".json_encode($reg_buyer_list));
             foreach ($reg_buyer_list as $key => $value) {
-                $this->redis->zDelete($this->new_register_buyer_sys_msg, $value);
+                $this->redis->zRem($this->new_register_buyer_sys_msg, $value);
             }
             write_log(3,"获取时间");
             $time = time();

@@ -260,12 +260,11 @@ class UserBehaviorTask{
             $tag_key = 'tag_names';
 
             //tag表缓存
-            if ($this->redis->exists($tag_key)){
+            if ($this->redis->has($tag_key)){
                 $tags = json_decode($this->redis->get($tag_key),true);
             }else{
                 $tags = $this->tagData->getTagNames();
-                $this->redis->set($tag_key,json_encode($tags));
-                $this->redis->expire($tag_key,86300);
+                $this->redis->set($tag_key,json_encode($tags),86300);
             }
 
             //缓存关键词
@@ -289,7 +288,7 @@ class UserBehaviorTask{
             }
             write_log(2,'最终写入:'.json_encode($behaviors));
             if (empty($behaviors)){
-                $this->redis->del($redis_key);
+                $this->redis->delete($redis_key);
             }else{
                 $this->redis->set($redis_key,json_encode($behaviors));
             }
@@ -330,7 +329,7 @@ class UserBehaviorTask{
         $new_start_time = $start_time;
         $redis_key = $this->behavior_keyword_key.$user_id;
 
-        if ($this->redis->exists($redis_key)){
+        if ($this->redis->has($redis_key)){
             write_log(2,'分数缓存存在');
             //有行为标签,删除过期标签
             $tags = $this->redis->get($redis_key);

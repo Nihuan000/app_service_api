@@ -183,6 +183,25 @@ class UserDao
     }
 
     /**
+     * 内部账号设备号列表
+     * @return array
+     */
+    public function getAgentDevice()
+    {
+        $list = [];
+        $agent_id = $this->getAgentInfo();
+        if(!empty($agent_id)){
+            $device_list = Query::table('sb_user_device')->whereIn('user_id',$agent_id)->get(['device'])->getResult();
+            if(!empty($device_list)){
+                foreach ($device_list as $item) {
+                    $list[] = $item['device'];
+                }
+            }
+        }
+        return $list;
+    }
+
+    /**
      * 返回指定用户指定字段
      * @param array $params
      * @param array $fields

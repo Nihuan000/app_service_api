@@ -37,7 +37,7 @@ class HotTagController
         $date = $request->post('date');
         $historyIndex = '@RecommendMsgHistory_';
         $key_list = [];
-        if($this->redis->exists($historyIndex . $date)){
+        if($this->redis->has($historyIndex . $date)){
             $key_list = $this->redis->smembers($historyIndex . $date);
         }
         $buy_list = [];

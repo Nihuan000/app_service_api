@@ -175,7 +175,7 @@ class UserLogic
     public function getRecommendUserList(array $user_list, string $tag, int $offer_count, int $last_time)
     {
         $cache_keys = 'recommend_shop_key_' . md5($tag);
-        if($this->redis->exists($cache_keys)){
+        if($this->redis->has($cache_keys)){
             $this->redis->delete($cache_keys);
         }
         $match_user_ids = [];
@@ -195,7 +195,7 @@ class UserLogic
                 }
             }
         }
-        if($this->redis->exists($cache_keys)){
+        if($this->redis->has($cache_keys)){
             $this->redis->expire($cache_keys,86200);
         }
         return $match_user_ids;
@@ -226,7 +226,7 @@ class UserLogic
             foreach ($tag_list as $tag) {
                 $cache_key = 'recommend_shop_key_' . md5($tag);
                 Log::info($tag . ' => ' . $cache_key);
-                if($this->redis->exists($cache_key)){
+                if($this->redis->has($cache_key)){
                     $tag_user = $this->redis->SRANDMEMBER($cache_key,3);
                     if(count($tag_user) > 0){
                         $match_list[] = $tag_user;
@@ -305,8 +305,8 @@ class UserLogic
                     Db::beginTransaction();
                     $order_total = $strength_info['total_amount'] + $total_amount;
                     //记录满足返还服务费条件时间
-                    if($order_total >= $strength_info['order_threshold'] && !$this->redis->exists($threshold_cache)){
-                        $this->redis->setex($threshold_cache,$strength_info['end_time'],$pay_time);
+                    if($order_total >= $strength_info['order_threshold'] && !$this->redis->has($threshold_cache)){
+                        $this->redis->set($threshold_cache,$pay_time,$strength_info['end_time']);
                     }
                     $params = [
                         'total_amount' => $order_total,

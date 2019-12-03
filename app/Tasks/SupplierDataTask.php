@@ -112,7 +112,7 @@ class SupplierDataTask{
 
                         if ($isUserStrength) {
 
-                            if($this->redis->exists($historyIndex)){
+                            if($this->redis->has($historyIndex)){
                                 $history = $this->redis->sIsMember($historyIndex, (string)$item['userId']);
                             }else{
                                 $history = false;

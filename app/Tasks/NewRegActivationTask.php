@@ -140,7 +140,7 @@ class NewRegActivationTask{
     {
         $date = date('Y_m_d');
         Log::info('激活缓存队列任务开始');
-        if($this->redis->exists($this->wait_push_list . $date)){
+        if($this->redis->has($this->wait_push_list . $date)){
             $push_list = $this->redis->lRange($this->wait_push_list . $date,0,-1);
             if(!empty($push_list)){
                 foreach ($push_list as $push) {

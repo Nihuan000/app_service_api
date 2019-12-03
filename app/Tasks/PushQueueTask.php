@@ -92,7 +92,7 @@ class PushQueueTask{
         ];
         foreach ($historyIndexs as $historyIndex) {
             $history_cache = $historyIndex . $date;
-            if($this->redis->exists($history_cache)){
+            if($this->redis->has($history_cache)){
                 $this->redis->delete($history_cache);
                 Log::info("删除{$history_cache}发送历史记录");
             }

@@ -110,7 +110,7 @@ class OfferTask{
         $historyIndex = '@OfferQueueHistory_';
         $expire_time = 0;
         $len = $this->searchRedis->lLen($index . $date);
-        if(!$this->searchRedis->exists($historyIndex . $date)){
+        if(!$this->searchRedis->has($historyIndex . $date)){
             $expire_time = 604800;
         }
         Log::info('len:' . $len);
@@ -136,7 +136,7 @@ class OfferTask{
                         //队列当前内容删除
                         $this->searchRedis->lPop($index . $date);
                         //历史推送记录查询
-                        if($this->searchRedis->exists($historyIndex . $date)){
+                        if($this->searchRedis->has($historyIndex . $date)){
                             $history = $this->searchRedis->sIsMember($historyIndex . $date, $item);
                         }else{
                             $history = false;
@@ -169,7 +169,7 @@ class OfferTask{
                                 //实力值获取
                                 if($this->userData->getSetting('auto_offer_score_switch') == 1){
                                     $source_code = create_guid();
-                                    $this->searchRedis->setex($result,60,$source_code);
+                                    $this->searchRedis->set($result,$source_code,60);
                                     $post_params = [
                                         'user_id' => $offerer_id,
                                         'offer_id' => $result,

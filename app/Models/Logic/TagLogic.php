@@ -71,7 +71,7 @@ class TagLogic
     {
         $user_tag_list = $this->userDao->getUserTagByUid($event['user_id']);
         if(!empty($user_tag_list)){
-            $this->redis->set('user_subscription_tag:' . $event['user_id'],json_encode($user_tag_list));
+            $this->redis->set('user_subscription_tag:' . $event['user_id'],json_encode($user_tag_list),7*24*3600);
         }
     }
 

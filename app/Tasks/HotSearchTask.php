@@ -165,6 +165,7 @@ class HotSearchTask{
         if(!empty($data_list)){
             try {
                 $this->tagData->hotSearchInsert($data_list);
+                $this->redis->expire($hot_search_key,7*24*3600);
             } catch (MysqlException $e) {
                 Log::info('hot search err:' . $e->getMessage());
             }

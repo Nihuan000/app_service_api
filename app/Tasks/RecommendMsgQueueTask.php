@@ -98,7 +98,7 @@ class RecommendMsgQueueTask
                         //队列当前内容删除
                         $this->searchRedis->lPop($index . $date);
                         //历史推送记录查询
-                        if($this->searchRedis->exists($historyIndex . $date)){
+                        if($this->searchRedis->has($historyIndex . $date)){
                             $history = $this->searchRedis->sIsMember($historyIndex . $date, (string)$item);
                         }else{
                             $history = false;
@@ -290,7 +290,7 @@ class RecommendMsgQueueTask
         ];
         foreach ($historyIndexs as $historyIndex) {
             $history_cache = $historyIndex . $date;
-            if($this->searchRedis->exists($history_cache)){
+            if($this->searchRedis->has($history_cache)){
                 $this->searchRedis->delete($history_cache);
                 Log::info("删除{$history_cache}发送历史记录");
             }

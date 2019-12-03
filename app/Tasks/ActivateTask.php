@@ -127,7 +127,7 @@ class ActivateTask{
         $user_list = $this->OtherLogic->inactive_user_list($this->limit,$days);
         $has_cache = 1;
         if(!empty($user_list)){
-            if(!$this->redis->exists($sendCache)){
+            if(!$this->redis->has($sendCache)){
                 $has_cache = 0;
             }
             //短信模板
@@ -211,7 +211,7 @@ class ActivateTask{
         $sendCache = 'activate_sms_list:' . date('Y_m_d');
         $send_time = time();
 
-        if(!$this->redis->exists($sendCache)){
+        if(!$this->redis->has($sendCache)){
             Log::info('不存在已发送记录');
         }
         $user_list = $this->redis->hGetAll($sendCache);
@@ -420,22 +420,21 @@ class ActivateTask{
                         ### 判断用户类型结束 ###
 
                         ### 关键词匹配查看 ###
-                        $user_label = '新品';
+                        $search_label = '新品';
+                        $user_label = '';
                         $cache_labels = $this->recommendRedis->zRevRange($user_tag_cache_key . $item['userId'],0,0);
                         if(!empty($cache_labels)){
-                            $search_label = current($cache_labels);
+                            $user_label = current($cache_labels);
                         }
 
                         $nums = 99;
-                        if(!empty($search_label)){
+                        if(!empty($user_label)){
                             $param = [];
-                            $param['keyword'] = $search_label;
+                            $param['keyword'] = $user_label;
                             $param['pagesize'] = 0;
                             $param['userId'] = $item['userId'];
                             $num = publicSearch(3,$params,$item['userId']);
                             $nums = $num < $min_nums ? $min_nums : $num;
-                        }else{
-                            $search_label = $user_label;
                         }
                         ### 关键词匹配结束 ###
 
@@ -493,7 +492,7 @@ class ActivateTask{
 
     /**
      * 超过7天未登录的采购商
-     * @Scheduled(cron="00 01 10 * * *")
+     * @Scheduled(cron="01 30 10 * * *")
      * @return string
      * @throws DbException
      */
@@ -532,7 +531,7 @@ class ActivateTask{
                         $user_info = $this->userData->getUserInfo($item['userId']);
                         //3天消息已发送，短信未发送且有效期在3天以内
                         if($item['sendMsgTime'] > 0 && $item['sendSmsTime'] == 0 && $now_time - $item['sendMsgTime'] <= 3600 * 24 * 2 + 1800){
-                            if($item['send_msg_time'] < $user_info['lastTime']){
+                            if($item['sendMsgTime'] < $user_info['lastTime']){
                                 $data['msg_is_return'] = 1;
                                 $data['is_done'] = 1;
                                 $data['update_time'] = $now_time;
@@ -550,7 +549,7 @@ class ActivateTask{
                                 //获取最后一次登录设备，以此作为发送系统消息途径的判断
                                 $last_info_list = $this->userData->getUserLoginVersion($item['userId'],['system','addtime']);
                                 $last_info = current($last_info_list);
-                                $supplier_recall = $this->messageLogic->template_combination('buyer_no_login_3th',[['>X<','>Y<'],[$item['matchNum'],$item['userNoticeLabel']]]);
+                                $supplier_recall = $this->messageLogic->template_combination('buyer_no_login_3th',[['>X<','>Y<'],[$item['matchNum'],$item['userNoticeLabel']]],['url' => $originlink]);
                                 //cid空或者最后一次登录设备为安卓,系统消息
                                 if($user_info['cid'] == '' || (isset($last_info['system']) && $last_info['system'] == 1) || empty($last_info)){
                                     $this->messageLogic->send_system_message('1',$item['userId'],$supplier_recall);
@@ -570,13 +569,14 @@ class ActivateTask{
                             //预存发送日志
                             $rec = [
                                 'user_id' => $item['userId'],
-                                'phone' => $item['phone'],
+                                'phone' => $user_info['phone'],
                                 'msg_type' => 9,
                                 'send_time' => $now_time,
                                 'msg_content' => $supplier_recall_sms,
                                 'send_status' => 1
                             ];
                             $record[] = $rec;
+                            $data['send_sms_time'] = $now_time;
                             $data['update_time'] = $now_time;
                         }
                         if(!empty($data)){
@@ -670,7 +670,7 @@ class ActivateTask{
 
         $send_history = [];
         $has_record = 0;
-        if($this->redis->exists($key_mark)){
+        if($this->redis->has($key_mark)){
             $send_cache = $this->redis->get($key_mark);
             $send_history = json_decode($send_cache,true);
             $has_record = 1;
@@ -738,7 +738,7 @@ class ActivateTask{
                 //记录发送历史
                 $send_history = array_merge($send_history,$msg_user);
                 if($has_record == 0){
-                    $this->redis->setex($key_mark,48*3600,json_encode($send_history));
+                    $this->redis->set($key_mark,json_encode($send_history),48*3600);
                     $has_record = 1;
                 }else{
                     $this->redis->set($key_mark,json_encode($send_history));

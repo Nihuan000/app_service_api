@@ -76,7 +76,7 @@ class SafePriceUserTask{
         ];
         $user_list = $this->userData->get_safe_price_uid_list($params);
         if(!empty($user_list)){
-            if($this->redis->exists($cache_queue_list))
+            if($this->redis->has($cache_queue_list))
             {
                 $this->redis->delete($cache_queue_list);
             }

@@ -53,7 +53,7 @@ class WaterFollsTaskTask{
     public function waterFollsGeneral()
     {
         $cache_key = 'water_fall_index';
-        if($this->redis->exists($cache_key)){
+        if($this->redis->has($cache_key)){
             $indexParams = $this->redis->hGet($cache_key,'params');
             Log::info('瀑布流新数据生成开始:' . $indexParams);
             $queue_name = $this->redis->hGet($cache_key,'index');

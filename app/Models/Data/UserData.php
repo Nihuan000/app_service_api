@@ -161,7 +161,7 @@ class UserData
         if(empty($user_tag_list)){
             $user_tag_list = $this->userDao->getUserTagByUid($user_id);
             if(!empty($user_tag_list)){
-                $this->redis->set('user_subscription_tag:' . $user_id,json_encode($user_tag_list));
+                $this->redis->set('user_subscription_tag:' . $user_id,json_encode($user_tag_list),3600);
             }
         }
         if(!empty($user_tag_list)){
@@ -422,6 +422,14 @@ class UserData
     public function getAgentUser(int $type)
     {
         return $this->userDao->getAgentInfo($type);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAgentDevice()
+    {
+        return $this->userDao->getAgentDevice();
     }
 
     /**

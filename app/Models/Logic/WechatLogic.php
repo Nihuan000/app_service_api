@@ -32,7 +32,7 @@ class WechatLogic
      */
     public function send_wechat_message(string $toUser, string $template_id, array $msg_body, string $url = '', int $has_small_pro = 0)
     {
-        if($this->redis->exists('access_token')){
+        if($this->redis->has('access_token')){
             $access_token = $this->redis->get('access_token');
         }else{
             $config = \Swoft::getBean('config');
@@ -54,7 +54,7 @@ class WechatLogic
             curl_close($ud);
             $res = json_decode($res, true);
             $access_token = $res['access_token'];
-            $this->redis->setex("access_token",50,$access_token);
+            $this->redis->set("access_token",$access_token,50);
         }
 
         if(!empty($access_token)){

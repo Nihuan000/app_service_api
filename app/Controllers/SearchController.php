@@ -345,7 +345,7 @@ class SearchController
                 $date = date('Y-m-d');
                 $inviteIndex = '@InviteQueueHistory_';
                 $expire_time = 0;
-                if(!$this->redis->exists($inviteIndex . $date)){
+                if(!$this->redis->has($inviteIndex . $date)){
                     $expire_time = 604800;
                 }
                 //查询采购的标签，根据标签和实商过滤供应商
@@ -357,7 +357,7 @@ class SearchController
                     $buyer = $this->userData->getUserInfo((int)$buyinfo['userId']);
                     foreach ($user_ids as $key => $value) {
                         //历史推送记录查询
-                        if($this->redis->exists($inviteIndex . $date)){
+                        if($this->redis->has($inviteIndex . $date)){
                             $history = $this->redis->sIsMember($inviteIndex . $date, $buy_id . '#' . $value);
                         }else{
                             $history = false;

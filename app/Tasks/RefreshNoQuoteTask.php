@@ -124,7 +124,7 @@ class RefreshNoQuoteTask
         }else{
             //写入发送历史
             $refresh_history_key = $this->refresh_history_key . date('Y-m-d');
-            $history_exists = $this->redis->exists($refresh_history_key);
+            $history_exists = $this->redis->has($refresh_history_key);
             $msg = '';
             $refresh_status = 1;
             $buy_id = $this->redis->lpop($this->buy_queue_key);
@@ -201,7 +201,7 @@ class RefreshNoQuoteTask
         if(!empty($buy_res)){
             $config = \Swoft::getBean('config');
             $sys_msg = $config->get('sysMsg');
-            $has_history = $this->redis->exists($this->notice_history_key . $date);
+            $has_history = $this->redis->has($this->notice_history_key . $date);
             foreach ($buy_res as $buy) {
                 $history_record = $this->get_notice_history($buy['buy_id']);
                 if($history_record == 0){
@@ -259,7 +259,7 @@ class RefreshNoQuoteTask
     {
         $has_record = 0;
         $date = date('Y-m-d');
-        $history_list = $this->redis->exists($this->notice_history_key . $date);
+        $history_list = $this->redis->has($this->notice_history_key . $date);
         if($history_list){
             $history = $this->redis->sIsMember($this->notice_history_key,(string)$buy_id);
             if($history){
@@ -280,7 +280,7 @@ class RefreshNoQuoteTask
         for($k = 0; $k< 3; $k++){
             $history_date = date('Y-m-d',strtotime("-{$k} day"));
             $history_cache_key = $this->refresh_history_key . $history_date;
-            if($this->redis->exists($history_cache_key)){
+            if($this->redis->has($history_cache_key)){
                 if($this->redis->sIsMember($history_cache_key,(string)$buy_id)){
                     $refresh_history += 1;
                 }
