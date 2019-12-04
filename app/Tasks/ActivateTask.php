@@ -435,6 +435,7 @@ class ActivateTask{
                             $param['userId'] = $item['userId'];
                             $num = publicSearch(3,$params,$item['userId']);
                             $nums = $num < $min_nums ? $min_nums : $num;
+                            $search_label = $user_label;
                         }
                         ### 关键词匹配结束 ###
 
